@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     loadProducts();
+    loadBestSellers();
     updateCartCount();
     updateWishlistCount();
     checkUserAuth();
@@ -218,14 +219,43 @@ function loadProducts(category = 'all', sortBy = 'newest') {
     setupProductCardEvents();
 }
 
+function loadBestSellers() {
+    const bestSellersGrid = document.getElementById('best-sellers-grid');
+    if (!bestSellersGrid) return;
+    
+    // Get first 8 products as best sellers for now
+    const allProducts = getProductsByCategory('all');
+    const bestSellers = allProducts.slice(0, 8);
+    
+    if (bestSellers.length === 0) {
+        bestSellersGrid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-star"></i>
+                <h3>No best sellers available</h3>
+                <p>Check back soon for our top products</p>
+            </div>
+        `;
+        return;
+    }
+    
+    bestSellersGrid.innerHTML = bestSellers.map(product => createProductCard(product)).join('');
+    
+    // Add event listeners to best seller cards
+    setupProductCardEvents();
+}
+
 function createProductCard(product) {
     const inWishlist = isInWishlist(product.id);
     const wishlistClass = inWishlist ? 'active' : '';
     
+    // Add sale badge for some products (random for demo)
+    const isOnSale = Math.random() > 0.7; // 30% chance of being on sale
+    const saleBadge = isOnSale ? '<div class="sale-badge">SALE</div>' : '';
     
     return `
         <div class="product-card" data-product-id="${product.id}">
             <div class="product-image">
+                ${saleBadge}
                 <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
                     <i class="fas fa-image"></i>
