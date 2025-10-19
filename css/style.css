@@ -562,6 +562,166 @@ a:hover {
     color: var(--accent-color);
 }
 
+/* ===== FEATURED COLLECTIONS ===== */
+.featured-collections {
+    padding: var(--spacing-xxl) 0;
+    background-color: var(--bg-light);
+}
+
+.featured-collections .section-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xxl);
+}
+
+.featured-collections .section-header h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    letter-spacing: 0.05em;
+}
+
+.featured-collections .section-header p {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.collection-card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+.collection-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.collection-image {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.collection-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.collection-card:hover .collection-image img {
+    transform: scale(1.05);
+}
+
+.collection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.collection-card:hover .collection-overlay {
+    opacity: 1;
+}
+
+.collection-content {
+    padding: var(--spacing-lg);
+    text-align: center;
+}
+
+.collection-content h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.collection-content p {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    margin-bottom: 0;
+}
+
+/* ===== BRAND STORY ===== */
+.brand-story {
+    padding: var(--spacing-xxl) 0;
+    background-color: var(--bg-primary);
+}
+
+.brand-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xxl);
+    align-items: center;
+}
+
+.brand-text h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    letter-spacing: 0.05em;
+}
+
+.brand-text p {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+}
+
+.brand-text p:last-of-type {
+    margin-bottom: var(--spacing-xl);
+}
+
+.brand-image {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.brand-image img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform var(--transition-normal);
+}
+
+.brand-image:hover img {
+    transform: scale(1.02);
+}
+
+/* ===== NEW ARRIVALS ===== */
+.new-arrivals {
+    padding: var(--spacing-xxl) 0;
+    background-color: var(--bg-light);
+}
+
+.new-arrivals .section-header {
+    margin-bottom: var(--spacing-xl);
+}
+
 /* ===== BEST SELLERS SECTION ===== */
 .best-sellers-section {
     background-color: var(--bg-light);
@@ -1052,10 +1212,12 @@ a:hover {
     background: var(--bg-light);
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .price-range input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     appearance: none;
     width: 20px;
     height: 20px;
@@ -1554,6 +1716,24 @@ a:hover {
     .section-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+    
+    /* New sections responsive */
+    .collections-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .brand-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .brand-text {
+        order: 2;
+    }
+    
+    .brand-image {
+        order: 1;
     }
 }
 

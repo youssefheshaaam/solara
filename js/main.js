@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     loadProducts();
     loadBestSellers();
+    loadNewArrivals();
     updateCartCount();
     updateWishlistCount();
     checkUserAuth();
@@ -241,6 +242,31 @@ function loadBestSellers() {
     bestSellersGrid.innerHTML = bestSellers.map(product => createProductCard(product)).join('');
     
     // Add event listeners to best seller cards
+    setupProductCardEvents();
+}
+
+function loadNewArrivals() {
+    const newArrivalsGrid = document.getElementById('new-arrivals-grid');
+    if (!newArrivalsGrid) return;
+    
+    // Get last 6 products as new arrivals for now
+    const allProducts = getProductsByCategory('all');
+    const newArrivals = allProducts.slice(-6);
+    
+    if (newArrivals.length === 0) {
+        newArrivalsGrid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-plus"></i>
+                <h3>No new arrivals available</h3>
+                <p>Check back soon for fresh styles</p>
+            </div>
+        `;
+        return;
+    }
+    
+    newArrivalsGrid.innerHTML = newArrivals.map(product => createProductCard(product)).join('');
+    
+    // Add event listeners to new arrival cards
     setupProductCardEvents();
 }
 
