@@ -52,6 +52,67 @@ function initializeApp() {
     
     // Setup FAQ accordion
     setupFAQAccordion();
+    
+    // Setup navigation active states
+    setupNavigationActiveStates();
+}
+
+// ===== NAVIGATION =====
+
+function setupNavigationActiveStates() {
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Remove all active classes first
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    // Set active state based on current page
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        
+        // Handle different page types
+        if (currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/')) {
+            if (href === 'index.html' || href === '../index.html') {
+                link.classList.add('active');
+            }
+        } else if (currentPath.includes('men.html')) {
+            if (href === 'men.html' || href.includes('men.html')) {
+                link.classList.add('active');
+            }
+        } else if (currentPath.includes('women.html')) {
+            if (href === 'women.html' || href.includes('women.html')) {
+                link.classList.add('active');
+            }
+        } else if (currentPath.includes('kids.html')) {
+            if (href === 'kids.html' || href.includes('kids.html')) {
+                link.classList.add('active');
+            }
+        } else if (currentPath.includes('contact.html')) {
+            if (href === 'contact.html' || href.includes('contact.html')) {
+                link.classList.add('active');
+            }
+        } else if (currentPath.includes('cart.html')) {
+            // Cart page doesn't have a nav link, but we can highlight cart icon
+            const cartIcon = document.querySelector('.nav-icon[href*="cart"]');
+            if (cartIcon) {
+                cartIcon.classList.add('active');
+            }
+        } else if (currentPath.includes('profile.html')) {
+            // Profile page doesn't have a nav link, but we can highlight profile icon
+            const profileIcon = document.querySelector('.nav-icon[href*="profile"]');
+            if (profileIcon) {
+                profileIcon.classList.add('active');
+            }
+        } else if (currentPath.includes('orders.html')) {
+            // Orders page doesn't have a nav link, but we can highlight orders icon
+            const ordersIcon = document.querySelector('.nav-icon[href*="orders"]');
+            if (ordersIcon) {
+                ordersIcon.classList.add('active');
+            }
+        }
+    });
 }
 
 // ===== AUTHENTICATION =====
