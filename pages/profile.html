@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Fashion Store</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-tshirt"></i>
+                    Fashion Store
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="../index.html#men" class="nav-link">Men</a></li>
+                <li><a href="../index.html#women" class="nav-link">Women</a></li>
+                <li><a href="../index.html#kids" class="nav-link">Kids</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <a href="#" class="nav-icon">
+                    <i class="fas fa-heart"></i>
+                    <span class="wishlist-count" id="wishlist-count">0</span>
+                </a>
+                <a href="#" class="nav-icon active">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="#" class="nav-icon" id="logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+                <a href="../admin/admin.html" class="nav-icon" id="admin-link">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Profile Section -->
+    <main class="profile-container">
+        <div class="container">
+            <div class="profile-header">
+                <h1>My Profile</h1>
+                <p>Manage your account information and preferences</p>
+            </div>
+            
+            <div class="profile-content">
+                <div class="profile-sidebar">
+                    <div class="profile-nav">
+                        <a href="#personal-info" class="profile-nav-link active" data-section="personal-info">
+                            <i class="fas fa-user"></i>
+                            Personal Information
+                        </a>
+                        <a href="#addresses" class="profile-nav-link" data-section="addresses">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Addresses
+                        </a>
+                        <a href="#preferences" class="profile-nav-link" data-section="preferences">
+                            <i class="fas fa-cog"></i>
+                            Preferences
+                        </a>
+                        <a href="orders.html" class="profile-nav-link">
+                            <i class="fas fa-shopping-bag"></i>
+                            My Orders
+                        </a>
+                        <a href="cart.html" class="profile-nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            Shopping Cart
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="profile-main">
+                    <!-- Personal Information Section -->
+                    <section id="personal-info" class="profile-section active">
+                        <div class="section-header">
+                            <h2>Personal Information</h2>
+                            <button class="btn btn-outline" id="edit-personal-btn">Edit</button>
+                        </div>
+                        
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <img src="../images/default-avatar.jpg" alt="Profile Picture" id="profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <button class="avatar-upload" id="avatar-upload">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            
+                            <form class="profile-form" id="personal-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="profile-firstName">First Name</label>
+                                        <input type="text" id="profile-firstName" name="firstName" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profile-lastName">Last Name</label>
+                                        <input type="text" id="profile-lastName" name="lastName" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profile-email">Email Address</label>
+                                    <input type="email" id="profile-email" name="email" readonly>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profile-phone">Phone Number</label>
+                                    <input type="tel" id="profile-phone" name="phone" readonly>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profile-dob">Date of Birth</label>
+                                    <input type="date" id="profile-dob" name="dateOfBirth" readonly>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="profile-gender">Gender</label>
+                                    <input type="text" id="profile-gender" name="gender" readonly>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" id="cancel-personal-btn" style="display: none;">Cancel</button>
+                                    <button type="submit" class="btn btn-primary" id="save-personal-btn" style="display: none;">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    
+                    <!-- Addresses Section -->
+                    <section id="addresses" class="profile-section">
+                        <div class="section-header">
+                            <h2>My Addresses</h2>
+                            <button class="btn btn-primary" id="add-address-btn">Add New Address</button>
+                        </div>
+                        
+                        <div class="addresses-list" id="addresses-list">
+                            <!-- Addresses will be loaded dynamically -->
+                        </div>
+                    </section>
+                    
+                    <!-- Preferences Section -->
+                    <section id="preferences" class="profile-section">
+                        <div class="section-header">
+                            <h2>Preferences</h2>
+                        </div>
+                        
+                        <form class="preferences-form" id="preferences-form">
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="email-notifications" name="emailNotifications">
+                                    <span class="checkmark"></span>
+                                    Email notifications for new products and offers
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="sms-notifications" name="smsNotifications">
+                                    <span class="checkmark"></span>
+                                    SMS notifications for order updates
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletter" name="newsletter">
+                                    <span class="checkmark"></span>
+                                    Subscribe to newsletter
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="size-preference">Preferred Size</label>
+                                <select id="size-preference" name="sizePreference">
+                                    <option value="">Select size preference</option>
+                                    <option value="XS">XS</option>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="style-preference">Style Preference</label>
+                                <select id="style-preference" name="stylePreference">
+                                    <option value="">Select style preference</option>
+                                    <option value="casual">Casual</option>
+                                    <option value="formal">Formal</option>
+                                    <option value="sporty">Sporty</option>
+                                    <option value="vintage">Vintage</option>
+                                    <option value="modern">Modern</option>
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/data.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>
+
