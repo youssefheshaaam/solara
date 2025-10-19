@@ -331,6 +331,39 @@ function initializeData() {
     if (!localStorage.getItem('fashionStoreWishlist')) {
         localStorage.setItem('fashionStoreWishlist', JSON.stringify([]));
     }
+
+    // Run data migrations to keep stored data consistent with latest app expectations
+    runDataMigrations();
+}
+
+// Keep previously stored data compatible with latest paths/structures
+function runDataMigrations() {
+    try {
+        // Ensure product.image paths include the images/ prefix
+        const storedProducts = getProducts();
+        let changed = false;
+        const normalized = storedProducts.map(p => {
+            if (!p || !p.image) return p;
+            // Already absolute or prefixed
+            const img = String(p.image);
+            if (
+                img.startsWith('http://') ||
+                img.startsWith('https://') ||
+                img.startsWith('images/') ||
+                img.startsWith('../images/')
+            ) {
+                return p;
+            }
+            // Prefix missing images/
+            changed = true;
+            return { ...p, image: `images/${img.replace(/^\/?/, '')}` };
+        });
+        if (changed) {
+            saveProducts(normalized);
+        }
+    } catch (_) {
+        // no-op
+    }
 }
 
 // Get data from localStorage
