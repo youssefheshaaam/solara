@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Store - Your Style Destination</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="index.html">
+                    <i class="fas fa-tshirt"></i>
+                    Fashion Store
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="#men" class="nav-link">Men</a></li>
+                <li><a href="#women" class="nav-link">Women</a></li>
+                <li><a href="#kids" class="nav-link">Kids</a></li>
+                <li><a href="pages/contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="pages/cart.html" class="nav-icon" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="login.html" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                        Login
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Your Style</h1>
+            <p>Shop the latest fashion trends for men, women, and kids</p>
+            <a href="#featured" class="btn btn-primary">Shop Now</a>
+        </div>
+        <div class="hero-image">
+            <img src="images/hero-fashion.jpg" alt="Fashion Hero" onerror="this.style.display='none'">
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section id="featured" class="products-section">
+        <div class="container">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="filter-controls">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="men">Men</button>
+                <button class="filter-btn" data-category="women">Women</button>
+                <button class="filter-btn" data-category="kids">Kids</button>
+            </div>
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Shop by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="men">
+                    <img src="images/men-category.jpg" alt="Men's Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <div class="category-overlay">
+                        <h3>Men's Collection</h3>
+                        <p>Trendy and comfortable clothing</p>
+                        <a href="#men" class="btn btn-outline">Shop Men</a>
+                    </div>
+                </div>
+                <div class="category-card" data-category="women">
+                    <img src="images/women-category.jpg" alt="Women's Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <div class="category-overlay">
+                        <h3>Women's Collection</h3>
+                        <p>Elegant and stylish outfits</p>
+                        <a href="#women" class="btn btn-outline">Shop Women</a>
+                    </div>
+                </div>
+                <div class="category-card" data-category="kids">
+                    <img src="images/kids-category.jpg" alt="Kids Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <div class="category-overlay">
+                        <h3>Kids' Collection</h3>
+                        <p>Fun and comfortable for little ones</p>
+                        <a href="#kids" class="btn btn-outline">Shop Kids</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter for the latest fashion trends and exclusive offers</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Fashion Store</h3>
+                    <p>Your ultimate destination for trendy and affordable fashion.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#men">Men's Collection</a></li>
+                        <li><a href="#women">Women's Collection</a></li>
+                        <li><a href="#kids">Kids' Collection</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="pages/contact.html">Contact Us</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="pages/profile.html">My Profile</a></li>
+                        <li><a href="pages/orders.html">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
