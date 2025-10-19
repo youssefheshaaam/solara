@@ -21,6 +21,7 @@
             </div>
             <div class="nav-actions">
                 <a href="index.html" class="nav-link">Back to Home</a>
+                <a href="admin/admin.html" class="nav-link">Admin</a>
             </div>
         </nav>
     </header>
@@ -86,6 +87,28 @@
                             <div class="strength-fill"></div>
                         </div>
                         <span class="strength-text">Password strength</span>
+                    </div>
+                    <div class="password-requirements">
+                        <div class="requirement-item" data-requirement="length">
+                            <i class="fas fa-times"></i>
+                            <span>At least 8 characters</span>
+                        </div>
+                        <div class="requirement-item" data-requirement="lowercase">
+                            <i class="fas fa-times"></i>
+                            <span>At least one lowercase letter</span>
+                        </div>
+                        <div class="requirement-item" data-requirement="uppercase">
+                            <i class="fas fa-times"></i>
+                            <span>At least one uppercase letter</span>
+                        </div>
+                        <div class="requirement-item" data-requirement="number">
+                            <i class="fas fa-times"></i>
+                            <span>At least one number</span>
+                        </div>
+                        <div class="requirement-item" data-requirement="special">
+                            <i class="fas fa-times"></i>
+                            <span>At least one special character (@$!%*?&)</span>
+                        </div>
                     </div>
                     <span class="error-message" id="password-error"></span>
                 </div>
