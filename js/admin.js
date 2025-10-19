@@ -6,124 +6,86 @@ let itemsPerPage = 10;
 let currentFilter = '';
 let currentSearch = '';
 
+// ===== ADMIN AUTHENTICATION =====
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'admin';
+const ADMIN_AUTH_KEY = 'solaraAdminAuthed';
+
+function checkAdminAuth() {
+    const adminContainer = document.querySelector('.admin-container');
+    const adminLoginContainer = document.getElementById('admin-login-container');
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceLogin = urlParams.has('login');
+
+    if (forceLogin) {
+        localStorage.removeItem(ADMIN_AUTH_KEY);
+    }
+
+    if (localStorage.getItem(ADMIN_AUTH_KEY) === 'true' && !forceLogin) {
+        if (adminContainer) adminContainer.style.display = 'block';
+        if (adminLoginContainer) adminLoginContainer.style.display = 'none';
+        initializeAdminDashboard();
+    } else {
+        if (adminContainer) adminContainer.style.display = 'none';
+        if (adminLoginContainer) adminLoginContainer.style.display = 'flex';
+        setupAdminLogin();
+    }
+}
+
+function setupAdminLogin() {
+    const loginForm = document.getElementById('admin-login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleAdminLogin);
+    }
+    const adminLogoutBtn = document.getElementById('admin-logout');
+    if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener('click', handleAdminLogout);
+    }
+}
+
+function handleAdminLogin(e) {
+    e.preventDefault();
+    const usernameInput = document.getElementById('admin-username');
+    const passwordInput = document.getElementById('admin-password');
+    const messageElement = document.getElementById('admin-login-message');
+
+    if (usernameInput.value === ADMIN_USERNAME && passwordInput.value === ADMIN_PASSWORD) {
+        localStorage.setItem(ADMIN_AUTH_KEY, 'true');
+        messageElement.textContent = 'Login successful!';
+        messageElement.className = 'form-message success';
+        messageElement.style.display = 'block';
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    } else {
+        messageElement.textContent = 'Invalid username or password.';
+        messageElement.className = 'form-message error';
+        messageElement.style.display = 'block';
+    }
+}
+
+function handleAdminLogout() {
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+    window.location.href = 'admin.html?login'; // Redirect to login page
+}
+
 // ===== ADMIN INITIALIZATION =====
 
 document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('admin')) {
-        // Require admin auth before initializing
-        if (requireAdminAuth()) {
-            initializeAdmin();
-        }
+        checkAdminAuth();
     }
 });
 
-// ===== SIMPLE ADMIN AUTH (PHASE 1) =====
-
-function adminIsAuthed() {
-    try {
-        return localStorage.getItem('solaraAdminAuthed') === 'true';
-    } catch (_) {
-        return false;
-    }
-}
-
-function requireAdminAuth() {
-    const forceLogin = shouldForceLogin();
-    if (!adminIsAuthed() || forceLogin) {
-        if (forceLogin) {
-            try { localStorage.removeItem('solaraAdminAuthed'); } catch (_) {}
-        }
-        // If we're not on admin.html, send user to admin.html to login
-        if (!window.location.pathname.endsWith('/admin.html')) {
-            window.location.href = 'admin.html';
-            return false;
-        }
-        // If on admin.html, show login UI and hide dashboard
-        const mainContent = document.querySelector('main, .admin-dashboard, .admin-content');
-        if (mainContent) mainContent.style.display = 'none';
-        ensureAdminLoginForm();
-        return false;
-    }
-    return true;
-}
-
-function shouldForceLogin() {
-    try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('login')) return true;
-        if ((window.location.hash || '').toLowerCase().includes('login')) return true;
-    } catch (_) { /* no-op */ }
-    return false;
-}
-
-function ensureAdminLoginForm() {
-    let container = document.getElementById('admin-login');
-    if (container) {
-        container.style.display = 'block';
-        return container;
-    }
-    container = document.createElement('div');
-    container.id = 'admin-login';
-    container.style.maxWidth = '420px';
-    container.style.margin = '80px auto';
-    container.style.background = 'var(--bg-primary)';
-    container.style.border = '1px solid var(--bg-light)';
-    container.style.borderRadius = '8px';
-    container.style.padding = '24px';
-    container.innerHTML = `
-        <h2 style="margin-bottom:12px;">Admin Login</h2>
-        <p style="margin-bottom:16px;color:var(--text-secondary)">Enter credentials to access SOLARA Admin.</p>
-        <form id="admin-login-form" class="product-form">
-            <div class="form-group">
-                <label>Username</label>
-                <div class="input-group"><i class="fas fa-user"></i>
-                    <input type="text" name="username" placeholder="admin" required />
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <div class="input-group"><i class="fas fa-lock"></i>
-                    <input type="password" name="password" placeholder="admin" required />
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">Login</button>
-            <div class="form-message" style="display:none"></div>
-        </form>
-    `;
-    document.body.appendChild(container);
-    const form = container.querySelector('#admin-login-form');
-    const msg = container.querySelector('.form-message');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = new FormData(form);
-        const u = (data.get('username') || '').toString().trim();
-        const p = (data.get('password') || '').toString();
-        if (u === 'admin' && p === 'admin') {
-            localStorage.setItem('solaraAdminAuthed', 'true');
-            msg.className = 'form-message success';
-            msg.textContent = 'Logged in. Redirecting…';
-            msg.style.display = 'block';
-            setTimeout(() => {
-                window.location.href = 'admin.html';
-            }, 600);
-        } else {
-            msg.className = 'form-message error';
-            msg.textContent = 'Invalid credentials';
-            msg.style.display = 'block';
-        }
-    });
-    return container;
-}
-
-function setupAdminLogout() {
-    const logoutBtn = document.getElementById('admin-logout');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('solaraAdminAuthed');
-            window.location.href = 'admin.html';
-        });
-    }
+function initializeAdminDashboard() {
+    loadDashboardStats();
+    loadProductsTable();
+    loadRecentOrders();
+    setupAdminEventListeners();
+    setupProductSearch();
+    setupProductFilters();
+    setupPagination();
+    setupAdminNavigation();
 }
 
 function initializeAdmin() {
@@ -197,11 +159,14 @@ function createProductTableRow(product) {
     return `
         <tr>
             <td>
-                <img src="../${product.image}" alt="${product.name}" onerror="this.style.display='none'">
+                <img src="../${product.image}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div class="image-placeholder" style="display:none; width:50px; height:50px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999; font-size:1.2em;">
+                    <i class="fas fa-image"></i>
+                </div>
             </td>
             <td>
                 <div class="product-name">${product.name}</div>
-                <div class="product-brand">${product.brand || 'Fashion Store'}</div>
+                <div class="product-brand">${product.brand || 'SOLARA'}</div>
             </td>
             <td>
                 <span class="product-category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</span>
