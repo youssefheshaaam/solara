@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fashion Store - Your Style Destination</title>
+    <title>SOLARA - Modern Minimal Luxury</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -15,16 +15,16 @@
         <nav class="navbar">
             <div class="nav-brand">
                 <a href="index.html">
-                    <i class="fas fa-tshirt"></i>
-                    Fashion Store
+                    <i class="fas fa-sun"></i>
+                    SOLARA
                 </a>
             </div>
             
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="#men" class="nav-link">Men</a></li>
-                <li><a href="#women" class="nav-link">Women</a></li>
-                <li><a href="#kids" class="nav-link">Kids</a></li>
+                <li><a href="pages/men.html" class="nav-link">Men</a></li>
+                <li><a href="pages/women.html" class="nav-link">Women</a></li>
+                <li><a href="pages/kids.html" class="nav-link">Kids</a></li>
                 <li><a href="pages/contact.html" class="nav-link">Contact</a></li>
             </ul>
             
@@ -55,6 +55,10 @@
                         <i class="fas fa-sign-out-alt"></i>
                         Logout
                     </a>
+                    <a href="admin/admin.html" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                        Admin
+                    </a>
                 </div>
             </div>
             
@@ -69,9 +73,9 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Discover Your Style</h1>
-            <p>Shop the latest fashion trends for men, women, and kids</p>
-            <a href="#featured" class="btn btn-primary">Shop Now</a>
+            <h1>Modern Minimal Luxury</h1>
+            <p>Discover curated essentials that define contemporary style</p>
+            <a href="#featured" class="btn btn-primary">Explore Collection</a>
         </div>
         <div class="hero-image">
             <img src="images/hero-fashion.jpg" alt="Fashion Hero" onerror="this.style.display='none'">
@@ -81,7 +85,7 @@
     <!-- Featured Products Section -->
     <section id="featured" class="products-section">
         <div class="container">
-            <h2 class="section-title">Featured Products</h2>
+            <h2 class="section-title">Curated Essentials</h2>
             <div class="filter-controls">
                 <button class="filter-btn active" data-category="all">All</button>
                 <button class="filter-btn" data-category="men">Men</button>
@@ -97,30 +101,39 @@
     <!-- Categories Section -->
     <section class="categories-section">
         <div class="container">
-            <h2 class="section-title">Shop by Category</h2>
+            <h2 class="section-title">Collections</h2>
             <div class="categories-grid">
                 <div class="category-card" data-category="men">
-                    <img src="images/men-category.jpg" alt="Men's Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <img src="images/men-category.jpg" alt="Men's Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
+                        <i class="fas fa-image"></i>
+                    </div>
                     <div class="category-overlay">
                         <h3>Men's Collection</h3>
                         <p>Trendy and comfortable clothing</p>
-                        <a href="#men" class="btn btn-outline">Shop Men</a>
+                        <a href="pages/men.html" class="btn btn-outline">Shop Men</a>
                     </div>
                 </div>
                 <div class="category-card" data-category="women">
-                    <img src="images/women-category.jpg" alt="Women's Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <img src="images/women-category.jpg" alt="Women's Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
+                        <i class="fas fa-image"></i>
+                    </div>
                     <div class="category-overlay">
                         <h3>Women's Collection</h3>
                         <p>Elegant and stylish outfits</p>
-                        <a href="#women" class="btn btn-outline">Shop Women</a>
+                        <a href="pages/women.html" class="btn btn-outline">Shop Women</a>
                     </div>
                 </div>
                 <div class="category-card" data-category="kids">
-                    <img src="images/kids-category.jpg" alt="Kids Fashion" onerror="this.src='images/placeholder.jpg'">
+                    <img src="images/kids-category.jpg" alt="Kids Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
+                        <i class="fas fa-image"></i>
+                    </div>
                     <div class="category-overlay">
                         <h3>Kids' Collection</h3>
                         <p>Fun and comfortable for little ones</p>
-                        <a href="#kids" class="btn btn-outline">Shop Kids</a>
+                        <a href="pages/kids.html" class="btn btn-outline">Shop Kids</a>
                     </div>
                 </div>
             </div>
@@ -146,8 +159,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Fashion Store</h3>
-                    <p>Your ultimate destination for trendy and affordable fashion.</p>
+                    <h3>SOLARA</h3>
+                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -159,9 +172,9 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="#men">Men's Collection</a></li>
-                        <li><a href="#women">Women's Collection</a></li>
-                        <li><a href="#kids">Kids' Collection</a></li>
+                        <li><a href="pages/men.html">Men's Collection</a></li>
+                        <li><a href="pages/women.html">Women's Collection</a></li>
+                        <li><a href="pages/kids.html">Kids' Collection</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -184,7 +197,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
             </div>
         </div>
     </footer>
