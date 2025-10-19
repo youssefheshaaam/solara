@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Men's Collection - SOLARA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="men.html" class="nav-link active">Men</a></li>
+                <li><a href="women.html" class="nav-link">Women</a></li>
+                <li><a href="kids.html" class="nav-link">Kids</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search men's products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="cart.html" class="nav-icon" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="../login.html" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                        Login
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                    <a href="../admin/admin.html" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                        Admin
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-hero">
+        <div class="container">
+            <div class="page-hero-content">
+                <h1>Men's Collection</h1>
+                <p>Discover our latest men's fashion trends and timeless classics</p>
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>/</span>
+                    <span>Men's Collection</span>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters and Sorting -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <h3>Filter by Category</h3>
+                    <div class="filter-options">
+                        <button class="filter-btn active" data-category="all">All Items</button>
+                        <button class="filter-btn" data-category="shirts">Shirts</button>
+                        <button class="filter-btn" data-category="pants">Pants</button>
+                        <button class="filter-btn" data-category="shoes">Shoes</button>
+                        <button class="filter-btn" data-category="accessories">Accessories</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Sort by</h3>
+                    <select class="sort-select" id="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name-asc">Name: A to Z</option>
+                        <option value="name-desc">Name: Z to A</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Price Range</h3>
+                    <div class="price-range">
+                        <input type="range" id="price-range" min="0" max="200" value="200">
+                        <div class="price-labels">
+                            <span>$0</span>
+                            <span id="max-price">$200</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Style Categories -->
+    <section class="style-categories">
+        <div class="container">
+            <h2 class="section-title">Style Categories</h2>
+            <div class="style-category-grid">
+                <div class="style-category-card" data-style="casual">
+                    <div class="style-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h3>Casual Wear</h3>
+                    <p>Comfortable and relaxed clothing for everyday style</p>
+                    <a href="#casual-products" class="btn btn-outline">Shop Casual</a>
+                </div>
+                
+                <div class="style-category-card" data-style="formal">
+                    <div class="style-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3>Formal Wear</h3>
+                    <p>Professional and sophisticated pieces for business occasions</p>
+                    <a href="#formal-products" class="btn btn-outline">Shop Formal</a>
+                </div>
+                
+                <div class="style-category-card" data-style="athletic">
+                    <div class="style-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h3>Athletic Wear</h3>
+                    <p>Performance-focused clothing for active lifestyles</p>
+                    <a href="#athletic-products" class="btn btn-outline">Shop Athletic</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Men's Fashion</h2>
+                <p>Showing <span id="product-count">0</span> products</p>
+            </div>
+            
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+            
+            <div class="load-more-container">
+                <button class="btn btn-outline" id="load-more-btn">
+                    <i class="fas fa-plus"></i>
+                    Load More Products
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Size Guide Section -->
+    <section class="size-guide">
+        <div class="container">
+            <h2>Men's Size Guide</h2>
+            <div class="size-guide-content">
+                <div class="size-chart">
+                    <h3>Clothing Sizes</h3>
+                    <table class="size-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Chest (in)</th>
+                                <th>Waist (in)</th>
+                                <th>Height (ft)</th>
+                                <th>Weight (lbs)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>S</td>
+                                <td>34-36</td>
+                                <td>28-30</td>
+                                <td>5'6"-5'8"</td>
+                                <td>130-150</td>
+                            </tr>
+                            <tr>
+                                <td>M</td>
+                                <td>38-40</td>
+                                <td>32-34</td>
+                                <td>5'8"-5'10"</td>
+                                <td>150-170</td>
+                            </tr>
+                            <tr>
+                                <td>L</td>
+                                <td>42-44</td>
+                                <td>36-38</td>
+                                <td>5'10"-6'0"</td>
+                                <td>170-190</td>
+                            </tr>
+                            <tr>
+                                <td>XL</td>
+                                <td>46-48</td>
+                                <td>40-42</td>
+                                <td>6'0"-6'2"</td>
+                                <td>190-210</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="size-tips">
+                    <h3>Size Tips</h3>
+                    <ul>
+                        <li>Measure your chest at the fullest part</li>
+                        <li>Measure your waist at the narrowest point</li>
+                        <li>Consider your preferred fit (slim, regular, relaxed)</li>
+                        <li>Check our detailed size charts for each product</li>
+                        <li>Contact us if you need help with sizing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Styling Tips Section -->
+    <section class="styling-tips">
+        <div class="container">
+            <h2>Men's Styling Guide</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <i class="fas fa-palette"></i>
+                    <h3>Color Coordination</h3>
+                    <p>Learn how to build a versatile wardrobe with neutral colors and strategic accent pieces</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-ruler"></i>
+                    <h3>Perfect Fit</h3>
+                    <p>Understanding how clothes should fit your body type for maximum style impact</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-star"></i>
+                    <h3>Trending Styles</h3>
+                    <p>Stay updated with the latest men's fashion trends and how to incorporate them</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated with Men's Fashion</h2>
+                <p>Subscribe to get the latest men's fashion trends and exclusive offers</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SOLARA</h3>
+                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Men's Collection</h4>
+                    <ul>
+                        <li><a href="#">Shirts & Tops</a></li>
+                        <li><a href="#">Pants & Jeans</a></li>
+                        <li><a href="#">Shoes & Sneakers</a></li>
+                        <li><a href="#">Accessories</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="../login.html">Login</a></li>
+                        <li><a href="../register.html">Register</a></li>
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Page-specific initialization for Men's collection
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategoryProducts('men');
+            setupCategoryFilters();
+            setupSorting();
+            setupPriceFilter();
+        });
+    </script>
+</body>
+</html>
