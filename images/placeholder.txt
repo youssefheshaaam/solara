@@ -1,0 +1,3 @@
+This is a placeholder for product images.
+In a real implementation, you would have actual product images here.
+The application is designed to gracefully handle missing images by showing a placeholder.
