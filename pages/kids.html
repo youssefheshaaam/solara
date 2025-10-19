@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids' Collection - SOLARA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="men.html" class="nav-link">Men</a></li>
+                <li><a href="women.html" class="nav-link">Women</a></li>
+                <li><a href="kids.html" class="nav-link active">Kids</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search kids' products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="cart.html" class="nav-icon" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="../login.html" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                        Login
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                    <a href="../admin/admin.html" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                        Admin
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-hero">
+        <div class="container">
+            <div class="page-hero-content">
+                <h1>Kids' Collection</h1>
+                <p>Fun, comfortable, and stylish clothing for your little ones</p>
+                <nav class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <span>/</span>
+                    <span>Kids' Collection</span>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- Age Categories -->
+    <section class="age-categories">
+        <div class="container">
+            <div class="age-category-grid">
+                <div class="age-category-card" data-age="toddler">
+                    <div class="age-icon">
+                        <i class="fas fa-baby"></i>
+                    </div>
+                    <h3>Toddler (2-4 years)</h3>
+                    <p>Comfortable and easy-to-wear clothing for active toddlers</p>
+                    <a href="#toddler-products" class="btn btn-outline">Shop Toddler</a>
+                </div>
+                
+                <div class="age-category-card" data-age="kids">
+                    <div class="age-icon">
+                        <i class="fas fa-child"></i>
+                    </div>
+                    <h3>Kids (5-12 years)</h3>
+                    <p>Fun and durable clothing for school and play</p>
+                    <a href="#kids-products" class="btn btn-outline">Shop Kids</a>
+                </div>
+                
+                <div class="age-category-card" data-age="teen">
+                    <div class="age-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>Teen (13-16 years)</h3>
+                    <p>Trendy styles for teenagers who want to express themselves</p>
+                    <a href="#teen-products" class="btn btn-outline">Shop Teen</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters and Sorting -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <h3>Filter by Category</h3>
+                    <div class="filter-options">
+                        <button class="filter-btn active" data-category="all">All Items</button>
+                        <button class="filter-btn" data-category="tops">Tops & T-Shirts</button>
+                        <button class="filter-btn" data-category="bottoms">Pants & Shorts</button>
+                        <button class="filter-btn" data-category="shoes">Shoes & Sneakers</button>
+                        <button class="filter-btn" data-category="accessories">Accessories</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Age Group</h3>
+                    <div class="age-filter">
+                        <button class="age-btn active" data-age="all">All Ages</button>
+                        <button class="age-btn" data-age="toddler">Toddler</button>
+                        <button class="age-btn" data-age="kids">Kids</button>
+                        <button class="age-btn" data-age="teen">Teen</button>
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Sort by</h3>
+                    <select class="sort-select" id="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name-asc">Name: A to Z</option>
+                        <option value="name-desc">Name: Z to A</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <h3>Price Range</h3>
+                    <div class="price-range">
+                        <input type="range" id="price-range" min="0" max="100" value="100">
+                        <div class="price-labels">
+                            <span>$0</span>
+                            <span id="max-price">$100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Kids' Fashion</h2>
+                <p>Showing <span id="product-count">0</span> products</p>
+            </div>
+            
+            <div class="products-grid" id="products-grid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+            
+            <div class="load-more-container">
+                <button class="btn btn-outline" id="load-more-btn">
+                    <i class="fas fa-plus"></i>
+                    Load More Products
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety & Care Section -->
+    <section class="safety-care">
+        <div class="container">
+            <h2>Safety & Care</h2>
+            <div class="care-features">
+                <div class="care-feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Child-Safe Materials</h3>
+                    <p>All our kids' clothing is made from safe, non-toxic materials</p>
+                </div>
+                <div class="care-feature">
+                    <i class="fas fa-wash"></i>
+                    <h3>Easy Care</h3>
+                    <p>Machine washable and durable for active kids</p>
+                </div>
+                <div class="care-feature">
+                    <i class="fas fa-heart"></i>
+                    <h3>Comfort First</h3>
+                    <p>Designed for comfort and freedom of movement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Size Guide Section -->
+    <section class="size-guide">
+        <div class="container">
+            <h2>Kids' Size Guide</h2>
+            <div class="size-guide-content">
+                <div class="size-chart">
+                    <h3>Age-Based Sizing</h3>
+                    <table class="size-table">
+                        <thead>
+                            <tr>
+                                <th>Age</th>
+                                <th>Size</th>
+                                <th>Height</th>
+                                <th>Weight</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2-3 years</td>
+                                <td>2T-3T</td>
+                                <td>32-38"</td>
+                                <td>25-35 lbs</td>
+                            </tr>
+                            <tr>
+                                <td>4-5 years</td>
+                                <td>4-5</td>
+                                <td>38-44"</td>
+                                <td>35-45 lbs</td>
+                            </tr>
+                            <tr>
+                                <td>6-7 years</td>
+                                <td>6-7</td>
+                                <td>44-50"</td>
+                                <td>45-55 lbs</td>
+                            </tr>
+                            <tr>
+                                <td>8-10 years</td>
+                                <td>8-10</td>
+                                <td>50-56"</td>
+                                <td>55-75 lbs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="size-tips">
+                    <h3>Size Tips</h3>
+                    <ul>
+                        <li>Measure your child's height and weight for best fit</li>
+                        <li>Consider growth room for longer wear</li>
+                        <li>Check our detailed size charts for each product</li>
+                        <li>Contact us if you need help with sizing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated with Kids' Fashion</h2>
+                <p>Subscribe to get the latest kids' fashion trends and special offers</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SOLARA</h3>
+                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Kids' Collection</h4>
+                    <ul>
+                        <li><a href="#">Toddler (2-4 years)</a></li>
+                        <li><a href="#">Kids (5-12 years)</a></li>
+                        <li><a href="#">Teen (13-16 years)</a></li>
+                        <li><a href="#">Accessories</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="../login.html">Login</a></li>
+                        <li><a href="../register.html">Register</a></li>
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Page-specific initialization for Kids' collection
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategoryProducts('kids');
+            setupCategoryFilters();
+            setupSorting();
+            setupPriceFilter();
+            setupAgeFilter();
+        });
+    </script>
+</body>
+</html>
