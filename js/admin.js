@@ -10,9 +10,121 @@ let currentSearch = '';
 
 document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('admin')) {
-        initializeAdmin();
+        // Require admin auth before initializing
+        if (requireAdminAuth()) {
+            initializeAdmin();
+        }
     }
 });
+
+// ===== SIMPLE ADMIN AUTH (PHASE 1) =====
+
+function adminIsAuthed() {
+    try {
+        return localStorage.getItem('solaraAdminAuthed') === 'true';
+    } catch (_) {
+        return false;
+    }
+}
+
+function requireAdminAuth() {
+    const forceLogin = shouldForceLogin();
+    if (!adminIsAuthed() || forceLogin) {
+        if (forceLogin) {
+            try { localStorage.removeItem('solaraAdminAuthed'); } catch (_) {}
+        }
+        // If we're not on admin.html, send user to admin.html to login
+        if (!window.location.pathname.endsWith('/admin.html')) {
+            window.location.href = 'admin.html';
+            return false;
+        }
+        // If on admin.html, show login UI and hide dashboard
+        const mainContent = document.querySelector('main, .admin-dashboard, .admin-content');
+        if (mainContent) mainContent.style.display = 'none';
+        ensureAdminLoginForm();
+        return false;
+    }
+    return true;
+}
+
+function shouldForceLogin() {
+    try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('login')) return true;
+        if ((window.location.hash || '').toLowerCase().includes('login')) return true;
+    } catch (_) { /* no-op */ }
+    return false;
+}
+
+function ensureAdminLoginForm() {
+    let container = document.getElementById('admin-login');
+    if (container) {
+        container.style.display = 'block';
+        return container;
+    }
+    container = document.createElement('div');
+    container.id = 'admin-login';
+    container.style.maxWidth = '420px';
+    container.style.margin = '80px auto';
+    container.style.background = 'var(--bg-primary)';
+    container.style.border = '1px solid var(--bg-light)';
+    container.style.borderRadius = '8px';
+    container.style.padding = '24px';
+    container.innerHTML = `
+        <h2 style="margin-bottom:12px;">Admin Login</h2>
+        <p style="margin-bottom:16px;color:var(--text-secondary)">Enter credentials to access SOLARA Admin.</p>
+        <form id="admin-login-form" class="product-form">
+            <div class="form-group">
+                <label>Username</label>
+                <div class="input-group"><i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="admin" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-group"><i class="fas fa-lock"></i>
+                    <input type="password" name="password" placeholder="admin" required />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="form-message" style="display:none"></div>
+        </form>
+    `;
+    document.body.appendChild(container);
+    const form = container.querySelector('#admin-login-form');
+    const msg = container.querySelector('.form-message');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const u = (data.get('username') || '').toString().trim();
+        const p = (data.get('password') || '').toString();
+        if (u === 'admin' && p === 'admin') {
+            localStorage.setItem('solaraAdminAuthed', 'true');
+            msg.className = 'form-message success';
+            msg.textContent = 'Logged in. Redirecting…';
+            msg.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 600);
+        } else {
+            msg.className = 'form-message error';
+            msg.textContent = 'Invalid credentials';
+            msg.style.display = 'block';
+        }
+    });
+    return container;
+}
+
+function setupAdminLogout() {
+    const logoutBtn = document.getElementById('admin-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('solaraAdminAuthed');
+            window.location.href = 'admin.html';
+        });
+    }
+}
 
 function initializeAdmin() {
     loadDashboardStats();
@@ -85,7 +197,7 @@ function createProductTableRow(product) {
     return `
         <tr>
             <td>
-                <img src="../images/${product.image}" alt="${product.name}" onerror="this.src='../images/placeholder.jpg'">
+                <img src="../${product.image}" alt="${product.name}" onerror="this.style.display='none'">
             </td>
             <td>
                 <div class="product-name">${product.name}</div>
