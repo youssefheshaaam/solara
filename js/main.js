@@ -1037,13 +1037,25 @@ function setupDisabledButtonsGuard() {
     document.addEventListener('click', (e) => {
         const el = e.target.closest('a, button');
         if (!el) return;
+        
+        // Skip if element already has event listener or is being handled
+        if (el.hasAttribute('data-handled')) return;
+        
         const isAnchor = el.tagName === 'A';
         const href = isAnchor ? el.getAttribute('href') : null;
+        
+        // Check for dead links or disabled buttons
         if ((isAnchor && (href === '#' || href === '' || href === null)) || el.disabled) {
             e.preventDefault();
-            showNotification('This action is coming soon.', 'info');
+            e.stopPropagation();
+            
+            // Get button/link text for better message
+            const text = el.textContent.trim();
+            const message = text ? `"${text}" feature coming soon!` : 'This feature is coming soon.';
+            
+            showNotification(message, 'info');
         }
-    });
+    }, true); // Use capture phase to catch early
 }
 
 // ===== NOTIFICATIONS =====
@@ -1641,13 +1653,17 @@ if (window.location.pathname.includes('cart.html')) {
     });
 }
 
-// Profile page initialization
-if (window.location.pathname.includes('profile.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
+// Profile page initialization - run on ALL pages if profile container exists
+document.addEventListener('DOMContentLoaded', () => {
+    const profileContainer = document.querySelector('.profile-container');
+    if (profileContainer) {
+        console.log('Profile page: DOMContentLoaded fired');
         loadUserProfile();
         setupProfileNavigation();
-    });
-}
+        setupProfileButtons();
+        console.log('Profile page: All functions called');
+    }
+});
 
 // Orders page initialization
 if (window.location.pathname.includes('orders.html')) {
@@ -1689,16 +1705,201 @@ if (window.location.pathname.includes('register.html')) {
 function setupRegisterForm() {
     const form = document.getElementById('register-form');
     if (!form) return;
-    // Prefer new IndexedDB-backed registration; avoid double-binding old handler
-    if (window.solaraDB) return;
-    // Fallback to old validation-only flow if DB is unavailable
+    // Simple registration with localStorage
     setupRealTimeValidation(form);
-    setupFormSubmission(form, validateRegisterForm, handleRegisterSubmit);
     const passwordField = form.querySelector('input[name="password"]');
     if (passwordField) {
         setupPasswordStrength(passwordField);
         setupPasswordRequirements(passwordField);
     }
+}
+
+// ===== PROFILE PAGE FUNCTIONALITY =====
+
+function setupProfileNavigation() {
+    // Profile sidebar navigation
+    const navLinks = document.querySelectorAll('.profile-nav-link');
+    const sections = document.querySelectorAll('.profile-section');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const sectionId = link.getAttribute('data-section');
+            
+            // Skip if it's a regular link (not a section link)
+            if (!sectionId) return;
+            
+            e.preventDefault();
+            
+            // Remove active class from all nav links and sections
+            navLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked nav link
+            link.classList.add('active');
+            
+            // Show corresponding section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+        });
+    });
+}
+
+function loadUserProfile() {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        window.location.href = '../login.html';
+        return;
+    }
+    
+    const user = JSON.parse(loggedInUser);
+    
+    // Fill in personal information
+    const firstNameInput = document.getElementById('profile-firstName');
+    const lastNameInput = document.getElementById('profile-lastName');
+    const emailInput = document.getElementById('profile-email');
+    const phoneInput = document.getElementById('profile-phone');
+    const dobInput = document.getElementById('profile-dob');
+    const genderInput = document.getElementById('profile-gender');
+    
+    if (firstNameInput) firstNameInput.value = user.firstName || '';
+    if (lastNameInput) lastNameInput.value = user.lastName || '';
+    if (emailInput) emailInput.value = user.email || '';
+    if (phoneInput) phoneInput.value = user.phone || '';
+    if (dobInput) dobInput.value = user.dateOfBirth || '';
+    if (genderInput) genderInput.value = user.gender || '';
+}
+
+function setupProfileButtons() {
+    console.log('setupProfileButtons called');
+    
+    // Avatar upload button
+    const avatarUploadBtn = document.getElementById('avatar-upload');
+    console.log('Avatar button:', avatarUploadBtn);
+    if (avatarUploadBtn) {
+        avatarUploadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Avatar button clicked!');
+            showNotification('Avatar upload feature coming soon!', 'info');
+        });
+    }
+    
+    // Edit personal info button
+    const editPersonalBtn = document.getElementById('edit-personal-btn');
+    console.log('Edit button:', editPersonalBtn);
+    if (editPersonalBtn) {
+        editPersonalBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Edit button clicked!');
+            showNotification('Edit profile feature coming soon!', 'info');
+        });
+    }
+    
+    // Add address button
+    const addAddressBtn = document.getElementById('add-address-btn');
+    console.log('Add address button:', addAddressBtn);
+    if (addAddressBtn) {
+        addAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Add address button clicked!');
+            showAddressPlaceholder();
+        });
+    }
+    
+    // Load addresses placeholder
+    loadAddressesPlaceholder();
+    
+    // Preferences form
+    const preferencesForm = document.getElementById('preferences-form');
+    console.log('Preferences form:', preferencesForm);
+    if (preferencesForm) {
+        preferencesForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log('Preferences form submitted!');
+            showNotification('Preferences saved successfully!', 'success');
+        });
+    }
+    
+    console.log('setupProfileButtons completed');
+}
+
+function showAddressPlaceholder() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-map-marker-alt"></i> Add New Address</h3>
+                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="address-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Address Label</label>
+                        <input type="text" placeholder="e.g., Home, Work" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <input type="text" placeholder="123 Main St" class="form-control" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" placeholder="City" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" placeholder="State" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Zip Code</label>
+                            <input type="text" placeholder="12345" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" placeholder="Country" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-actions" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const form = modal.querySelector('#address-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        showNotification('Address saved successfully!', 'success');
+        modal.remove();
+        loadAddressesPlaceholder();
+    });
+}
+
+function loadAddressesPlaceholder() {
+    const addressesList = document.getElementById('addresses-list');
+    if (!addressesList) return;
+    
+    // Show empty state with nice design
+    addressesList.innerHTML = `
+        <div class="empty-state" style="text-align: center; padding: 3rem; background: var(--bg-light); border-radius: var(--radius-lg);">
+            <i class="fas fa-map-marker-alt" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">No Addresses Yet</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Add your shipping addresses to make checkout faster</p>
+            <button class="btn btn-primary" onclick="document.getElementById('add-address-btn').click()">
+                <i class="fas fa-plus"></i> Add Your First Address
+            </button>
+        </div>
+    `;
 }
 
 function handleRegisterSubmit(form) {
