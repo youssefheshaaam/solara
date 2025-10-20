@@ -257,28 +257,49 @@ function updateAuthUI() {
 }
 
 async function login(email, password) {
-    if (!window.solaraDB) return { success: false, message: 'Local DB unavailable' };
-    const user = await window.solaraDB.verifyUser(email, password);
-    if (user) {
-        currentUser = user;
-        localStorage.setItem('loggedInUser', JSON.stringify(user));
-        updateAuthUI();
-        return { success: true, user };
+    // Get users from localStorage
+    const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
+    const user = users.find(u => u.email === email);
+    
+    if (!user) {
+        return { success: false, message: 'No account found with this email address' };
     }
-    return { success: false, message: 'Invalid email or password' };
+    
+    // Simple password check (in real production, use proper hashing)
+    if (user.password !== password) {
+        return { success: false, message: 'Invalid email or password' };
+    }
+    
+    currentUser = user;
+    localStorage.setItem('loggedInUser', JSON.stringify(user));
+    updateAuthUI();
+    return { success: true, user };
 }
 
 async function register(userData) {
-    if (!window.solaraDB) return { success: false, message: 'Local DB unavailable' };
-    try {
-        const user = await window.solaraDB.addUser(userData);
-        currentUser = user;
-        localStorage.setItem('loggedInUser', JSON.stringify(user));
-        updateAuthUI();
-        return { success: true, user };
-    } catch (e) {
-        return { success: false, message: e && e.message ? e.message : 'Registration failed' };
+    // Get existing users from localStorage
+    const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
+    
+    // Check if email already exists
+    if (users.find(u => u.email === userData.email)) {
+        return { success: false, message: 'Email already exists' };
     }
+    
+    // Add new user
+    const newUser = {
+        id: Date.now(),
+        ...userData,
+        createdAt: new Date().toISOString()
+    };
+    
+    users.push(newUser);
+    localStorage.setItem('solaraUsers', JSON.stringify(users));
+    
+    currentUser = newUser;
+    localStorage.setItem('loggedInUser', JSON.stringify(newUser));
+    updateAuthUI();
+    
+    return { success: true, user: newUser };
 }
 
 function logout() {
@@ -823,28 +844,21 @@ function setupLoginForm() {
                 return;
             }
             
-            // Attempt DB-backed login
-            if (!window.solaraDB) {
-                if (generalError) { generalError.textContent = 'Local DB unavailable'; generalError.style.display = 'block'; }
-                return;
-            }
-            window.solaraDB.getUserByEmail(email).then(found => {
-                if (!found) {
-                    if (generalError) { generalError.textContent = 'No account found with this email address'; generalError.style.display = 'block'; }
-                    else { emailError.textContent = 'No account found with this email address'; }
-                    return;
-                }
-                login(email, password).then(result => {
-                    if (result.success) {
-                        showNotification('Login successful! Welcome back!', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1000);
-                    } else {
-                        if (generalError) { generalError.textContent = result.message || 'Incorrect password'; generalError.style.display = 'block'; }
-                        else { passwordError.textContent = 'Incorrect password'; }
+            // Attempt database login
+            login(email, password).then(result => {
+                if (result.success) {
+                    showNotification('Login successful! Welcome back!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    if (generalError) { 
+                        generalError.textContent = result.message || 'Incorrect password'; 
+                        generalError.style.display = 'block'; 
+                    } else { 
+                        passwordError.textContent = 'Incorrect password'; 
                     }
-                });
+                }
             });
         });
     }
@@ -946,33 +960,29 @@ function setupRegistrationForm() {
             
             if (hasErrors) return;
             
-            // Registration via local DB
+            // Registration via database API
             const userData = {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
                 email: email.trim(),
                 phone: phone.trim(),
-                password: password
+                password: password,
+                dateOfBirth: dateOfBirth,
+                gender: document.querySelector('input[name="gender"]:checked')?.value || ''
             };
-            if (!window.solaraDB) {
-                if (generalError) { generalError.textContent = 'Local DB unavailable'; generalError.style.display = 'block'; }
-                return;
-            }
-            window.solaraDB.getUserByEmail(userData.email).then(existing => {
-                if (existing) {
-                    if (emailError) emailError.textContent = 'An account with this email already exists';
-                    return;
-                }
-                register(userData).then(result => {
-                    if (result.success) {
-                        showNotification('Registration successful! Welcome to SOLARA!', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 1500);
-                    } else {
-                        if (generalError) { generalError.textContent = result.message || 'Registration failed. Please try again.'; generalError.style.display = 'block'; }
+            
+            register(userData).then(result => {
+                if (result.success) {
+                    showNotification('Registration successful! Welcome to SOLARA!', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    if (generalError) { 
+                        generalError.textContent = result.message || 'Registration failed. Please try again.'; 
+                        generalError.style.display = 'block'; 
                     }
-                });
+                }
             });
         });
     }

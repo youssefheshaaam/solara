@@ -73,43 +73,29 @@ The platform provides a seamless shopping experience with full client-side funct
 - **HTML5**: Semantic markup with accessibility features
 - **CSS3**: Modern styling with CSS Grid, Flexbox, and animations
 - **JavaScript (ES6+)**: Vanilla JavaScript with modern features
-- **Local Storage**: Client-side data persistence
+- **LocalStorage**: All data persistence (users, products, cart, orders)
 - **Font Awesome**: Icon library for UI elements
 - **Google Fonts**: Inter and Poppins font families for modern typography
+
+**Zero Setup Required** - Just open `index.html` in your browser!
 
 ## Getting Started
 
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
-- Local web server (optional but recommended)
+- **That's it!**
 
 ### Installation
 
-1. **Clone or download the project files**
-   ```bash
-   git clone [repository-url]
-   cd fashion-store
-   ```
+**No installation needed!** Just:
 
-2. **Set up a local web server** (recommended)
-   
-   **Option 1: Python**
-   ```bash
-   python -m http.server 8000
-   ```
-   
-   **Option 2: Node.js**
-   ```bash
-   npx serve .
-   ```
-   
-   **Option 3: VS Code Live Server**
-   - Install the "Live Server" extension
-   - Right-click on `index.html` and select "Open with Live Server"
+1. Download/clone the project
+2. Double-click `index.html`
+3. Start shopping!
 
-3. **Access the application**
-   - Open your browser and navigate to `http://localhost:8000`
-   - Or simply double-click `index.html` to open directly
+**Optional**: For better experience, use a local server:
+- Python: `python -m http.server 8000`
+- Or right-click `index.html` → "Open with Live Server" in VS Code
 
 ## Usage Guide
 
@@ -157,11 +143,12 @@ The application includes comprehensive form validation for:
 
 ## Data Management & Auth
 
-- **Local IndexedDB (Auth)**: Users are stored in a local IndexedDB database with salted+hashed passwords (PBKDF2, SHA-256, 120k iterations)
-- **Local Storage (App)**: Products, orders, cart, wishlist are stored in localStorage
+- **Local Storage (Auth & App)**: All users, products, orders, cart, and wishlist stored in browser's localStorage
+- **Simple & Zero Setup**: Just open `index.html` in your browser - no installation, no server, no commands
+- **Data Persistence**: Persists in regular browsing mode (clears in incognito when window closes - this is normal browser behavior)
 - **Sample Data**: Pre-loaded with sample products, users, and orders
-- **Data Persistence**: Cart contents, wishlist, and user sessions persist between visits
-- **Incognito/Private Mode**: IndexedDB is isolated per incognito session and cleared when the window closes (this is standard browser privacy behavior). Users must register separately in each incognito window. Regular browsing mode persists data normally.
+
+**Note**: This is a frontend-only implementation perfect for development and learning. For production, use a real backend database with proper password hashing.
 
 ## Responsive Design
 
