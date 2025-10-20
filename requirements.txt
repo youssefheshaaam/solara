@@ -1,0 +1,55 @@
+# SOLARA E-Commerce Website Requirements
+
+## Frontend Only - No Backend Dependencies Required
+
+This project is a pure frontend application and does not require any Python packages or backend dependencies.
+
+### Browser Requirements:
+- Modern browser with IndexedDB support (Chrome 24+, Firefox 16+, Safari 10+, Edge 12+)
+- JavaScript enabled
+- Cookies and Local Storage enabled
+
+### Development Server (Optional):
+If you want to run a local development server, you can use:
+
+**Python:**
+```bash
+python -m http.server 8000
+```
+
+**Node.js:**
+```bash
+npx serve .
+# or
+npm install -g http-server
+http-server -p 8000
+```
+
+**VS Code:**
+- Install "Live Server" extension
+- Right-click index.html and select "Open with Live Server"
+
+### Notes on Data Persistence:
+
+**IndexedDB (User Authentication):**
+- User accounts are stored in the browser's IndexedDB
+- Passwords are hashed with PBKDF2-SHA256 (120,000 iterations)
+- Data persists across regular browser sessions
+- **Incognito/Private mode**: IndexedDB is isolated per session and cleared when closed
+  - This is expected browser behavior for privacy
+  - Users must register separately in each incognito window
+  - Regular browsing mode persists data normally
+
+**LocalStorage (App Data):**
+- Products, cart, wishlist, and orders use localStorage
+- Persists across sessions (including incognito until window is closed)
+- Clearing browser data will erase all stored information
+
+### Production Considerations:
+For production use, consider:
+- Backend API with real database (PostgreSQL, MySQL, MongoDB)
+- Server-side password hashing and JWT authentication
+- HTTPS for secure transmission
+- Session management with secure cookies
+- Data backup and recovery systems
+

@@ -129,7 +129,7 @@
                     <label for="dateOfBirth">Date of Birth</label>
                     <div class="input-group">
                         <i class="fas fa-calendar"></i>
-                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                        <input type="date" id="dateOfBirth" name="dateOfBirth" max="" required>
                     </div>
                     <span class="error-message" id="dateOfBirth-error"></span>
                 </div>
@@ -203,5 +203,15 @@
     <script src="js/data.js"></script>
     <script src="js/validation.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Set max date for date of birth to today
+        document.addEventListener('DOMContentLoaded', () => {
+            const dobInput = document.getElementById('dateOfBirth');
+            if (dobInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dobInput.setAttribute('max', today);
+            }
+        });
+    </script>
 </body>
 </html>
