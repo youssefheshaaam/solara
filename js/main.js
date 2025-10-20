@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCount();
     updateWishlistCount();
     checkUserAuth();
+    setupFloatingButton();
+    setupScrollEffects();
 });
 
 // Resolve asset paths from root and subpages
@@ -1974,3 +1976,147 @@ function handleRegisterSubmit(form) {
         showFormMessage(form, 'Failed to create account. Please try again.', 'error');
     }
 }
+
+// ===== INNOVATIVE DESIGN FEATURES =====
+
+// Setup floating action button
+function setupFloatingButton() {
+    const floatingBtn = document.getElementById('floating-cart-btn');
+    if (!floatingBtn) return;
+    
+    // Add click event to go to cart
+    floatingBtn.addEventListener('click', function() {
+        window.location.href = getAssetPath('pages/cart.html');
+    });
+    
+    // Show/hide based on scroll position
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // Scrolling down
+            floatingBtn.style.transform = 'translateY(100px)';
+            floatingBtn.style.opacity = '0';
+        } else {
+            // Scrolling up
+            floatingBtn.style.transform = 'translateY(0)';
+            floatingBtn.style.opacity = '1';
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+}
+
+// Setup scroll effects for enhanced UX
+function setupScrollEffects() {
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+    
+    let lastScrollTop = 0;
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+    
+    // Parallax effect for hero section
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = heroSection.querySelector('.hero-content');
+            if (parallax) {
+                const speed = scrolled * 0.5;
+                parallax.style.transform = `translateY(${speed}px)`;
+            }
+        });
+    }
+    
+    // Intersection Observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all sections for fade-in effect
+    document.querySelectorAll('section').forEach(section => {
+        observer.observe(section);
+    });
+}
+
+// Enhanced product card interactions
+function enhanceProductCards() {
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        // Add ripple effect on click
+        card.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = card.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            card.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// Add ripple effect CSS
+function addRippleEffectCSS() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .product-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Initialize enhanced interactions
+document.addEventListener('DOMContentLoaded', function() {
+    addRippleEffectCSS();
+    setTimeout(enhanceProductCards, 1000); // Wait for products to load
+});
