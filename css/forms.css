@@ -138,6 +138,12 @@
     color: var(--text-primary);
 }
 
+/* Native input fallback styling across site */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--accent-color);
+}
+
 .checkbox-label input[type="checkbox"],
 .radio-label input[type="radio"] {
     display: none;
