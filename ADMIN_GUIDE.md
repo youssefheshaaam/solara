@@ -97,7 +97,7 @@ The admin dashboard provides:
 4. Recommended size: 300x400 pixels for product images
 
 ### **Image Path Examples**
-- `images/tshirt.jpeg`
+- `images/1_1gif`
 - `images/dress.jpg`
 - `images/shoes.png`
 
