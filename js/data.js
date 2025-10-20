@@ -575,7 +575,9 @@ function addToWishlist(productId) {
     if (!wishlist.includes(parseInt(productId))) {
         wishlist.push(parseInt(productId));
         saveWishlist(wishlist);
-        updateWishlistCount();
+        if (typeof updateWishlistCount === 'function') {
+            updateWishlistCount();
+        }
     }
     return wishlist;
 }
@@ -584,7 +586,9 @@ function removeFromWishlist(productId) {
     const wishlist = getWishlist();
     const filteredWishlist = wishlist.filter(id => id !== parseInt(productId));
     saveWishlist(filteredWishlist);
-    updateWishlistCount();
+    if (typeof updateWishlistCount === 'function') {
+        updateWishlistCount();
+    }
     return filteredWishlist;
 }
 
@@ -592,6 +596,11 @@ function isInWishlist(productId) {
     const wishlist = getWishlist();
     return wishlist.includes(parseInt(productId));
 }
+
+// Make wishlist functions global for onclick handlers
+window.addToWishlist = addToWishlist;
+window.removeFromWishlist = removeFromWishlist;
+window.isInWishlist = isInWishlist;
 
 // ===== ORDER FUNCTIONS =====
 

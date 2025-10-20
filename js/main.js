@@ -132,7 +132,7 @@ function createUniversalNavigation() {
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="cart-count">0</span>
                         </a>
-                        <a href="#" class="nav-icon" id="wishlist-link">
+                        <a href="${basePath}pages/wishlist.html" class="nav-icon" id="wishlist-link">
                             <i class="fas fa-heart"></i>
                             <span class="wishlist-count" id="wishlist-count">0</span>
                         </a>
@@ -475,8 +475,24 @@ function setupProductCardEvents() {
 
 // ===== CART FUNCTIONALITY =====
 
-function addToCart(productId, quantity = 1) {
-    addToCart(productId, quantity);
+// Make addToCart global for onclick handlers
+window.addToCart = function(productId, quantity = 1) {
+    const product = getProducts().find(p => p.id === parseInt(productId));
+    if (!product) return;
+    
+    const cart = getCart();
+    const existingItem = cart.find(item => item.productId === parseInt(productId));
+    
+    if (existingItem) {
+        existingItem.quantity += parseInt(quantity);
+    } else {
+        cart.push({
+            productId: parseInt(productId),
+            quantity: parseInt(quantity)
+        });
+    }
+    
+    saveCart(cart);
     updateCartCount();
     
     // Add visual feedback
@@ -491,7 +507,12 @@ function addToCart(productId, quantity = 1) {
             button.classList.remove('success');
         }, 2000);
     }
-}
+    
+    // Show notification
+    if (typeof showNotification === 'function') {
+        showNotification('Product added to cart!', 'success');
+    }
+};
 
 function updateCartCount() {
     const cartCountElements = document.querySelectorAll('.cart-count');
@@ -1215,12 +1236,7 @@ function setupQuickViewEvents(modal, product) {
     });
 }
 
-function hideModal(modal) {
-    modal.classList.remove('active');
-    setTimeout(() => {
-        modal.remove();
-    }, 300);
-}
+// hideModal is now defined globally as window.hideModal above
 
 // ===== EVENT LISTENERS =====
 
@@ -1295,7 +1311,9 @@ function setupEventListeners() {
 
 // ===== WISHLIST MODAL =====
 
-function showWishlistModal() {
+// Make it global so onclick can access it
+window.showWishlistModal = function() {
+    console.log('showWishlistModal called');
     const wishlist = getWishlist();
     const products = getProducts();
     const wishlistProducts = products.filter(product => wishlist.includes(product.id));
@@ -1363,7 +1381,15 @@ function showWishlistModal() {
             hideModal(modal);
         }
     });
-}
+};
+
+// Also make hideModal global
+window.hideModal = function(modal) {
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.remove();
+    }, 300);
+};
 
 // ===== UTILITY FUNCTIONS =====
 
