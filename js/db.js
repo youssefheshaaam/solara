@@ -95,10 +95,10 @@
     }
 
     async function addUser(user) {
-        const store = await tx(STORE_USERS, 'readwrite');
-        // unique email check
-        const existing = await getByIndex(store, 'email', user.email);
+        // unique email check (separate, short-lived tx)
+        const existing = await getUserByEmail(user.email);
         if (existing) throw new Error('Email already exists');
+        // compute hash outside of transactions
         const salt = randomSalt();
         const passwordHash = await hashPassword(user.password, salt);
         const toSave = {
@@ -110,9 +110,10 @@
             salt,
             createdAt: new Date().toISOString()
         };
-        const id = await put(store, toSave);
-        const saved = await getByKey(store, id);
-        return publicUser(saved);
+        // write using a fresh write tx
+        const writeStore = await tx(STORE_USERS, 'readwrite');
+        const id = await put(writeStore, toSave);
+        return publicUser({ id, ...toSave });
     }
 
     async function getUserByEmail(email) {

@@ -768,7 +768,7 @@ function setupLoginForm() {
             // Clear previous errors
             emailError.textContent = '';
             passwordError.textContent = '';
-            if (generalError) generalError.textContent = '';
+            if (generalError) { generalError.textContent = ''; generalError.style.display = 'none'; }
             
             // Validate email format
             if (!email || !email.includes('@')) {
@@ -784,16 +784,13 @@ function setupLoginForm() {
             
             // Attempt DB-backed login
             if (!window.solaraDB) {
-                if (generalError) generalError.textContent = 'Local DB unavailable';
+                if (generalError) { generalError.textContent = 'Local DB unavailable'; generalError.style.display = 'block'; }
                 return;
             }
             window.solaraDB.getUserByEmail(email).then(found => {
                 if (!found) {
-                    if (generalError) {
-                        generalError.textContent = 'No account found with this email address';
-                    } else {
-                        emailError.textContent = 'No account found with this email address';
-                    }
+                    if (generalError) { generalError.textContent = 'No account found with this email address'; generalError.style.display = 'block'; }
+                    else { emailError.textContent = 'No account found with this email address'; }
                     return;
                 }
                 login(email, password).then(result => {
@@ -803,11 +800,8 @@ function setupLoginForm() {
                             window.location.href = 'index.html';
                         }, 1000);
                     } else {
-                        if (generalError) {
-                            generalError.textContent = result.message || 'Incorrect password';
-                        } else {
-                            passwordError.textContent = 'Incorrect password';
-                        }
+                        if (generalError) { generalError.textContent = result.message || 'Incorrect password'; generalError.style.display = 'block'; }
+                        else { passwordError.textContent = 'Incorrect password'; }
                     }
                 });
             });
@@ -896,7 +890,7 @@ function setupRegistrationForm() {
                 password: password
             };
             if (!window.solaraDB) {
-                if (generalError) generalError.textContent = 'Local DB unavailable';
+                if (generalError) { generalError.textContent = 'Local DB unavailable'; generalError.style.display = 'block'; }
                 return;
             }
             window.solaraDB.getUserByEmail(userData.email).then(existing => {
@@ -911,7 +905,7 @@ function setupRegistrationForm() {
                             window.location.href = 'login.html';
                         }, 1500);
                     } else {
-                        if (generalError) generalError.textContent = result.message || 'Registration failed. Please try again.';
+                        if (generalError) { generalError.textContent = result.message || 'Registration failed. Please try again.'; generalError.style.display = 'block'; }
                     }
                 });
             });
@@ -1620,14 +1614,11 @@ if (window.location.pathname.includes('register.html')) {
 function setupRegisterForm() {
     const form = document.getElementById('register-form');
     if (!form) return;
-    
-    // Setup real-time validation
+    // Prefer new IndexedDB-backed registration; avoid double-binding old handler
+    if (window.solaraDB) return;
+    // Fallback to old validation-only flow if DB is unavailable
     setupRealTimeValidation(form);
-    
-    // Setup form submission
     setupFormSubmission(form, validateRegisterForm, handleRegisterSubmit);
-    
-    // Setup password strength and requirements
     const passwordField = form.querySelector('input[name="password"]');
     if (passwordField) {
         setupPasswordStrength(passwordField);
