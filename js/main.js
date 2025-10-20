@@ -89,6 +89,11 @@ function initializeUniversalNavigation() {
             body.insertAdjacentHTML('afterbegin', navHTML);
         }
     }
+    
+    // Setup dropdown after DOM is updated
+    setTimeout(() => {
+        setupMyAccountDropdown();
+    }, 0);
 }
 
 // ===== NAVIGATION =====
@@ -135,15 +140,19 @@ function createUniversalNavigation() {
                             <i class="fas fa-user"></i>
                             Login
                         </a>
-                        <a href="#" class="nav-icon hidden" id="profile-link">
-                            <i class="fas fa-user-circle"></i>
-                            Profile
-                        </a>
-                        <a href="#" class="nav-icon hidden" id="logout-link">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Logout
-                        </a>
-                        <a href="${basePath}admin/admin.html" class="nav-icon" id="admin-link">
+                        <div class="dropdown my-account hidden" id="my-account">
+                            <button class="dropdown-toggle" id="my-account-toggle">
+                                <i class="fas fa-user-circle"></i>
+                                My Account
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu" id="my-account-menu">
+                                <a href="${basePath}pages/profile.html" id="profile-link"><i class="fas fa-id-card"></i> My Profile</a>
+                                <a href="${basePath}pages/orders.html" id="orders-link"><i class="fas fa-box"></i> My Orders</a>
+                                <a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                        <a href="${basePath}admin/admin.html" class="nav-icon subtle" id="admin-link" title="Admin">
                             <i class="fas fa-cog"></i>
                             Admin
                         </a>
@@ -230,23 +239,19 @@ function updateAuthUI() {
     const loginLink = document.getElementById('login-link');
     const profileLink = document.getElementById('profile-link');
     const logoutLink = document.getElementById('logout-link');
+    const myAccount = document.getElementById('my-account');
     const welcomeMessage = document.getElementById('welcome-message');
     
     if (currentUser) {
         if (loginLink) loginLink.style.display = 'none';
-        if (profileLink) {
-            profileLink.style.display = 'flex';
-            profileLink.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.firstName}`;
-        }
-        if (logoutLink) logoutLink.style.display = 'flex';
+        if (myAccount) myAccount.classList.remove('hidden');
         if (welcomeMessage) {
             welcomeMessage.textContent = `Welcome, ${currentUser.firstName}`;
             welcomeMessage.style.display = 'block';
         }
     } else {
         if (loginLink) loginLink.style.display = 'flex';
-        if (profileLink) profileLink.style.display = 'none';
-        if (logoutLink) logoutLink.style.display = 'none';
+        if (myAccount) myAccount.classList.add('hidden');
         if (welcomeMessage) welcomeMessage.style.display = 'none';
     }
 }
@@ -735,6 +740,42 @@ function setupMobileMenu() {
     }
 }
 
+function setupMyAccountDropdown() {
+    const myAccount = document.getElementById('my-account');
+    const myAccountToggle = document.getElementById('my-account-toggle');
+    const myAccountMenu = document.getElementById('my-account-menu');
+    
+    if (!myAccount || !myAccountToggle || !myAccountMenu) {
+        return;
+    }
+    
+    // Toggle on click
+    myAccountToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        myAccount.classList.toggle('open');
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#my-account')) {
+            myAccount.classList.remove('open');
+        }
+    });
+    
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') myAccount.classList.remove('open');
+    });
+    
+    // Navigate within menu
+    myAccountMenu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+            myAccount.classList.remove('open');
+        });
+    });
+}
+
 // ===== NEWSLETTER FORM =====
 
 function setupNewsletterForm() {
@@ -822,6 +863,7 @@ function setupRegistrationForm() {
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
             
             // Get error elements
             const firstNameError = document.getElementById('firstName-error');
@@ -830,13 +872,14 @@ function setupRegistrationForm() {
             const phoneError = document.getElementById('phone-error');
             const passwordError = document.getElementById('password-error');
             const confirmPasswordError = document.getElementById('confirmPassword-error');
+            const dateOfBirthError = document.getElementById('dateOfBirth-error');
             const generalError = document.getElementById('general-error');
             
             // Clear previous errors
-            [firstNameError, lastNameError, emailError, phoneError, passwordError, confirmPasswordError].forEach(el => {
+            [firstNameError, lastNameError, emailError, phoneError, passwordError, confirmPasswordError, dateOfBirthError].forEach(el => {
                 if (el) el.textContent = '';
             });
-            if (generalError) generalError.textContent = '';
+            if (generalError) { generalError.textContent = ''; generalError.style.display = 'none'; }
             
             let hasErrors = false;
             
@@ -877,6 +920,28 @@ function setupRegistrationForm() {
             if (password !== confirmPassword) {
                 if (confirmPasswordError) confirmPasswordError.textContent = 'Passwords do not match';
                 hasErrors = true;
+            }
+            
+            // Validate date of birth
+            if (!dateOfBirth) {
+                if (dateOfBirthError) dateOfBirthError.textContent = 'Date of birth is required';
+                hasErrors = true;
+            } else {
+                const dob = new Date(dateOfBirth);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (dob >= today) {
+                    if (dateOfBirthError) dateOfBirthError.textContent = 'Date of birth cannot be today or in the future';
+                    hasErrors = true;
+                } else {
+                    // Check minimum age (e.g., 13 years old)
+                    const age = Math.floor((today - dob) / (365.25 * 24 * 60 * 60 * 1000));
+                    if (age < 13) {
+                        if (dateOfBirthError) dateOfBirthError.textContent = 'You must be at least 13 years old to register';
+                        hasErrors = true;
+                    }
+                }
             }
             
             if (hasErrors) return;

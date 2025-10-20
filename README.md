@@ -157,10 +157,11 @@ The application includes comprehensive form validation for:
 
 ## Data Management & Auth
 
-- **Local IndexedDB (Auth)**: Users are stored in a local IndexedDB database with salted+hashed passwords (PBKDF2, SHA-256)
+- **Local IndexedDB (Auth)**: Users are stored in a local IndexedDB database with salted+hashed passwords (PBKDF2, SHA-256, 120k iterations)
 - **Local Storage (App)**: Products, orders, cart, wishlist are stored in localStorage
 - **Sample Data**: Pre-loaded with sample products, users, and orders
 - **Data Persistence**: Cart contents, wishlist, and user sessions persist between visits
+- **Incognito/Private Mode**: IndexedDB is isolated per incognito session and cleared when the window closes (this is standard browser privacy behavior). Users must register separately in each incognito window. Regular browsing mode persists data normally.
 
 ## Responsive Design
 
