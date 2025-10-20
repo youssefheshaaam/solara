@@ -1247,13 +1247,18 @@ function setupEventListeners() {
         });
     }
     
-    // Cart link
+    // Cart link - make sure it works properly
     const cartLinks = document.querySelectorAll('#cart-link, [href*="cart.html"]');
     cartLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'pages/cart.html';
-        });
+        // Remove the preventDefault if it's a proper link
+        const href = link.getAttribute('href');
+        if (!href || href === '#') {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+                window.location.href = basePath + 'cart.html';
+            });
+        }
     });
     
     // Wishlist link
@@ -1264,6 +1269,28 @@ function setupEventListeners() {
             showWishlistModal();
         });
     }
+    
+    // Quick view buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.quick-view-btn')) {
+            e.preventDefault();
+            const productId = e.target.closest('.quick-view-btn').dataset.productId;
+            if (productId) {
+                showQuickView(productId);
+            }
+        }
+    });
+    
+    // Wishlist buttons on product cards
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.wishlist-btn') && !e.target.closest('.wishlist-modal')) {
+            e.preventDefault();
+            const productId = e.target.closest('.wishlist-btn').dataset.productId;
+            if (productId) {
+                toggleWishlist(parseInt(productId));
+            }
+        }
+    });
 }
 
 // ===== WISHLIST MODAL =====
@@ -1657,11 +1684,9 @@ if (window.location.pathname.includes('cart.html')) {
 document.addEventListener('DOMContentLoaded', () => {
     const profileContainer = document.querySelector('.profile-container');
     if (profileContainer) {
-        console.log('Profile page: DOMContentLoaded fired');
         loadUserProfile();
         setupProfileNavigation();
         setupProfileButtons();
-        console.log('Profile page: All functions called');
     }
 });
 
@@ -1772,37 +1797,29 @@ function loadUserProfile() {
 }
 
 function setupProfileButtons() {
-    console.log('setupProfileButtons called');
-    
     // Avatar upload button
     const avatarUploadBtn = document.getElementById('avatar-upload');
-    console.log('Avatar button:', avatarUploadBtn);
     if (avatarUploadBtn) {
         avatarUploadBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Avatar button clicked!');
             showNotification('Avatar upload feature coming soon!', 'info');
         });
     }
     
     // Edit personal info button
     const editPersonalBtn = document.getElementById('edit-personal-btn');
-    console.log('Edit button:', editPersonalBtn);
     if (editPersonalBtn) {
         editPersonalBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Edit button clicked!');
             showNotification('Edit profile feature coming soon!', 'info');
         });
     }
     
     // Add address button
     const addAddressBtn = document.getElementById('add-address-btn');
-    console.log('Add address button:', addAddressBtn);
     if (addAddressBtn) {
         addAddressBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Add address button clicked!');
             showAddressPlaceholder();
         });
     }
@@ -1812,16 +1829,12 @@ function setupProfileButtons() {
     
     // Preferences form
     const preferencesForm = document.getElementById('preferences-form');
-    console.log('Preferences form:', preferencesForm);
     if (preferencesForm) {
         preferencesForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            console.log('Preferences form submitted!');
             showNotification('Preferences saved successfully!', 'success');
         });
     }
-    
-    console.log('setupProfileButtons completed');
 }
 
 function showAddressPlaceholder() {

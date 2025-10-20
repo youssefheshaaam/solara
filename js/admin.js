@@ -111,9 +111,13 @@ function handleAdminLogin(e) {
     }
 }
 
-function handleAdminLogout() {
+function handleAdminLogout(e) {
+    if (e) e.preventDefault();
     clearAdminAuth();
-    window.location.href = 'admin.html?login'; // Redirect to login page
+    showAdminNotification('Logged out successfully', 'success');
+    setTimeout(() => {
+        window.location.href = 'admin.html';
+    }, 500);
 }
 
 // ===== ADMIN INITIALIZATION =====
@@ -137,7 +141,11 @@ function initializeAdminDashboard() {
     setupProductSearch();
     setupProductFilters();
     setupPagination();
-    setupAdminNavigation();
+    
+    // Setup navigation with a slight delay to ensure DOM is ready
+    setTimeout(() => {
+        setupAdminNavigation();
+    }, 100);
 }
 
 function initializeAdmin() {
@@ -638,63 +646,103 @@ function createOrderItemHTML(order) {
 // ===== ADMIN NAVIGATION =====
 
 function setupAdminNavigation() {
+    console.log('=== Setting up admin navigation ===');
+    
+    // Get elements by ID (much more reliable)
+    const ordersLink = document.getElementById('orders-nav-link');
+    const customersLink = document.getElementById('customers-nav-link');
     const manageProductsBtn = document.getElementById('manage-products');
     const editProductsBtn = document.getElementById('edit-products-btn');
-    const ordersLink = document.querySelector('.admin-nav-menu a:nth-child(4)');
-    const customersLink = document.querySelector('.admin-nav-menu a:nth-child(5)');
-    const reportsBtn = document.querySelector('.action-buttons a:nth-child(3)');
-    const settingsBtn = document.querySelector('.action-buttons a:nth-child(4)');
+    const reportsBtn = document.getElementById('view-reports-btn');
+    const settingsBtn = document.getElementById('settings-btn');
     
-    if (manageProductsBtn) {
-        manageProductsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Scroll to products table
-            const productsSection = document.querySelector('.products-management');
-            if (productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
+    console.log('Elements found:', {
+        ordersLink: !!ordersLink,
+        customersLink: !!customersLink,
+        manageProductsBtn: !!manageProductsBtn,
+        editProductsBtn: !!editProductsBtn,
+        reportsBtn: !!reportsBtn,
+        settingsBtn: !!settingsBtn
+    });
     
-    if (editProductsBtn) {
-        editProductsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Scroll to products table
-            const productsSection = document.querySelector('.products-management');
-            if (productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
-
+    // Helper function
     const showComingSoon = (label) => {
-        showAdminNotification(`${label} is coming soon.`, 'info');
+        showAdminNotification(`${label} feature coming soon!`, 'info');
     };
-
+    
+    // Orders
     if (ordersLink) {
         ordersLink.addEventListener('click', (e) => {
             e.preventDefault();
-            showComingSoon('Orders');
+            console.log('Orders clicked!');
+            showComingSoon('Orders Management');
         });
+        console.log('Orders listener attached');
+    } else {
+        console.error('Orders link not found!');
     }
+    
+    // Customers
     if (customersLink) {
         customersLink.addEventListener('click', (e) => {
             e.preventDefault();
-            showComingSoon('Customers');
+            console.log('Customers clicked!');
+            showComingSoon('Customer Management');
         });
+        console.log('Customers listener attached');
+    } else {
+        console.error('Customers link not found!');
     }
+    
+    // Manage Products (scrolls to products table)
+    if (manageProductsBtn) {
+        manageProductsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const productsSection = document.querySelector('.products-management');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        console.log('Manage Products listener attached');
+    }
+    
+    // Edit Products button (also scrolls to products table)
+    if (editProductsBtn) {
+        editProductsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const productsSection = document.querySelector('.products-management');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+        console.log('Edit Products listener attached');
+    }
+    
+    // View Reports
     if (reportsBtn) {
         reportsBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            showComingSoon('Reports');
+            console.log('Reports clicked!');
+            showComingSoon('Reports & Analytics');
         });
+        console.log('Reports listener attached');
+    } else {
+        console.error('Reports button not found!');
     }
+    
+    // Settings
     if (settingsBtn) {
         settingsBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            console.log('Settings clicked!');
             showComingSoon('Settings');
         });
+        console.log('Settings listener attached');
+    } else {
+        console.error('Settings button not found!');
     }
+    
+    console.log('=== Admin navigation setup complete ===');
 }
 
 // ===== ADMIN UTILITIES =====
