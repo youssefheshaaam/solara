@@ -69,14 +69,25 @@ function initializeApp() {
     
     // Setup navigation active states
     setupNavigationActiveStates();
+
+    // Setup global image placeholders and button guards
+    setupGlobalPlaceholders();
+    setupDisabledButtonsGuard();
 }
 
 function initializeUniversalNavigation() {
     // Check if navigation already exists
     const existingNav = document.querySelector('.main-header');
+    const navHTML = createUniversalNavigation();
     if (existingNav) {
         // Replace existing navigation with universal one
-        existingNav.outerHTML = createUniversalNavigation();
+        existingNav.outerHTML = navHTML;
+    } else {
+        // Insert at top if missing (e.g., some pages like Contact)
+        const body = document.body;
+        if (body) {
+            body.insertAdjacentHTML('afterbegin', navHTML);
+        }
     }
 }
 
@@ -240,32 +251,29 @@ function updateAuthUI() {
     }
 }
 
-function login(email, password) {
-    const user = findUserByEmail(email);
-    
-    if (user && user.password === password) {
+async function login(email, password) {
+    if (!window.solaraDB) return { success: false, message: 'Local DB unavailable' };
+    const user = await window.solaraDB.verifyUser(email, password);
+    if (user) {
         currentUser = user;
         localStorage.setItem('loggedInUser', JSON.stringify(user));
         updateAuthUI();
-        return { success: true, user: user };
-    } else {
-        return { success: false, message: 'Invalid email or password' };
+        return { success: true, user };
     }
+    return { success: false, message: 'Invalid email or password' };
 }
 
-function register(userData) {
-    // Check if user already exists
-    if (findUserByEmail(userData.email)) {
-        return { success: false, message: 'User with this email already exists' };
+async function register(userData) {
+    if (!window.solaraDB) return { success: false, message: 'Local DB unavailable' };
+    try {
+        const user = await window.solaraDB.addUser(userData);
+        currentUser = user;
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        updateAuthUI();
+        return { success: true, user };
+    } catch (e) {
+        return { success: false, message: e && e.message ? e.message : 'Registration failed' };
     }
-    
-    // Create new user
-    const newUser = addUser(userData);
-    currentUser = newUser;
-    localStorage.setItem('loggedInUser', JSON.stringify(newUser));
-    updateAuthUI();
-    
-    return { success: true, user: newUser };
 }
 
 function logout() {
@@ -774,35 +782,35 @@ function setupLoginForm() {
                 return;
             }
             
-            // Check if user exists
-            const user = findUserByEmail(email);
-            if (!user) {
-                if (generalError) {
-                    generalError.textContent = 'No account found with this email address';
-                } else {
-                    emailError.textContent = 'No account found with this email address';
-                }
+            // Attempt DB-backed login
+            if (!window.solaraDB) {
+                if (generalError) generalError.textContent = 'Local DB unavailable';
                 return;
             }
-            
-            // Check password
-            if (user.password !== password) {
-                if (generalError) {
-                    generalError.textContent = 'Incorrect password. Please try again.';
-                } else {
-                    passwordError.textContent = 'Incorrect password';
+            window.solaraDB.getUserByEmail(email).then(found => {
+                if (!found) {
+                    if (generalError) {
+                        generalError.textContent = 'No account found with this email address';
+                    } else {
+                        emailError.textContent = 'No account found with this email address';
+                    }
+                    return;
                 }
-                return;
-            }
-            
-            // Login successful
-            const result = loginUser(email, password);
-            if (result.success) {
-                showNotification('Login successful! Welcome back!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1000);
-            }
+                login(email, password).then(result => {
+                    if (result.success) {
+                        showNotification('Login successful! Welcome back!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1000);
+                    } else {
+                        if (generalError) {
+                            generalError.textContent = result.message || 'Incorrect password';
+                        } else {
+                            passwordError.textContent = 'Incorrect password';
+                        }
+                    }
+                });
+            });
         });
     }
 }
@@ -854,13 +862,6 @@ function setupRegistrationForm() {
             if (!email || !email.includes('@') || !email.includes('.')) {
                 if (emailError) emailError.textContent = 'Please enter a valid email address';
                 hasErrors = true;
-            } else {
-                // Check if email already exists
-                const existingUser = findUserByEmail(email);
-                if (existingUser) {
-                    if (emailError) emailError.textContent = 'An account with this email already exists';
-                    hasErrors = true;
-                }
             }
             
             // Validate phone
@@ -886,7 +887,7 @@ function setupRegistrationForm() {
             
             if (hasErrors) return;
             
-            // Registration successful
+            // Registration via local DB
             const userData = {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
@@ -894,18 +895,26 @@ function setupRegistrationForm() {
                 phone: phone.trim(),
                 password: password
             };
-            
-            const result = registerUser(userData);
-            if (result.success) {
-                showNotification('Registration successful! Welcome to SOLARA!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1500);
-            } else {
-                if (generalError) {
-                    generalError.textContent = result.message || 'Registration failed. Please try again.';
-                }
+            if (!window.solaraDB) {
+                if (generalError) generalError.textContent = 'Local DB unavailable';
+                return;
             }
+            window.solaraDB.getUserByEmail(userData.email).then(existing => {
+                if (existing) {
+                    if (emailError) emailError.textContent = 'An account with this email already exists';
+                    return;
+                }
+                register(userData).then(result => {
+                    if (result.success) {
+                        showNotification('Registration successful! Welcome to SOLARA!', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1500);
+                    } else {
+                        if (generalError) generalError.textContent = result.message || 'Registration failed. Please try again.';
+                    }
+                });
+            });
         });
     }
 }
@@ -914,23 +923,57 @@ function setupRegistrationForm() {
 
 function setupFAQAccordion() {
     const faqItems = document.querySelectorAll('.faq-item');
-    
     faqItems.forEach(item => {
         const question = item.querySelector('.faq-question');
-        
+        if (!question) return;
         question.addEventListener('click', () => {
             const isActive = item.classList.contains('active');
-            
-            // Close all other items
-            faqItems.forEach(otherItem => {
-                otherItem.classList.remove('active');
-            });
-            
-            // Toggle current item
-            if (!isActive) {
-                item.classList.add('active');
-            }
+            faqItems.forEach(otherItem => otherItem.classList.remove('active'));
+            if (!isActive) item.classList.add('active');
         });
+    });
+}
+
+// ===== GLOBAL PLACEHOLDERS =====
+
+function setupGlobalPlaceholders() {
+    // Fallback for any images that error
+    document.addEventListener('error', (e) => {
+        const target = e.target;
+        if (target && target.tagName === 'IMG') {
+            target.style.display = 'none';
+            const placeholder = target.nextElementSibling;
+            if (placeholder && placeholder.classList && placeholder.classList.contains('image-placeholder')) {
+                placeholder.style.display = 'flex';
+            } else {
+                // Create a lightweight placeholder if one isn't present
+                const ph = document.createElement('div');
+                ph.className = 'image-placeholder';
+                ph.style.display = 'flex';
+                ph.style.width = target.width ? `${target.width}px` : '100%';
+                ph.style.height = target.height ? `${target.height}px` : '200px';
+                ph.style.alignItems = 'center';
+                ph.style.justifyContent = 'center';
+                ph.style.background = '#f5f5f5';
+                ph.style.color = '#999';
+                ph.innerHTML = '<i class="fas fa-image"></i>';
+                target.parentNode && target.parentNode.insertBefore(ph, target.nextSibling);
+            }
+        }
+    }, true);
+}
+
+// Guard for buttons/links that point to '#'
+function setupDisabledButtonsGuard() {
+    document.addEventListener('click', (e) => {
+        const el = e.target.closest('a, button');
+        if (!el) return;
+        const isAnchor = el.tagName === 'A';
+        const href = isAnchor ? el.getAttribute('href') : null;
+        if ((isAnchor && (href === '#' || href === '' || href === null)) || el.disabled) {
+            e.preventDefault();
+            showNotification('This action is coming soon.', 'info');
+        }
     });
 }
 

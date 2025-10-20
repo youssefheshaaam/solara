@@ -104,15 +104,13 @@ The admin dashboard provides:
 ## 🔐 Admin Security
 
 ### **Current Implementation**
-- No authentication required (Phase 1)
-- All admin functions are accessible
-- Data stored in browser localStorage
+- Client-side authentication using local IndexedDB (see README)
+- Passwords are salted and hashed with PBKDF2 (Web Crypto)
+- Session state stored in localStorage for current tab/profile
 
-### **Future Enhancements** (Phase 2)
-- Admin login system
-- Role-based permissions
-- Database integration
-- Secure API endpoints
+### **Notes**
+- This is a frontend-only setup; do not use for production
+- Clearing browser data/logs will clear users and sessions
 
 ## 📱 Responsive Design
 

@@ -25,6 +25,7 @@ The platform provides a seamless shopping experience with full client-side funct
 
 ### Technical Features
 - **Form Validation**: Comprehensive client-side validation for all forms
+- **Local IndexedDB Auth**: Users stored locally with salted+hashed passwords (PBKDF2)
 - **Local Storage**: Persistent data storage for cart, wishlist, and user sessions
 - **Modern UI/UX**: Clean, professional design with smooth animations
 - **Responsive Layout**: Mobile-first design with CSS Grid and Flexbox
@@ -57,9 +58,10 @@ The platform provides a seamless shopping experience with full client-side funct
 │   └── admin.css              # Admin panel styles
 │
 ├── /js
-│   ├── data.js                # Data management and storage
+│   ├── db.js                  # IndexedDB local user database (hashed passwords)
+│   ├── data.js                # Data management (products, orders, cart, wishlist)
 │   ├── validation.js          # Form validation functions
-│   ├── main.js                # Main application logic
+│   ├── main.js                # Main application logic & universal navbar
 │   └── admin.js               # Admin functionality
 │
 ├── /images                    # Product images and assets
@@ -153,9 +155,10 @@ The application includes comprehensive form validation for:
 - **Checkout**: Shipping information, payment details, card validation
 - **Contact Form**: Message length, subject selection, email format
 
-## Data Management
+## Data Management & Auth
 
-- **Local Storage**: All data is stored locally in the browser
+- **Local IndexedDB (Auth)**: Users are stored in a local IndexedDB database with salted+hashed passwords (PBKDF2, SHA-256)
+- **Local Storage (App)**: Products, orders, cart, wishlist are stored in localStorage
 - **Sample Data**: Pre-loaded with sample products, users, and orders
 - **Data Persistence**: Cart contents, wishlist, and user sessions persist between visits
 
@@ -201,4 +204,4 @@ For questions or support, please contact the development team or refer to the co
 
 ---
 
-**Note**: This is a frontend-only implementation for Phase 1 of the SWE230 project. No backend server or database is required to run the application.
+**Note**: This is a frontend-only implementation. Auth uses the browser's IndexedDB with password hashing via Web Crypto; no external server is required.
