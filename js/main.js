@@ -34,8 +34,14 @@ function getAssetPath(relativePath) {
 }
 
 function initializeApp() {
+    // Initialize universal navigation
+    initializeUniversalNavigation();
+    
     // Initialize data
     initializeData();
+    
+    // Setup user authentication state
+    checkUserAuth();
     
     // Setup password toggles
     setupPasswordToggle();
@@ -55,11 +61,93 @@ function initializeApp() {
     // Setup FAQ accordion
     setupFAQAccordion();
     
+    // Setup login form
+    setupLoginForm();
+    
+    // Setup registration form
+    setupRegistrationForm();
+    
     // Setup navigation active states
     setupNavigationActiveStates();
 }
 
+function initializeUniversalNavigation() {
+    // Check if navigation already exists
+    const existingNav = document.querySelector('.main-header');
+    if (existingNav) {
+        // Replace existing navigation with universal one
+        existingNav.outerHTML = createUniversalNavigation();
+    }
+}
+
 // ===== NAVIGATION =====
+
+function createUniversalNavigation() {
+    const currentPath = window.location.pathname;
+    const isSubPage = currentPath.includes('/pages/') || currentPath.includes('/admin/');
+    const basePath = isSubPage ? '../' : '';
+    
+    return `
+        <header class="main-header">
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <a href="${basePath}index.html">
+                        <i class="fas fa-sun"></i>
+                        SOLARA
+                    </a>
+                </div>
+                
+                <ul class="nav-menu">
+                    <li><a href="${basePath}index.html" class="nav-link">Home</a></li>
+                    <li><a href="${basePath}pages/men.html" class="nav-link">Men</a></li>
+                    <li><a href="${basePath}pages/women.html" class="nav-link">Women</a></li>
+                    <li><a href="${basePath}pages/kids.html" class="nav-link">Kids</a></li>
+                    <li><a href="${basePath}pages/contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <div class="nav-actions">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search products..." id="search-input">
+                        <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="user-actions">
+                        <a href="${basePath}pages/cart.html" class="nav-icon" id="cart-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count" id="cart-count">0</span>
+                        </a>
+                        <a href="#" class="nav-icon" id="wishlist-link">
+                            <i class="fas fa-heart"></i>
+                            <span class="wishlist-count" id="wishlist-count">0</span>
+                        </a>
+                        <a href="${basePath}login.html" class="nav-icon" id="login-link">
+                            <i class="fas fa-user"></i>
+                            Login
+                        </a>
+                        <a href="#" class="nav-icon hidden" id="profile-link">
+                            <i class="fas fa-user-circle"></i>
+                            Profile
+                        </a>
+                        <a href="#" class="nav-icon hidden" id="logout-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                        <a href="${basePath}admin/admin.html" class="nav-icon" id="admin-link">
+                            <i class="fas fa-cog"></i>
+                            Admin
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </header>
+    `;
+}
 
 function setupNavigationActiveStates() {
     const currentPath = window.location.pathname;
@@ -652,6 +740,172 @@ function setupNewsletterForm() {
             // Simulate newsletter subscription
             showNotification('Thank you for subscribing to our newsletter!', 'success');
             newsletterForm.reset();
+        });
+    }
+}
+
+function setupLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const generalError = document.getElementById('general-error');
+            
+            // Clear previous errors
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            if (generalError) generalError.textContent = '';
+            
+            // Validate email format
+            if (!email || !email.includes('@')) {
+                emailError.textContent = 'Please enter a valid email address';
+                return;
+            }
+            
+            // Validate password
+            if (!password || password.length < 6) {
+                passwordError.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            // Check if user exists
+            const user = findUserByEmail(email);
+            if (!user) {
+                if (generalError) {
+                    generalError.textContent = 'No account found with this email address';
+                } else {
+                    emailError.textContent = 'No account found with this email address';
+                }
+                return;
+            }
+            
+            // Check password
+            if (user.password !== password) {
+                if (generalError) {
+                    generalError.textContent = 'Incorrect password. Please try again.';
+                } else {
+                    passwordError.textContent = 'Incorrect password';
+                }
+                return;
+            }
+            
+            // Login successful
+            const result = loginUser(email, password);
+            if (result.success) {
+                showNotification('Login successful! Welcome back!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }
+        });
+    }
+}
+
+function setupRegistrationForm() {
+    const registerForm = document.getElementById('register-form');
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Get error elements
+            const firstNameError = document.getElementById('firstName-error');
+            const lastNameError = document.getElementById('lastName-error');
+            const emailError = document.getElementById('email-error');
+            const phoneError = document.getElementById('phone-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmPasswordError = document.getElementById('confirmPassword-error');
+            const generalError = document.getElementById('general-error');
+            
+            // Clear previous errors
+            [firstNameError, lastNameError, emailError, phoneError, passwordError, confirmPasswordError].forEach(el => {
+                if (el) el.textContent = '';
+            });
+            if (generalError) generalError.textContent = '';
+            
+            let hasErrors = false;
+            
+            // Validate first name
+            if (!firstName || firstName.trim().length < 2) {
+                if (firstNameError) firstNameError.textContent = 'First name must be at least 2 characters';
+                hasErrors = true;
+            }
+            
+            // Validate last name
+            if (!lastName || lastName.trim().length < 2) {
+                if (lastNameError) lastNameError.textContent = 'Last name must be at least 2 characters';
+                hasErrors = true;
+            }
+            
+            // Validate email
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                if (emailError) emailError.textContent = 'Please enter a valid email address';
+                hasErrors = true;
+            } else {
+                // Check if email already exists
+                const existingUser = findUserByEmail(email);
+                if (existingUser) {
+                    if (emailError) emailError.textContent = 'An account with this email already exists';
+                    hasErrors = true;
+                }
+            }
+            
+            // Validate phone
+            if (!phone || phone.length < 10) {
+                if (phoneError) phoneError.textContent = 'Please enter a valid phone number';
+                hasErrors = true;
+            }
+            
+            // Validate password
+            if (!password || password.length < 8) {
+                if (passwordError) passwordError.textContent = 'Password must be at least 8 characters';
+                hasErrors = true;
+            } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+                if (passwordError) passwordError.textContent = 'Password must contain uppercase, lowercase, and number';
+                hasErrors = true;
+            }
+            
+            // Validate confirm password
+            if (password !== confirmPassword) {
+                if (confirmPasswordError) confirmPasswordError.textContent = 'Passwords do not match';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) return;
+            
+            // Registration successful
+            const userData = {
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
+                password: password
+            };
+            
+            const result = registerUser(userData);
+            if (result.success) {
+                showNotification('Registration successful! Welcome to SOLARA!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                if (generalError) {
+                    generalError.textContent = result.message || 'Registration failed. Please try again.';
+                }
+            }
         });
     }
 }

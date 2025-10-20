@@ -10,6 +10,36 @@ let currentSearch = '';
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin';
 const ADMIN_AUTH_KEY = 'solaraAdminAuthed';
+const ADMIN_AUTH_TTL_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+function getAdminAuthState() {
+    try {
+        const raw = localStorage.getItem(ADMIN_AUTH_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (_) {
+        return null;
+    }
+}
+
+function isAdminAuthenticated() {
+    const state = getAdminAuthState();
+    if (!state || !state.token || !state.expiresAt) return false;
+    return Date.now() < state.expiresAt;
+}
+
+function setAdminAuthenticated() {
+    const state = {
+        token: 'ok',
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + ADMIN_AUTH_TTL_MS,
+    };
+    localStorage.setItem(ADMIN_AUTH_KEY, JSON.stringify(state));
+}
+
+function clearAdminAuth() {
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+}
 
 function checkAdminAuth() {
     const adminContainer = document.querySelector('.admin-container');
@@ -17,18 +47,35 @@ function checkAdminAuth() {
     const urlParams = new URLSearchParams(window.location.search);
     const forceLogin = urlParams.has('login');
 
+    // Force logout if requested
     if (forceLogin) {
-        localStorage.removeItem(ADMIN_AUTH_KEY);
+        clearAdminAuth();
     }
 
-    if (localStorage.getItem(ADMIN_AUTH_KEY) === 'true' && !forceLogin) {
-        if (adminContainer) adminContainer.style.display = 'block';
-        if (adminLoginContainer) adminLoginContainer.style.display = 'none';
+    // Check if admin is authenticated (with expiry)
+    const isAuthenticated = isAdminAuthenticated();
+    
+    if (isAuthenticated && !forceLogin) {
+        // Show admin dashboard
+        if (adminContainer) {
+            adminContainer.style.display = 'block';
+        }
+        if (adminLoginContainer) {
+            adminLoginContainer.style.display = 'none';
+        }
         initializeAdminDashboard();
     } else {
-        if (adminContainer) adminContainer.style.display = 'none';
-        if (adminLoginContainer) adminLoginContainer.style.display = 'flex';
+        // Show login form
+        if (adminContainer) {
+            adminContainer.style.display = 'none';
+        }
+        if (adminLoginContainer) {
+            adminLoginContainer.style.display = 'flex';
+        }
         setupAdminLogin();
+        
+        // Clear any existing authentication
+        clearAdminAuth();
     }
 }
 
@@ -50,7 +97,7 @@ function handleAdminLogin(e) {
     const messageElement = document.getElementById('admin-login-message');
 
     if (usernameInput.value === ADMIN_USERNAME && passwordInput.value === ADMIN_PASSWORD) {
-        localStorage.setItem(ADMIN_AUTH_KEY, 'true');
+        setAdminAuthenticated();
         messageElement.textContent = 'Login successful!';
         messageElement.className = 'form-message success';
         messageElement.style.display = 'block';
@@ -65,7 +112,7 @@ function handleAdminLogin(e) {
 }
 
 function handleAdminLogout() {
-    localStorage.removeItem(ADMIN_AUTH_KEY);
+    clearAdminAuth();
     window.location.href = 'admin.html?login'; // Redirect to login page
 }
 
@@ -76,6 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
         checkAdminAuth();
     }
 });
+
+// Also run immediately in case DOMContentLoaded already fired
+if (window.location.pathname.includes('admin')) {
+    checkAdminAuth();
+}
 
 function initializeAdminDashboard() {
     loadDashboardStats();
@@ -588,6 +640,10 @@ function createOrderItemHTML(order) {
 function setupAdminNavigation() {
     const manageProductsBtn = document.getElementById('manage-products');
     const editProductsBtn = document.getElementById('edit-products-btn');
+    const ordersLink = document.querySelector('.admin-nav-menu a:nth-child(4)');
+    const customersLink = document.querySelector('.admin-nav-menu a:nth-child(5)');
+    const reportsBtn = document.querySelector('.action-buttons a:nth-child(3)');
+    const settingsBtn = document.querySelector('.action-buttons a:nth-child(4)');
     
     if (manageProductsBtn) {
         manageProductsBtn.addEventListener('click', (e) => {
@@ -608,6 +664,35 @@ function setupAdminNavigation() {
             if (productsSection) {
                 productsSection.scrollIntoView({ behavior: 'smooth' });
             }
+        });
+    }
+
+    const showComingSoon = (label) => {
+        showAdminNotification(`${label} is coming soon.`, 'info');
+    };
+
+    if (ordersLink) {
+        ordersLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showComingSoon('Orders');
+        });
+    }
+    if (customersLink) {
+        customersLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showComingSoon('Customers');
+        });
+    }
+    if (reportsBtn) {
+        reportsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showComingSoon('Reports');
+        });
+    }
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showComingSoon('Settings');
         });
     }
 }

@@ -9,7 +9,7 @@ const products = [
     { id: 7, name: "Silk Ruffle Blouse", price: 55.00, img: "blouse.jpeg", category: 'women' },
     { id: 8, name: "A-Line Midi Skirt", price: 48.00, img: "skirt.jpeg", category: 'women' },
     { id: 9, name: "Crossbody Leather Bag", price: 75.00, img: "bag.jpeg", category: 'women' },
-    { id: 10, name: "Graphic Print T-Shirt", price: 15.00, img: "tshirt.jpeg", category: 'kids' },
+    { id: 10, name: "Graphic Print T-Shirt", price: 15.00, img: "1_1gif", category: 'kids' },
     { id: 11, name: "Comfortable Jogger Pants", price: 20.00, img: "pants.jpeg", category: 'kids' },
     { id: 12, name: "Light-Up Sneakers", price: 35.00, img: "sneakers.jpeg", category: 'kids' }
 ];
