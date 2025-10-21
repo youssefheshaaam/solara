@@ -112,6 +112,7 @@ function handleAdminLogin(e) {
 }
 
 function handleAdminLogout(e) {
+    console.log('Admin logout function called');
     if (e) e.preventDefault();
     clearAdminAuth();
     // Also clear user auth if exists

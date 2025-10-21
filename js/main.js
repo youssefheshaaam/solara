@@ -8,6 +8,7 @@ let currentSort = 'newest';
 // ===== INITIALIZATION =====
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing app');
     initializeApp();
     setupEventListeners();
     loadProducts();
@@ -18,6 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
     checkUserAuth();
     setupFloatingButton();
     setupScrollEffects();
+    
+    // Debug: Check if logout buttons exist
+    const logoutLinks = document.querySelectorAll('#logout-link');
+    const adminLogoutLinks = document.querySelectorAll('#admin-logout');
+    console.log('Found logout links:', logoutLinks.length);
+    console.log('Found admin logout links:', adminLogoutLinks.length);
 });
 
 // Resolve asset paths from root and subpages
@@ -321,6 +328,55 @@ function logout() {
 
 // Make logout globally accessible
 window.logout = logout;
+
+// Test function to verify logout functionality
+window.testLogout = function() {
+    console.log('Testing logout functionality...');
+    console.log('Current user:', currentUser);
+    console.log('Logged in user from localStorage:', localStorage.getItem('loggedInUser'));
+    console.log('Admin auth from localStorage:', localStorage.getItem('solaraAdminAuthed'));
+    
+    // Test logout
+    logout();
+    
+    console.log('After logout:');
+    console.log('Current user:', currentUser);
+    console.log('Logged in user from localStorage:', localStorage.getItem('loggedInUser'));
+    console.log('Admin auth from localStorage:', localStorage.getItem('solaraAdminAuthed'));
+};
+
+// Add onclick fallbacks for logout buttons
+document.addEventListener('DOMContentLoaded', function() {
+    // Add onclick fallbacks for user logout
+    const logoutLinks = document.querySelectorAll('#logout-link');
+    logoutLinks.forEach(link => {
+        if (!link.onclick) {
+            link.onclick = function(e) {
+                e.preventDefault();
+                console.log('Onclick fallback for user logout');
+                logout();
+                return false;
+            };
+        }
+    });
+    
+    // Add onclick fallbacks for admin logout
+    const adminLogoutLinks = document.querySelectorAll('#admin-logout');
+    adminLogoutLinks.forEach(link => {
+        if (!link.onclick) {
+            link.onclick = function(e) {
+                e.preventDefault();
+                console.log('Onclick fallback for admin logout');
+                if (typeof handleAdminLogout === 'function') {
+                    handleAdminLogout(e);
+                } else {
+                    logout();
+                }
+                return false;
+            };
+        }
+    });
+});
 
 // ===== PRODUCT DISPLAY =====
 
@@ -1250,11 +1306,17 @@ function setupQuickViewEvents(modal, product) {
 function setupEventListeners() {
     // Logout functionality - use event delegation to catch dynamically added elements
     document.addEventListener('click', (e) => {
+        console.log('Click detected:', e.target);
+        
         if (e.target.closest('#logout-link')) {
+            console.log('User logout clicked');
             e.preventDefault();
+            e.stopPropagation();
             logout();
         } else if (e.target.closest('#admin-logout')) {
+            console.log('Admin logout clicked');
             e.preventDefault();
+            e.stopPropagation();
             // Use admin logout if available, otherwise use regular logout
             if (typeof handleAdminLogout === 'function') {
                 handleAdminLogout(e);
@@ -1262,6 +1324,31 @@ function setupEventListeners() {
                 logout();
             }
         }
+    });
+    
+    // Also add direct event listeners for logout buttons
+    const logoutLinks = document.querySelectorAll('#logout-link');
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            console.log('Direct logout link clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            logout();
+        });
+    });
+    
+    const adminLogoutLinks = document.querySelectorAll('#admin-logout');
+    adminLogoutLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            console.log('Direct admin logout link clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof handleAdminLogout === 'function') {
+                handleAdminLogout(e);
+            } else {
+                logout();
+            }
+        });
     });
     
     // Profile link
