@@ -1783,6 +1783,16 @@ if (window.location.pathname.includes('kids.html')) {
 // Cart page initialization
 if (window.location.pathname.includes('cart.html')) {
     document.addEventListener('DOMContentLoaded', () => {
+        // Add some sample cart items for testing if cart is empty
+        const existingCart = getCart();
+        if (existingCart.length === 0) {
+            const sampleCart = [
+                { productId: 1, quantity: 2 },
+                { productId: 2, quantity: 1 }
+            ];
+            localStorage.setItem('fashionStoreCart', JSON.stringify(sampleCart));
+        }
+        
         loadCartItems();
     });
 }

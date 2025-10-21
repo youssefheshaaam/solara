@@ -6,13 +6,13 @@
     <title>Shopping Cart - SOLARA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation Header -->
     <header class="main-header">
-        <nav class="navbar">
+        <nav class="navbar glass-effect">
             <div class="nav-brand">
                 <a href="../index.html">
                     <i class="fas fa-sun"></i>
@@ -29,172 +29,146 @@
             </ul>
             
             <div class="nav-actions">
-                <a href="cart.html" class="nav-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
-                <a href="#" class="nav-icon">
-                    <i class="fas fa-heart"></i>
-                    <span class="wishlist-count" id="wishlist-count">0</span>
-                </a>
-                <a href="profile.html" class="nav-icon">
-                    <i class="fas fa-user-circle"></i>
-                    Profile
-                </a>
-                <a href="#" class="nav-icon" id="logout-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-                <a href="../admin/admin.html" class="nav-icon" id="admin-link">
-                    <i class="fas fa-cog"></i>
-                    Admin
-                </a>
+                <div class="search-box">
+                    <input type="text" placeholder="Search products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="cart.html" class="nav-icon active" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="../login.html" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                        Login
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                        Profile
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                    <a href="../admin/admin.html" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                        Admin
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
         </nav>
     </header>
 
     <!-- Cart Section -->
-    <main class="cart-container">
+    <main class="cart-page">
         <div class="container">
-            <div class="cart-header">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="../index.html">Home</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Shopping Cart</span>
+                </div>
                 <h1>Shopping Cart</h1>
                 <p>Review your items before checkout</p>
             </div>
-            
-            <div class="cart-content">
-                <div class="cart-items" id="cart-items">
-                    <!-- Cart items will be loaded dynamically -->
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="../images/1_1gif" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        </div>
-                        <div class="item-details">
-                            <h3>Classic Cotton T-Shirt</h3>
-                            <p class="item-category">Men's Collection</p>
-                            <div class="item-options">
-                                <span class="size">Size: M</span>
-                                <span class="color">Color: Blue</span>
-                            </div>
-                            <p class="item-price">25.00 EGP</p>
-                        </div>
-                        <div class="item-quantity">
-                            <button class="quantity-btn" data-action="decrease">-</button>
-                            <input type="number" class="quantity-input" value="2" min="1" max="10">
-                            <button class="quantity-btn" data-action="increase">+</button>
-                        </div>
-                        <div class="item-total">
-                            <p class="total-price">50.00 EGP</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="remove-btn" title="Remove item">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="wishlist-btn" title="Move to wishlist">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
+
+            <!-- Cart Content -->
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-section">
+                    <div class="section-header">
+                        <h2>Your Items</h2>
+                        <span class="item-count" id="item-count">0 items</span>
                     </div>
                     
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="../images/jeans.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        </div>
-                        <div class="item-details">
-                            <h3>Slim Fit Jeans</h3>
-                            <p class="item-category">Men's Collection</p>
-                            <div class="item-options">
-                                <span class="size">Size: 32</span>
-                                <span class="color">Color: Dark Blue</span>
-                            </div>
-                            <p class="item-price">60.00 EGP</p>
-                        </div>
-                        <div class="item-quantity">
-                            <button class="quantity-btn" data-action="decrease">-</button>
-                            <input type="number" class="quantity-input" value="1" min="1" max="10">
-                            <button class="quantity-btn" data-action="increase">+</button>
-                        </div>
-                        <div class="item-total">
-                            <p class="total-price">60.00 EGP</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="remove-btn" title="Remove item">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="wishlist-btn" title="Move to wishlist">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        </div>
+                    <div class="cart-items" id="cart-items">
+                        <!-- Cart items will be loaded dynamically -->
                     </div>
                 </div>
-                
-                <div class="cart-summary">
+
+                <!-- Order Summary -->
+                <div class="order-summary">
                     <div class="summary-card">
                         <h3>Order Summary</h3>
                         
-                        <div class="summary-line">
-                            <span>Subtotal (2 items)</span>
-                            <span>$110.00</span>
-                        </div>
-                        
-                        <div class="summary-line">
-                            <span>Shipping</span>
-                            <span class="free-shipping">FREE</span>
-                        </div>
-                        
-                        <div class="summary-line">
-                            <span>Tax</span>
-                            <span>$8.80</span>
-                        </div>
-                        
-                        <div class="summary-line total">
-                            <span><strong>Total</strong></span>
-                            <span><strong>$118.80</strong></span>
-                        </div>
-                        
-                        <div class="promo-code">
-                            <div class="promo-input">
-                                <input type="text" placeholder="Enter promo code" id="promo-code">
-                                <button class="btn btn-outline" id="apply-promo">Apply</button>
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="subtotal">0.00 EGP</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Shipping</span>
+                                <span>Free</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tax</span>
+                                <span id="tax">0.00 EGP</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total</span>
+                                <span id="total">0.00 EGP</span>
                             </div>
                         </div>
                         
-                        <button class="btn btn-primary btn-full" onclick="window.location.href='checkout.html'">
-                            <i class="fas fa-credit-card"></i>
+                        <button class="btn btn-primary btn-checkout" id="checkout-btn">
+                            <i class="fas fa-lock"></i>
                             Proceed to Checkout
                         </button>
                         
-                        <div class="secure-checkout">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Secure checkout with SSL encryption</span>
+                        <div class="payment-methods">
+                            <p>We accept:</p>
+                            <div class="payment-icons">
+                                <i class="fab fa-cc-visa"></i>
+                                <i class="fab fa-cc-mastercard"></i>
+                                <i class="fab fa-cc-paypal"></i>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="recommendations">
-                        <h4>You might also like</h4>
-                        <div class="recommended-items">
-                            <div class="recommended-item">
-                                <img src="../images/shoes.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <h5>Leather Derby Shoes</h5>
-                                <p class="price">80.00 EGP</p>
-                                <button class="btn btn-outline btn-sm">Add to Cart</button>
+                    <!-- Security Features -->
+                    <div class="security-features">
+                        <div class="security-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h4>Secure Checkout</h4>
+                                <p>Your payment information is encrypted</p>
                             </div>
-                            <div class="recommended-item">
-                                <img src="../images/jacket.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <h5>Winter Jacket</h5>
-                                <p class="price">45.00 EGP</p>
-                                <button class="btn btn-outline btn-sm">Add to Cart</button>
+                        </div>
+                        <div class="security-item">
+                            <i class="fas fa-truck"></i>
+                            <div>
+                                <h4>Free Shipping</h4>
+                                <p>On orders over 100 EGP</p>
+                            </div>
+                        </div>
+                        <div class="security-item">
+                            <i class="fas fa-undo"></i>
+                            <div>
+                                <h4>Easy Returns</h4>
+                                <p>30-day return policy</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="empty-cart" id="empty-cart" style="display: none;">
-                <div class="empty-state">
-                    <i class="fas fa-shopping-cart"></i>
-                    <h3>Your cart is empty</h3>
-                    <p>Looks like you haven't added anything to your cart yet.</p>
-                    <a href="../index.html" class="btn btn-primary">Start Shopping</a>
+
+            <!-- Recommended Products -->
+            <div class="recommended-section">
+                <h2>You might also like</h2>
+                <div class="recommended-grid" id="recommended-products">
+                    <!-- Recommended products will be loaded dynamically -->
                 </div>
             </div>
         </div>
@@ -203,8 +177,47 @@
     <!-- Footer -->
     <footer class="main-footer">
         <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SOLARA</h3>
+                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="men.html">Men's Collection</a></li>
+                        <li><a href="women.html">Women's Collection</a></li>
+                        <li><a href="kids.html">Kids' Collection</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="../login.html">Login</a></li>
+                        <li><a href="../register.html">Register</a></li>
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -214,4 +227,3 @@
     <script src="../js/main.js"></script>
 </body>
 </html>
-
