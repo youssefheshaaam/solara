@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-SOLARA is a sleek, modern e-commerce web application that embodies minimal luxury aesthetics. This project implements a sophisticated design system featuring a carefully curated color palette with rich charcoal black (#1C1C1C), warm beige-sand (#EADBC8), and terracotta orange (#E67E22). The application delivers a youthful, clean aesthetic inspired by contemporary fashion brands like Zara, ASOS, and Nike, but with a more personal and refined approach.
+SOLARA is a sleek, modern e-commerce web application that embodies minimal luxury aesthetics. This project implements a sophisticated design system featuring a carefully curated color palette with rich dark tones, warm neutrals, and vibrant accent colors. The application delivers a youthful, clean aesthetic inspired by contemporary fashion brands like Zara, ASOS, and Nike, but with a more personal and refined approach.
 
-The platform provides a seamless shopping experience with full client-side functionality including user authentication, advanced product management, sophisticated shopping cart, and comprehensive administrative features. The design emphasizes minimalism, clean typography using Inter and Poppins fonts, and subtle animations that enhance user experience without overwhelming the interface.
+The platform provides a seamless shopping experience with full client-side functionality including user authentication, advanced product management, sophisticated shopping cart, and comprehensive administrative features. The design emphasizes minimalism, clean typography, and subtle animations that enhance user experience without overwhelming the interface.
 
 ## Key Features
 
@@ -75,7 +75,7 @@ The platform provides a seamless shopping experience with full client-side funct
 - **JavaScript (ES6+)**: Vanilla JavaScript with modern features
 - **LocalStorage**: All data persistence (users, products, cart, orders)
 - **Font Awesome**: Icon library for UI elements
-- **Google Fonts**: Inter and Poppins font families for modern typography
+- **Google Fonts**: Modern font families for clean typography
 
 **Zero Setup Required** - Just open `index.html` in your browser!
 
@@ -152,10 +152,10 @@ The application includes comprehensive form validation for:
 
 ## Responsive Design
 
-The application is fully responsive with breakpoints for:
-- **Desktop**: 1200px and above
-- **Tablet**: 768px to 1199px
-- **Mobile**: 320px to 767px
+The application is fully responsive with optimized layouts for:
+- **Desktop**: Large screens and wide displays
+- **Tablet**: Medium-sized screens and tablets
+- **Mobile**: Small screens and mobile devices
 
 ## Browser Compatibility
 
