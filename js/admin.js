@@ -112,7 +112,6 @@ function handleAdminLogin(e) {
 }
 
 function handleAdminLogout(e) {
-    console.log('Admin logout function called');
     if (e) e.preventDefault();
     clearAdminAuth();
     // Also clear user auth if exists
@@ -126,11 +125,36 @@ function handleAdminLogout(e) {
 // Make admin logout globally accessible
 window.handleAdminLogout = handleAdminLogout;
 
+// ===== PASSWORD TOGGLE FUNCTIONALITY =====
+
+function setupPasswordToggle() {
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.password-toggle')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const toggle = e.target.closest('.password-toggle');
+            const input = toggle.parentElement.querySelector('input');
+            const icon = toggle.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    });
+}
+
 // ===== ADMIN INITIALIZATION =====
 
 document.addEventListener('DOMContentLoaded', function() {
     if (window.location.pathname.includes('admin')) {
         checkAdminAuth();
+        setupPasswordToggle();
     }
 });
 
