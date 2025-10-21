@@ -114,11 +114,16 @@ function handleAdminLogin(e) {
 function handleAdminLogout(e) {
     if (e) e.preventDefault();
     clearAdminAuth();
+    // Also clear user auth if exists
+    localStorage.removeItem('loggedInUser');
     showAdminNotification('Logged out successfully', 'success');
     setTimeout(() => {
         window.location.href = 'admin.html';
     }, 500);
 }
+
+// Make admin logout globally accessible
+window.handleAdminLogout = handleAdminLogout;
 
 // ===== ADMIN INITIALIZATION =====
 

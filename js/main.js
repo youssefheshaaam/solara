@@ -305,8 +305,10 @@ async function register(userData) {
 }
 
 function logout() {
+    console.log('Logout function called');
     currentUser = null;
     localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('solaraAdminAuthed'); // Also clear admin auth
     updateAuthUI();
     
     // Redirect to home page
@@ -316,6 +318,9 @@ function logout() {
         window.location.href = 'index.html';
     }
 }
+
+// Make logout globally accessible
+window.logout = logout;
 
 // ===== PRODUCT DISPLAY =====
 
@@ -407,7 +412,7 @@ function createProductCard(product) {
             <div class="product-image">
                 ${saleBadge}
                 <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
+                <div class="image-placeholder" style="display:none;">
                     <i class="fas fa-image"></i>
                 </div>
                 <div class="product-overlay">
@@ -1243,13 +1248,20 @@ function setupQuickViewEvents(modal, product) {
 // ===== EVENT LISTENERS =====
 
 function setupEventListeners() {
-    // Logout functionality
-    const logoutLinks = document.querySelectorAll('#logout-link, #admin-logout');
-    logoutLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+    // Logout functionality - use event delegation to catch dynamically added elements
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#logout-link')) {
             e.preventDefault();
             logout();
-        });
+        } else if (e.target.closest('#admin-logout')) {
+            e.preventDefault();
+            // Use admin logout if available, otherwise use regular logout
+            if (typeof handleAdminLogout === 'function') {
+                handleAdminLogout(e);
+            } else {
+                logout();
+            }
+        }
     });
     
     // Profile link
@@ -2120,3 +2132,4 @@ document.addEventListener('DOMContentLoaded', function() {
     addRippleEffectCSS();
     setTimeout(enhanceProductCards, 1000); // Wait for products to load
 });
+

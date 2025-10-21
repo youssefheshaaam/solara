@@ -918,11 +918,17 @@ a:hover {
     box-shadow: 0 12px 30px rgba(230, 126, 34, 0.15);
 }
 
+.product-image {
+    position: relative;
+    overflow: hidden;
+}
+
 .product-card img {
     width: 100%;
     height: 300px;
     object-fit: cover;
     transition: transform var(--transition-slow);
+    display: block;
 }
 
 .product-card:hover img {
