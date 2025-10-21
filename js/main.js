@@ -411,22 +411,14 @@ function loadBestSellers() {
     const bestSellersGrid = document.getElementById('best-sellers-grid');
     if (!bestSellersGrid) return;
     
-    // Get first 8 products as best sellers for now
-    const allProducts = getProductsByCategory('all');
-    const bestSellers = allProducts.slice(0, 8);
+    // Temporary products for best sellers - MAX 3
+    const tempProducts = [
+        { id: 1, name: "Classic Cotton T-Shirt", price: 25.00, image: "images/products/1.gif", category: "men", description: "Comfortable cotton t-shirt", brand: "SOLARA", sizes: ["S", "M", "L", "XL"], colors: ["Blue", "White", "Black"], material: "100% Cotton", stock: 50, featured: true, status: "active" },
+        { id: 2, name: "Elegant Summer Dress", price: 50.00, image: "images/products/1R5A0057_1_2.jpg", category: "women", description: "Beautiful summer dress", brand: "SOLARA", sizes: ["XS", "S", "M", "L"], colors: ["Floral", "Blue"], material: "Polyester Blend", stock: 30, featured: true, status: "active" },
+        { id: 3, name: "Kids Winter Jacket", price: 45.00, image: "images/products/1R5A0160.jpg", category: "kids", description: "Warm winter jacket", brand: "SOLARA", sizes: ["4", "6", "8", "10"], colors: ["Red", "Blue"], material: "Polyester", stock: 25, featured: true, status: "active" }
+    ];
     
-    if (bestSellers.length === 0) {
-        bestSellersGrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-star"></i>
-                <h3>No best sellers available</h3>
-                <p>Check back soon for our top products</p>
-            </div>
-        `;
-        return;
-    }
-    
-    bestSellersGrid.innerHTML = bestSellers.map(product => createProductCard(product)).join('');
+    bestSellersGrid.innerHTML = tempProducts.map(product => createProductCard(product)).join('');
     
     // Add event listeners to best seller cards
     setupProductCardEvents();
@@ -436,22 +428,14 @@ function loadNewArrivals() {
     const newArrivalsGrid = document.getElementById('new-arrivals-grid');
     if (!newArrivalsGrid) return;
     
-    // Get last 6 products as new arrivals for now
-    const allProducts = getProductsByCategory('all');
-    const newArrivals = allProducts.slice(-6);
+    // Temporary products for new arrivals - MAX 3
+    const tempProducts = [
+        { id: 9, name: "Trendy Sneakers", price: 80.00, image: "images/products/1W2A4345_copy_5.jpg", category: "men", description: "Comfortable sneakers", brand: "SOLARA", sizes: ["8", "9", "10", "11"], colors: ["White", "Black"], material: "Canvas", stock: 20, featured: true, status: "active" },
+        { id: 10, name: "Elegant Blazer", price: 120.00, image: "images/products/2_4.gif", category: "women", description: "Professional blazer", brand: "SOLARA", sizes: ["XS", "S", "M", "L"], colors: ["Black", "Navy"], material: "Wool Blend", stock: 15, featured: true, status: "active" },
+        { id: 11, name: "Kids Sneakers", price: 45.00, image: "images/products/1W2A6581_0f869f30-1398-4694-9c5e-6413bded0bc8_1.jpg", category: "kids", description: "Comfortable kids shoes", brand: "SOLARA", sizes: ["3", "4", "5", "6"], colors: ["Red", "Blue"], material: "Synthetic", stock: 30, featured: true, status: "active" }
+    ];
     
-    if (newArrivals.length === 0) {
-        newArrivalsGrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-plus"></i>
-                <h3>No new arrivals available</h3>
-                <p>Check back soon for fresh styles</p>
-            </div>
-        `;
-        return;
-    }
-    
-    newArrivalsGrid.innerHTML = newArrivals.map(product => createProductCard(product)).join('');
+    newArrivalsGrid.innerHTML = tempProducts.map(product => createProductCard(product)).join('');
     
     // Add event listeners to new arrival cards
     setupProductCardEvents();
@@ -1623,12 +1607,12 @@ function setupSorting() {
     if (sortSelect) {
         sortSelect.addEventListener('change', (e) => {
             const sortBy = e.target.value;
-            sortProducts(sortBy);
+            sortProductsDisplay(sortBy);
         });
     }
 }
 
-function sortProducts(sortBy) {
+function sortProductsDisplay(sortBy) {
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
     
@@ -1651,7 +1635,7 @@ function setupPriceFilter() {
     if (priceRange && maxPriceDisplay) {
         priceRange.addEventListener('input', (e) => {
             const maxPrice = parseFloat(e.target.value);
-            maxPriceDisplay.textContent = `$${maxPrice}`;
+            maxPriceDisplay.textContent = `${maxPrice} EGP`;
             filterByPrice(maxPrice);
         });
     }
