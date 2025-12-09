@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - SOLARA</title>
+    <title>My Profile - SOLARA Admin</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/forms.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -51,32 +52,33 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Header -->
-    <header class="main-header">
-        <nav class="navbar">
-            <div class="nav-brand">
+    <!-- Admin Navigation -->
+    <header class="admin-header">
+        <nav class="admin-navbar">
+            <div class="admin-brand">
                 <a href="../index.html">
                     <i class="fas fa-sun"></i>
-                    SOLARA
+                    SOLARA Admin
                 </a>
             </div>
-            <ul class="nav-menu">
-                <li><a href="../index.html" class="nav-link">Home</a></li>
-                <li><a href="men.html" class="nav-link">Men</a></li>
-                <li><a href="women.html" class="nav-link">Women</a></li>
-                <li><a href="kids.html" class="nav-link">Kids</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="nav-actions">
-                <a href="cart.html" class="nav-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
+            <div class="admin-nav-menu">
+                <a href="admin.html" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
                 </a>
-                <a href="wishlist.html" class="nav-icon">
-                    <i class="fas fa-heart"></i>
+                <a href="add-product.html" class="nav-link">
+                    <i class="fas fa-plus"></i>
+                    Add Product
                 </a>
-                <a href="orders.html" class="nav-icon">
-                    <i class="fas fa-box"></i>
+                <a href="admin.html#products" class="nav-link">
+                    <i class="fas fa-edit"></i>
+                    Manage Products
+                </a>
+            </div>
+            <div class="admin-actions">
+                <a href="../pages/profile.html" class="btn btn-outline">
+                    <i class="fas fa-user"></i>
+                    Profile
                 </a>
                 <button class="nav-icon logout-btn" id="logout-btn" title="Logout">
                     <i class="fas fa-sign-out-alt"></i>
@@ -109,13 +111,13 @@
                             <i class="fas fa-cog"></i>
                             Preferences
                         </a>
-                        <a href="orders.html" class="profile-nav-link">
+                        <a href="../pages/orders.html" class="profile-nav-link">
                             <i class="fas fa-shopping-bag"></i>
                             My Orders
                         </a>
-                        <a href="wishlist.html" class="profile-nav-link">
-                            <i class="fas fa-heart"></i>
-                            Wishlist
+                        <a href="admin.html" class="profile-nav-link">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Admin Dashboard
                         </a>
                         <a href="#" class="profile-nav-link logout-btn" data-logout="true">
                             <i class="fas fa-sign-out-alt"></i>
@@ -239,37 +241,27 @@
         });
         
         async function checkAuthAndLoad() {
-            // Check if user is logged in
             let user = null;
             
-            // Try API first
             if (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
                 user = AuthAPI.getCurrentUser();
-                
-                // Try to get fresh data
                 try {
                     const response = await AuthAPI.getMe();
                     if (response.success) {
                         user = response.data;
                         localStorage.setItem('currentUser', JSON.stringify(user));
                     }
-                } catch (e) {
-                    console.log('Could not fetch fresh user data');
-                }
+                } catch (e) {}
             }
             
-            // Fallback to localStorage
             if (!user) {
                 const stored = localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser');
                 if (stored) {
-                    try {
-                        user = JSON.parse(stored);
-                    } catch (e) {}
+                    try { user = JSON.parse(stored); } catch (e) {}
                 }
             }
             
             if (!user) {
-                // Not logged in - redirect to login
                 window.location.href = '../login.html';
                 return;
             }
@@ -286,7 +278,6 @@
             document.getElementById('profile-email').value = user.email || '';
             document.getElementById('profile-phone').value = user.phone || '';
             
-            // Update avatar with initials
             const avatar = document.getElementById('profile-avatar-display');
             if (user.firstName) {
                 const initials = (user.firstName[0] || '') + (user.lastName?.[0] || '');
@@ -339,12 +330,8 @@
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const section = link.dataset.section;
-                    
-                    // Update active nav
                     navLinks.forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
-                    
-                    // Show section
                     document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(section).classList.add('active');
                 });
@@ -360,7 +347,7 @@
             editBtn.addEventListener('click', () => {
                 isEditing = true;
                 document.querySelectorAll('#personal-form input').forEach(input => {
-                    if (input.name !== 'email') { // Email shouldn't be editable
+                    if (input.name !== 'email') {
                         input.removeAttribute('readonly');
                     }
                 });
@@ -375,12 +362,11 @@
                 });
                 formActions.style.display = 'none';
                 editBtn.style.display = 'block';
-                populateProfileData(currentUserData); // Reset to original
+                populateProfileData(currentUserData);
             });
             
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const updateData = {
                     firstName: document.getElementById('profile-firstName').value,
                     lastName: document.getElementById('profile-lastName').value,
@@ -394,17 +380,8 @@
                             currentUserData = { ...currentUserData, ...updateData };
                             localStorage.setItem('currentUser', JSON.stringify(currentUserData));
                             showNotification('Profile updated successfully!', 'success');
-                            cancelBtn.click(); // Exit edit mode
-                        } else {
-                            showNotification(response.error || 'Failed to update', 'error');
+                            cancelBtn.click();
                         }
-                    } else {
-                        // Fallback - just save locally
-                        currentUserData = { ...currentUserData, ...updateData };
-                        localStorage.setItem('currentUser', JSON.stringify(currentUserData));
-                        localStorage.setItem('loggedInUser', JSON.stringify(currentUserData));
-                        showNotification('Profile updated!', 'success');
-                        cancelBtn.click();
                     }
                 } catch (error) {
                     showNotification(error.message || 'Error updating profile', 'error');
@@ -416,7 +393,6 @@
             const form = document.getElementById('preferences-form');
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
                 const prefs = {
                     emailNotifications: document.getElementById('email-notifications').checked,
                     smsNotifications: document.getElementById('sms-notifications').checked,
@@ -443,7 +419,7 @@
         function deleteAddress(index) {
             showNotification('Address deletion coming soon!', 'info');
         }
-        
     </script>
 </body>
 </html>
+

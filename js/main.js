@@ -169,21 +169,19 @@ function createUniversalNavigation() {
                             <i class="fas fa-user"></i>
                             Login
                         </a>
-                        <div class="dropdown my-account hidden" id="my-account">
-                            <button class="dropdown-toggle" id="my-account-toggle">
-                                <i class="fas fa-user-circle"></i>
-                                My Account
-                                <i class="fas fa-chevron-down"></i>
-                            </button>
-                            <div class="dropdown-menu" id="my-account-menu">
-                                <a href="${pagesPrefix}profile.html" id="profile-link"><i class="fas fa-id-card"></i> My Profile</a>
-                                <a href="${pagesPrefix}orders.html" id="orders-link"><i class="fas fa-box"></i> My Orders</a>
-                                <a href="#" id="logout-link" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                            </div>
-                        </div>
+                        <a href="${pagesPrefix}profile.html" class="nav-icon hidden" id="profile-link" title="My Profile">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="nav-label">Profile</span>
+                        </a>
+                        <a href="${pagesPrefix}orders.html" class="nav-icon hidden" id="orders-link" title="My Orders">
+                            <i class="fas fa-box"></i>
+                        </a>
+                        <button class="nav-icon logout-btn hidden" id="logout-btn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="nav-label">Logout</span>
+                        </button>
                         <a href="${adminPrefix}admin.html" class="nav-icon subtle" id="admin-link" title="Admin">
                             <i class="fas fa-cog"></i>
-                            Admin
                         </a>
                     </div>
                 </div>
@@ -207,49 +205,24 @@ function setupNavigationActiveStates() {
         link.classList.remove('active');
     });
     
-    // Set active state based on current page
+    // Get the current page name
+    const pathParts = currentPath.split('/');
+    const currentPage = pathParts[pathParts.length - 1] || 'index.html';
+    
+    // Set active state based on current page - use exact matching
     navLinks.forEach(link => {
-        const href = link.getAttribute('href');
+        const href = link.getAttribute('href') || '';
+        const hrefParts = href.split('/');
+        const linkPage = hrefParts[hrefParts.length - 1];
         
-        // Handle different page types
-        if (currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('/')) {
-            if (href === 'index.html' || href === '../index.html') {
-                link.classList.add('active');
-            }
-        } else if (currentPath.includes('men.html')) {
-            if (href === 'men.html' || href.includes('men.html')) {
-                link.classList.add('active');
-            }
-        } else if (currentPath.includes('women.html')) {
-            if (href === 'women.html' || href.includes('women.html')) {
-                link.classList.add('active');
-            }
-        } else if (currentPath.includes('kids.html')) {
-            if (href === 'kids.html' || href.includes('kids.html')) {
-                link.classList.add('active');
-            }
-        } else if (currentPath.includes('contact.html')) {
-            if (href === 'contact.html' || href.includes('contact.html')) {
-                link.classList.add('active');
-            }
-        } else if (currentPath.includes('cart.html')) {
-            // Cart page doesn't have a nav link, but we can highlight cart icon
-            const cartIcon = document.querySelector('.nav-icon[href*="cart"]');
-            if (cartIcon) {
-                cartIcon.classList.add('active');
-            }
-        } else if (currentPath.includes('profile.html')) {
-            // Profile page doesn't have a nav link, but we can highlight profile icon
-            const profileIcon = document.querySelector('.nav-icon[href*="profile"]');
-            if (profileIcon) {
-                profileIcon.classList.add('active');
-            }
-        } else if (currentPath.includes('orders.html')) {
-            // Orders page doesn't have a nav link, but we can highlight orders icon
-            const ordersIcon = document.querySelector('.nav-icon[href*="orders"]');
-            if (ordersIcon) {
-                ordersIcon.classList.add('active');
-            }
+        // Exact page match
+        if (currentPage === linkPage) {
+            link.classList.add('active');
+        }
+        // Handle root/index
+        else if ((currentPage === '' || currentPage === 'index.html') && 
+                 (linkPage === 'index.html' || href === '../index.html')) {
+            link.classList.add('active');
         }
     });
 }
@@ -278,21 +251,23 @@ function checkUserAuth() {
 function updateAuthUI() {
     const loginLink = document.getElementById('login-link');
     const profileLink = document.getElementById('profile-link');
-    const logoutLink = document.getElementById('logout-link');
-    const myAccount = document.getElementById('my-account');
-    const welcomeMessage = document.getElementById('welcome-message');
+    const ordersLink = document.getElementById('orders-link');
+    const logoutBtn = document.getElementById('logout-btn');
     
-    if (currentUser) {
-        if (loginLink) loginLink.style.display = 'none';
-        if (myAccount) myAccount.classList.remove('hidden');
-        if (welcomeMessage) {
-            welcomeMessage.textContent = `Welcome, ${currentUser.firstName}`;
-            welcomeMessage.style.display = 'block';
-        }
+    const isLoggedIn = currentUser || (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn());
+    
+    if (isLoggedIn) {
+        // User is logged in - show profile, orders, logout; hide login
+        if (loginLink) loginLink.classList.add('hidden');
+        if (profileLink) profileLink.classList.remove('hidden');
+        if (ordersLink) ordersLink.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
     } else {
-        if (loginLink) loginLink.style.display = 'flex';
-        if (myAccount) myAccount.classList.add('hidden');
-        if (welcomeMessage) welcomeMessage.style.display = 'none';
+        // User is logged out - show login; hide profile, orders, logout
+        if (loginLink) loginLink.classList.remove('hidden');
+        if (profileLink) profileLink.classList.add('hidden');
+        if (ordersLink) ordersLink.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
     }
 }
 
@@ -448,8 +423,22 @@ function setupLogoutHandlers() {
             e.stopPropagation();
             console.log('🔘 Logout button clicked');
             logout();
+            return false;
         }
     }, true);
+    
+    // Also attach directly to logout button for extra reliability
+    setTimeout(() => {
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log('🔘 Direct logout click');
+                logout();
+                return false;
+            };
+        }
+    }, 100);
 }
 
 
