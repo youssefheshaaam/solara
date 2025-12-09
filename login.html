@@ -90,6 +90,56 @@
         </div>
     </footer>
 
+    <!-- Test Credentials Banner -->
+    <div class="credentials-banner" id="credentials-banner">
+        <button class="creds-toggle" onclick="toggleCredsBanner()" title="Test Credentials">
+            <i class="fas fa-key"></i>
+        </button>
+        <div class="creds-content">
+            <div class="creds-header">
+                <span>🔐 Test Credentials</span>
+                <button onclick="toggleCredsBanner()" class="creds-close">&times;</button>
+            </div>
+            <div class="creds-item" onclick="fillCredentials('admin@solara.com', 'Admin@123')" style="cursor:pointer;">
+                <strong>Admin:</strong>
+                <span>admin@solara.com</span>
+                <span class="creds-pwd">Admin@123</span>
+                <small style="color:#667eea;">Click to fill</small>
+            </div>
+            <div class="creds-item" onclick="fillCredentials('customer@test.com', 'Test@123')" style="cursor:pointer;">
+                <strong>Customer:</strong>
+                <span>customer@test.com</span>
+                <span class="creds-pwd">Test@123</span>
+                <small style="color:#667eea;">Click to fill</small>
+            </div>
+        </div>
+    </div>
+    <style>
+        .credentials-banner { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Inter', sans-serif; }
+        .creds-toggle { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .creds-toggle:hover { transform: scale(1.1); }
+        .creds-content { display: none; position: absolute; bottom: 55px; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 280px; overflow: hidden; animation: slideUp 0.3s ease; }
+        .credentials-banner.open .creds-content { display: block; }
+        .credentials-banner.open .creds-toggle { background: #dc3545; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .creds-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; }
+        .creds-close { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
+        .creds-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 4px; transition: background 0.2s; }
+        .creds-item:hover { background: #f8f9fa; }
+        .creds-item:last-child { border-bottom: none; }
+        .creds-item strong { color: #333; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .creds-item span { color: #555; font-size: 0.9rem; }
+        .creds-pwd { font-family: monospace; background: #f5f5f5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem !important; color: #667eea !important; }
+    </style>
+    <script>
+        function toggleCredsBanner() { document.getElementById('credentials-banner').classList.toggle('open'); }
+        function fillCredentials(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+            toggleCredsBanner();
+        }
+    </script>
+
     <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/data.js"></script>

@@ -619,7 +619,7 @@ function setupProductCardEvents() {
         });
     });
     
-    // Product card click - show quick view
+    // Product card click - go to product detail page
     document.querySelectorAll('.product-card').forEach(card => {
         card.style.cursor = 'pointer';
         card.addEventListener('click', (e) => {
@@ -628,7 +628,9 @@ function setupProductCardEvents() {
             
             const productId = card.dataset.productId;
             if (productId) {
-                showQuickView(productId);
+                // Navigate to product detail page
+                const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
+                window.location.href = `${basePath}product.html?id=${productId}`;
             }
         });
         

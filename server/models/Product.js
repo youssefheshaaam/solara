@@ -72,6 +72,20 @@ const productSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    fit: {
+        type: String,
+        trim: true,
+        default: 'Regular Fit'
+    },
+    season: {
+        type: String,
+        trim: true,
+        default: 'All Season'
+    },
+    careInstructions: [{
+        type: String,
+        trim: true
+    }],
     stock: {
         type: Number,
         default: 0,

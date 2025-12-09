@@ -404,7 +404,7 @@ const orders = [
 const DATA_API_URL = 'http://localhost:5000/api';
 
 // Data version - increment to force cache refresh
-const DATA_VERSION = 6;
+const DATA_VERSION = 7;
 
 // Flag to track if we've loaded from API
 let productsLoadedFromAPI = false;
