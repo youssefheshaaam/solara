@@ -400,18 +400,40 @@ const orders = [
 
 // ===== LOCAL STORAGE FUNCTIONS =====
 
-// Initialize data in localStorage if not exists
-function initializeData() {
-    if (!localStorage.getItem('fashionStoreProducts')) {
-        localStorage.setItem('fashionStoreProducts', JSON.stringify(products));
+// API Base URL
+const DATA_API_URL = 'http://localhost:5000/api';
+
+// Data version - increment to force cache refresh
+const DATA_VERSION = 3;
+
+// Flag to track if we've loaded from API
+let productsLoadedFromAPI = false;
+
+// Check if cache is stale (older than 5 minutes) or version mismatch
+function isCacheStale() {
+    // Check version - if mismatch, force refresh
+    const storedVersion = localStorage.getItem('dataVersion');
+    if (!storedVersion || parseInt(storedVersion) < DATA_VERSION) {
+        console.log('🔄 Data version updated - clearing old cache');
+        localStorage.removeItem('fashionStoreProducts');
+        localStorage.setItem('dataVersion', DATA_VERSION.toString());
+        return true;
     }
     
-    if (!localStorage.getItem('fashionStoreUsers')) {
-        localStorage.setItem('fashionStoreUsers', JSON.stringify(users));
-    }
-    
-    if (!localStorage.getItem('fashionStoreOrders')) {
-        localStorage.setItem('fashionStoreOrders', JSON.stringify(orders));
+    const lastSync = localStorage.getItem('productsLastSync');
+    if (!lastSync) return true;
+    const oneMinute = 60 * 1000; // Reduced to 1 minute for faster updates
+    return (Date.now() - parseInt(lastSync)) > oneMinute;
+}
+
+// Initialize data - fetch from API first, fallback to localStorage
+async function initializeData() {
+    // Always fetch from API if cache is stale or empty
+    if (isCacheStale() || !localStorage.getItem('fashionStoreProducts')) {
+        console.log('🔄 Syncing products from MongoDB...');
+        await fetchProductsFromAPI();
+    } else {
+        console.log('📦 Using cached product data');
     }
     
     if (!localStorage.getItem('fashionStoreCart')) {
@@ -424,6 +446,60 @@ function initializeData() {
 
     // Run data migrations to keep stored data consistent with latest app expectations
     runDataMigrations();
+}
+
+// Fetch products from API and cache in localStorage
+async function fetchProductsFromAPI() {
+    try {
+        const response = await fetch(`${DATA_API_URL}/products?limit=100`);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+            // Transform API products to match expected format
+            const apiProducts = data.data.map(p => ({
+                id: p._id || p.id,
+                _id: p._id,
+                name: p.name,
+                price: p.price,
+                image: p.image || p.primaryImage,
+                category: p.category,
+                description: p.description,
+                brand: p.brand || 'SOLARA',
+                sizes: p.sizes || [],
+                colors: p.colors || [],
+                material: p.material || '',
+                stock: p.stock || 0,
+                featured: p.featured || false,
+                status: p.status || 'active'
+            }));
+            
+            localStorage.setItem('fashionStoreProducts', JSON.stringify(apiProducts));
+            localStorage.setItem('productsLastSync', Date.now().toString());
+            productsLoadedFromAPI = true;
+            console.log('✅ Products loaded from MongoDB:', apiProducts.length);
+            return apiProducts;
+        }
+    } catch (error) {
+        console.warn('Could not fetch from API, using local data:', error.message);
+    }
+    
+    // Fallback: use hardcoded products if API fails
+    if (!localStorage.getItem('fashionStoreProducts')) {
+        localStorage.setItem('fashionStoreProducts', JSON.stringify(products));
+    }
+    return JSON.parse(localStorage.getItem('fashionStoreProducts')) || [];
+}
+
+// Refresh products from API (call this after any product changes)
+async function refreshProductsFromAPI() {
+    return await fetchProductsFromAPI();
+}
+
+// Force clear cache and reload from API
+async function clearCacheAndReload() {
+    localStorage.removeItem('fashionStoreProducts');
+    localStorage.removeItem('productsLastSync');
+    return await fetchProductsFromAPI();
 }
 
 // Keep previously stored data compatible with latest paths/structures
@@ -456,9 +532,15 @@ function runDataMigrations() {
     }
 }
 
-// Get data from localStorage
+// Get data from localStorage (populated from API on init)
 function getProducts() {
-    return JSON.parse(localStorage.getItem('fashionStoreProducts')) || [];
+    const stored = localStorage.getItem('fashionStoreProducts');
+    if (stored) {
+        return JSON.parse(stored);
+    }
+    // If no stored products, return empty array - API will populate on next init
+    console.warn('No products in cache - data will load from API');
+    return [];
 }
 
 function getUsers() {
@@ -502,7 +584,14 @@ function saveWishlist(wishlist) {
 
 function findProductById(id) {
     const products = getProducts();
-    return products.find(product => product.id === parseInt(id));
+    // Handle both MongoDB _id (string) and localStorage id (number)
+    return products.find(product => 
+        product.id === id || 
+        product._id === id || 
+        product.id === parseInt(id) ||
+        String(product._id) === String(id) ||
+        String(product.id) === String(id)
+    );
 }
 
 function getProductsByCategory(category) {

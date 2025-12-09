@@ -163,9 +163,14 @@ if (window.location.pathname.includes('admin')) {
     checkAdminAuth();
 }
 
-function initializeAdminDashboard() {
+async function initializeAdminDashboard() {
+    // Refresh data from API first
+    if (typeof fetchProductsFromAPI === 'function') {
+        await fetchProductsFromAPI();
+    }
+    
     loadDashboardStats();
-    loadProductsTable();
+    await loadProductsTable();
     loadRecentOrders();
     setupAdminEventListeners();
     setupProductSearch();
@@ -216,9 +221,14 @@ function updateStatCard(elementId, value) {
 
 // ===== PRODUCTS TABLE =====
 
-function loadProductsTable() {
+async function loadProductsTable() {
     const tbody = document.getElementById('products-tbody');
     if (!tbody) return;
+    
+    // Refresh products from API first
+    if (typeof fetchProductsFromAPI === 'function') {
+        await fetchProductsFromAPI();
+    }
     
     const products = getProducts();
     const filteredProducts = filterProducts(products);
@@ -481,14 +491,14 @@ function editProduct(productId) {
     window.location.href = 'edit-product.html';
 }
 
-function handleAddProduct(e) {
+async function handleAddProduct(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const productData = {
         name: formData.get('name'),
         category: formData.get('category'),
-        brand: formData.get('brand'),
+        brand: formData.get('brand') || 'SOLARA',
         description: formData.get('description'),
         price: parseFloat(formData.get('price')),
         comparePrice: parseFloat(formData.get('comparePrice')) || null,
@@ -515,24 +525,33 @@ function handleAddProduct(e) {
     }
     
     try {
+        // Try API first
+        if (typeof ProductsAPI !== 'undefined') {
+            const response = await ProductsAPI.create(productData);
+            if (response.success) {
+                showFormMessage(e.target, 'Product added to database!', 'success');
+                e.target.reset();
+                updateImagePreview();
+                await refreshProductsFromAPI();
+                setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
+                return;
+            }
+        }
+        
+        // Fallback to localStorage
         const newProduct = addProduct(productData);
         showFormMessage(e.target, 'Product added successfully!', 'success');
-        
-        // Reset form
         e.target.reset();
         updateImagePreview();
-        
-        // Redirect to admin dashboard
-        setTimeout(() => {
-            window.location.href = 'admin.html';
-        }, 2000);
+        setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
         
     } catch (error) {
-        showFormMessage(e.target, 'Error adding product. Please try again.', 'error');
+        console.error('Error adding product:', error);
+        showFormMessage(e.target, error.message || 'Error adding product. Please try again.', 'error');
     }
 }
 
-function handleEditProduct(e) {
+async function handleEditProduct(e) {
     e.preventDefault();
     
     const productId = document.getElementById('product-id').value;
@@ -541,7 +560,7 @@ function handleEditProduct(e) {
     const updatedData = {
         name: formData.get('name'),
         category: formData.get('category'),
-        brand: formData.get('brand'),
+        brand: formData.get('brand') || 'SOLARA',
         description: formData.get('description'),
         price: parseFloat(formData.get('price')),
         comparePrice: parseFloat(formData.get('comparePrice')) || null,
@@ -568,19 +587,28 @@ function handleEditProduct(e) {
     }
     
     try {
+        // Try API first
+        if (typeof ProductsAPI !== 'undefined') {
+            const response = await ProductsAPI.update(productId, updatedData);
+            if (response.success) {
+                showFormMessage(e.target, 'Product updated in database!', 'success');
+                await refreshProductsFromAPI();
+                setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
+                return;
+            }
+        }
+        
+        // Fallback to localStorage
         const updatedProduct = updateProduct(productId, updatedData);
         if (updatedProduct) {
             showFormMessage(e.target, 'Product updated successfully!', 'success');
-            
-            // Redirect to admin dashboard
-            setTimeout(() => {
-                window.location.href = 'admin.html';
-            }, 2000);
+            setTimeout(() => { window.location.href = 'admin.html'; }, 2000);
         } else {
             showFormMessage(e.target, 'Product not found', 'error');
         }
     } catch (error) {
-        showFormMessage(e.target, 'Error updating product. Please try again.', 'error');
+        console.error('Error updating product:', error);
+        showFormMessage(e.target, error.message || 'Error updating product. Please try again.', 'error');
     }
 }
 
@@ -595,12 +623,32 @@ function showDeleteConfirmation(productId) {
         const confirmBtn = document.getElementById('confirm-delete');
         const cancelBtn = document.getElementById('cancel-delete');
         
-        confirmBtn.onclick = () => {
-            deleteProduct(productId);
-            modal.classList.remove('active');
-            loadProductsTable();
-            loadDashboardStats();
-            showNotification('Product deleted successfully', 'success');
+        confirmBtn.onclick = async () => {
+            try {
+                // Try API first
+                if (typeof ProductsAPI !== 'undefined') {
+                    const response = await ProductsAPI.delete(productId);
+                    if (response.success) {
+                        modal.classList.remove('active');
+                        await refreshProductsFromAPI();
+                        await loadProductsTable();
+                        loadDashboardStats();
+                        showNotification('Product deleted from database!', 'success');
+                        return;
+                    }
+                }
+                
+                // Fallback to localStorage
+                deleteProduct(productId);
+                modal.classList.remove('active');
+                loadProductsTable();
+                loadDashboardStats();
+                showNotification('Product deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                showNotification(error.message || 'Error deleting product', 'error');
+                modal.classList.remove('active');
+            }
         };
         
         cancelBtn.onclick = () => {

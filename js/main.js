@@ -7,12 +7,12 @@ let currentSort = 'newest';
 
 // ===== INITIALIZATION =====
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+document.addEventListener('DOMContentLoaded', async function() {
+    await initializeApp();
     setupEventListeners();
-    loadProducts();
-    loadBestSellers();
-    loadNewArrivals();
+    await loadProducts();
+    await loadBestSellers();
+    await loadNewArrivals();
     updateCartCount();
     updateWishlistCount();
     checkUserAuth();
@@ -35,12 +35,13 @@ function getAssetPath(relativePath) {
     }
 }
 
-function initializeApp() {
+async function initializeApp() {
     // Initialize universal navigation
     initializeUniversalNavigation();
     
-    // Initialize data
-    initializeData();
+    // Initialize data from API (fetches from MongoDB)
+    await initializeData();
+    console.log('✅ App initialized with data from MongoDB');
     
     // Setup user authentication state
     checkUserAuth();
@@ -491,38 +492,58 @@ async function loadProducts(category = 'all', sortBy = 'newest') {
     }
 }
 
-function loadBestSellers() {
+async function loadBestSellers() {
     const bestSellersGrid = document.getElementById('best-sellers-grid');
     if (!bestSellersGrid) return;
     
-    // Temporary products for best sellers - MAX 3
-    const tempProducts = [
-        { id: 1, name: "Classic Cotton T-Shirt", price: 25.00, image: "images/products/1.gif", category: "men", description: "Comfortable cotton t-shirt", brand: "SOLARA", sizes: ["S", "M", "L", "XL"], colors: ["Blue", "White", "Black"], material: "100% Cotton", stock: 50, featured: true, status: "active" },
-        { id: 2, name: "Elegant Summer Dress", price: 50.00, image: "images/products/1R5A0057_1_2.jpg", category: "women", description: "Beautiful summer dress", brand: "SOLARA", sizes: ["XS", "S", "M", "L"], colors: ["Floral", "Blue"], material: "Polyester Blend", stock: 30, featured: true, status: "active" },
-        { id: 3, name: "Kids Winter Jacket", price: 45.00, image: "images/products/1R5A0160.jpg", category: "kids", description: "Warm winter jacket", brand: "SOLARA", sizes: ["4", "6", "8", "10"], colors: ["Red", "Blue"], material: "Polyester", stock: 25, featured: true, status: "active" }
-    ];
-    
-    bestSellersGrid.innerHTML = tempProducts.map(product => createProductCard(product)).join('');
-    
-    // Add event listeners to best seller cards
-    setupProductCardEvents();
+    try {
+        // Use API to get featured products
+        if (typeof ProductsAPI !== 'undefined') {
+            const response = await ProductsAPI.getFeatured(3);
+            if (response.success && response.data.length > 0) {
+                bestSellersGrid.innerHTML = response.data.map(product => createProductCard(product)).join('');
+                setupProductCardEvents();
+                return;
+            }
+        }
+        
+        // Fallback to localStorage
+        const products = getFeaturedProducts().slice(0, 3);
+        bestSellersGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        setupProductCardEvents();
+    } catch (error) {
+        console.error('Error loading best sellers:', error);
+        const products = getFeaturedProducts().slice(0, 3);
+        bestSellersGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        setupProductCardEvents();
+    }
 }
 
-function loadNewArrivals() {
+async function loadNewArrivals() {
     const newArrivalsGrid = document.getElementById('new-arrivals-grid');
     if (!newArrivalsGrid) return;
     
-    // Temporary products for new arrivals - MAX 3
-    const tempProducts = [
-        { id: 9, name: "Trendy Sneakers", price: 80.00, image: "images/products/1W2A4345_copy_5.jpg", category: "men", description: "Comfortable sneakers", brand: "SOLARA", sizes: ["8", "9", "10", "11"], colors: ["White", "Black"], material: "Canvas", stock: 20, featured: true, status: "active" },
-        { id: 10, name: "Elegant Blazer", price: 120.00, image: "images/products/2_4.gif", category: "women", description: "Professional blazer", brand: "SOLARA", sizes: ["XS", "S", "M", "L"], colors: ["Black", "Navy"], material: "Wool Blend", stock: 15, featured: true, status: "active" },
-        { id: 11, name: "Kids Sneakers", price: 45.00, image: "images/products/1W2A6581_0f869f30-1398-4694-9c5e-6413bded0bc8_1.jpg", category: "kids", description: "Comfortable kids shoes", brand: "SOLARA", sizes: ["3", "4", "5", "6"], colors: ["Red", "Blue"], material: "Synthetic", stock: 30, featured: true, status: "active" }
-    ];
-    
-    newArrivalsGrid.innerHTML = tempProducts.map(product => createProductCard(product)).join('');
-    
-    // Add event listeners to new arrival cards
-    setupProductCardEvents();
+    try {
+        // Use API to get new arrivals
+        if (typeof ProductsAPI !== 'undefined') {
+            const response = await ProductsAPI.getNewArrivals(3);
+            if (response.success && response.data.length > 0) {
+                newArrivalsGrid.innerHTML = response.data.map(product => createProductCard(product)).join('');
+                setupProductCardEvents();
+                return;
+            }
+        }
+        
+        // Fallback to localStorage
+        const products = getProducts().slice(0, 3);
+        newArrivalsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        setupProductCardEvents();
+    } catch (error) {
+        console.error('Error loading new arrivals:', error);
+        const products = getProducts().slice(0, 3);
+        newArrivalsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        setupProductCardEvents();
+    }
 }
 
 function createProductCard(product) {
