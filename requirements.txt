@@ -1,55 +1,249 @@
 # SOLARA E-Commerce Website Requirements
+# Full-Stack Application with Node.js, Express, and MongoDB
 
-## Frontend Only - No Backend Dependencies Required
+================================================================================
+## PROJECT OVERVIEW
+================================================================================
 
-This project is a pure frontend application and does not require any Python packages or backend dependencies.
+This is a full-stack e-commerce web application featuring:
+- MVC Architecture with Express.js
+- MongoDB database with Mongoose ODM
+- JWT + Session-based Authentication
+- RESTful API with AJAX/Fetch
+- File uploads with Multer
+- Frontend + Backend Validation
+- Localization (English/Arabic)
+- Pagination support
+
+================================================================================
+## SYSTEM REQUIREMENTS
+================================================================================
+
+### Required Software:
+- Node.js 18.x or higher (https://nodejs.org/)
+- MongoDB 6.x or higher (https://www.mongodb.com/try/download/community)
+- npm 9.x or higher (comes with Node.js)
 
 ### Browser Requirements:
-- Modern browser with IndexedDB support (Chrome 24+, Firefox 16+, Safari 10+, Edge 12+)
+- Modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
 - JavaScript enabled
-- Cookies and Local Storage enabled
+- Cookies enabled
 
-### Development Server (Optional):
-If you want to run a local development server, you can use:
+================================================================================
+## BACKEND DEPENDENCIES (server/package.json)
+================================================================================
 
-**Python:**
+### Core Framework:
+- express@4.18.2          - Web framework for Node.js
+- mongoose@8.0.3          - MongoDB object modeling
+
+### Authentication & Security:
+- bcryptjs@2.4.3          - Password hashing
+- jsonwebtoken@9.0.2      - JWT token generation/verification
+- express-session@1.17.3  - Session management
+- connect-mongo@5.1.0     - MongoDB session store
+- helmet@7.1.0            - Security headers
+- cors@2.8.5              - Cross-Origin Resource Sharing
+
+### Validation & Utilities:
+- express-validator@7.0.1 - Request validation
+- dotenv@16.3.1           - Environment variables
+- cookie-parser@1.4.6     - Cookie parsing
+
+### File Upload:
+- multer@1.4.5-lts.1      - File upload handling
+- sharp@0.33.1            - Image processing (optional)
+
+### Localization:
+- i18n@0.15.1             - Internationalization
+
+### Logging:
+- morgan@1.10.0           - HTTP request logger
+
+### Development:
+- nodemon@3.0.2           - Auto-restart on changes
+
+================================================================================
+## INSTALLATION INSTRUCTIONS
+================================================================================
+
+### Step 1: Install MongoDB
+Download and install MongoDB Community Edition from:
+https://www.mongodb.com/try/download/community
+
+Or use MongoDB Atlas (cloud): https://www.mongodb.com/atlas
+
+### Step 2: Install Node.js Dependencies
 ```bash
-python -m http.server 8000
+cd server
+npm install
 ```
 
-**Node.js:**
+### Step 3: Configure Environment (Optional)
+Create server/.env file:
+```
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/solara_store
+SESSION_SECRET=your-secret-key
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=7d
+MAX_FILE_SIZE=5242880
+```
+
+### Step 4: Start MongoDB Service
+Windows: MongoDB should run as a service automatically
+macOS/Linux: 
 ```bash
-npx serve .
+mongod --dbpath /data/db
+```
+
+### Step 5: Run the Server
+```bash
+cd server
+npm run dev     # Development with auto-reload
 # or
-npm install -g http-server
-http-server -p 8000
+npm start       # Production
 ```
 
-**VS Code:**
-- Install "Live Server" extension
-- Right-click index.html and select "Open with Live Server"
+The server will start at: http://localhost:5000
 
-### Notes on Data Persistence:
+================================================================================
+## API ENDPOINTS
+================================================================================
 
-**IndexedDB (User Authentication):**
-- User accounts are stored in the browser's IndexedDB
-- Passwords are hashed with PBKDF2-SHA256 (120,000 iterations)
-- Data persists across regular browser sessions
-- **Incognito/Private mode**: IndexedDB is isolated per session and cleared when closed
-  - This is expected browser behavior for privacy
-  - Users must register separately in each incognito window
-  - Regular browsing mode persists data normally
+### Authentication:
+POST   /api/auth/register     - Register new user
+POST   /api/auth/login        - Login user
+POST   /api/auth/admin/login  - Admin login
+POST   /api/auth/logout       - Logout user
+GET    /api/auth/me           - Get current user
+GET    /api/auth/check        - Check auth status
 
-**LocalStorage (App Data):**
-- Products, cart, wishlist, and orders use localStorage
-- Persists across sessions (including incognito until window is closed)
-- Clearing browser data will erase all stored information
+### Products (CRUD):
+GET    /api/products          - Get all products (with pagination)
+GET    /api/products/:id      - Get single product
+POST   /api/products          - Create product (Admin)
+PUT    /api/products/:id      - Update product (Admin)
+DELETE /api/products/:id      - Delete product (Admin)
+GET    /api/products/featured - Get featured products
+GET    /api/products/search   - Search products
 
-### Production Considerations:
-For production use, consider:
-- Backend API with real database (PostgreSQL, MySQL, MongoDB)
-- Server-side password hashing and JWT authentication
-- HTTPS for secure transmission
-- Session management with secure cookies
-- Data backup and recovery systems
+### Users (CRUD):
+GET    /api/users             - Get all users (Admin)
+GET    /api/users/:id         - Get user profile
+PUT    /api/users/:id         - Update profile
+DELETE /api/users/:id         - Delete user (Admin)
 
+### Orders (CRUD):
+GET    /api/orders            - Get all orders (Admin)
+GET    /api/orders/my-orders  - Get user's orders
+POST   /api/orders            - Create order
+PUT    /api/orders/:id/status - Update order status (Admin)
+PUT    /api/orders/:id/cancel - Cancel order
+
+### Cart:
+GET    /api/cart              - Get user's cart
+POST   /api/cart              - Add to cart
+PUT    /api/cart/:productId   - Update cart item
+DELETE /api/cart/:productId   - Remove from cart
+DELETE /api/cart              - Clear cart
+
+### Localization:
+GET    /api/locales/:lang     - Get translations (en/ar)
+POST   /api/set-language      - Set language preference
+
+================================================================================
+## PROJECT STRUCTURE
+================================================================================
+
+server/
+├── app.js                 # Main application entry
+├── package.json           # Dependencies
+├── .env                   # Environment variables
+├── config/
+│   └── db.js             # Database configuration
+├── controllers/           # Route handlers (Business Logic)
+│   ├── authController.js
+│   ├── productController.js
+│   ├── userController.js
+│   ├── orderController.js
+│   └── cartController.js
+├── middleware/            # Custom middleware
+│   ├── auth.js           # Authentication middleware
+│   ├── errorHandler.js   # Error handling
+│   ├── upload.js         # File upload (Multer)
+│   └── validation.js     # Request validation
+├── models/                # Mongoose schemas
+│   ├── User.js
+│   ├── Product.js
+│   ├── Order.js
+│   └── Cart.js
+├── routes/                # API routes
+│   ├── auth.js
+│   ├── products.js
+│   ├── users.js
+│   ├── orders.js
+│   └── cart.js
+├── locales/               # i18n translations
+│   ├── en.json
+│   └── ar.json
+└── uploads/               # Uploaded files
+    ├── products/
+    └── avatars/
+
+================================================================================
+## FEATURES CHECKLIST
+================================================================================
+
+[x] MVC Architecture & Routing (10 pts)
+[x] Authentication - JWT + Sessions + bcrypt (10 pts)
+[x] Sessions - express-session + connect-mongo (10 pts)
+[x] File Upload - Multer middleware (5 pts)
+[x] Error Handling - Custom error middleware (5 pts)
+[x] Data Validation - Frontend + Backend (10 pts)
+[x] CRUD Operations - Users, Products, Orders, Cart (15 pts)
+[x] AJAX/Fetch - API integration (5 pts)
+[x] UI/UX + Responsive - Existing frontend (5 pts)
+[x] Innovation - Modern stack, security features (5 pts)
+
+BONUS:
+[x] Localization - English/Arabic support (5 pts)
+[x] Pagination - Products and Orders (5 pts)
+
+================================================================================
+## TESTING
+================================================================================
+
+### Test API with cURL:
+```bash
+# Health check
+curl http://localhost:5000/api/health
+
+# Register user
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Test","lastName":"User","email":"test@example.com","password":"Test@123"}'
+
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test@123"}'
+
+# Get products
+curl http://localhost:5000/api/products
+```
+
+### Test with Postman/Insomnia:
+Import the API endpoints above and test each route.
+
+================================================================================
+## NOTES
+================================================================================
+
+- Default admin credentials need to be set via database seeding
+- Passwords are hashed with bcrypt (12 rounds)
+- JWT tokens expire in 7 days by default
+- Sessions stored in MongoDB with 24-hour TTL
+- File uploads limited to 5MB per file
+- Maximum 5 images per product upload
