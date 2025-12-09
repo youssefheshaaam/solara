@@ -8,9 +8,75 @@
     <link rel="stylesheet" href="../css/forms.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .orders-container { padding: 2rem 0 4rem; min-height: 80vh; }
+        .orders-header { text-align: center; margin-bottom: 2rem; }
+        .orders-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .orders-filters { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+        .filter-btn { padding: 0.5rem 1.25rem; border: 1px solid var(--border-color); background: white; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .filter-btn:hover, .filter-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .orders-list { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .order-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: var(--bg-light); border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
+        .order-info h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .order-date { color: var(--text-secondary); font-size: 0.875rem; }
+        .status-badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; text-transform: capitalize; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered { background: #28a745; color: white; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .order-items { padding: 1.5rem; }
+        .order-item { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
+        .order-item:last-child { border-bottom: none; }
+        .order-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: var(--bg-light); }
+        .item-details { flex: 1; }
+        .item-details h4 { font-size: 1rem; margin-bottom: 0.25rem; }
+        .item-details p { color: var(--text-secondary); font-size: 0.875rem; margin: 0.15rem 0; }
+        .item-price { font-weight: 600; color: var(--accent-color); }
+        .order-summary { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: var(--bg-light); border-top: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
+        .order-total { font-size: 1.1rem; }
+        .order-actions { display: flex; gap: 0.75rem; }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: var(--border-color); margin-bottom: 1.5rem; }
+        .empty-state h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+        .loading { text-align: center; padding: 3rem; }
+        .loading i { font-size: 2rem; color: var(--accent-color); }
+    </style>
 </head>
 <body>
-    <!-- Navigation will be loaded by JavaScript -->
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="men.html" class="nav-link">Men</a></li>
+                <li><a href="women.html" class="nav-link">Women</a></li>
+                <li><a href="kids.html" class="nav-link">Kids</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <a href="profile.html" class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+                <a href="#" class="nav-icon" id="logout-link" data-logout="true">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </nav>
+    </header>
 
     <!-- Orders Section -->
     <main class="orders-container">
@@ -31,16 +97,8 @@
             
             <div class="orders-list" id="orders-list">
                 <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading orders...
-                </div>
-            </div>
-            
-            <div class="empty-orders" id="empty-orders" style="display: none;">
-                <div class="empty-state">
-                    <i class="fas fa-shopping-bag"></i>
-                    <h3>No Orders Found</h3>
-                    <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
-                    <a href="../index.html" class="btn btn-primary">Start Shopping</a>
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading orders...</p>
                 </div>
             </div>
         </div>
@@ -60,131 +118,177 @@
     <script src="../js/data.js"></script>
     <script src="../js/main.js"></script>
     <script>
-        // Orders page specific functionality
+        let allOrders = [];
+        
         document.addEventListener('DOMContentLoaded', async function() {
-            await loadOrders();
-            setupOrderFilters();
+            await checkAuthAndLoadOrders();
+            setupFilters();
         });
         
-        async function loadOrders(statusFilter = 'all') {
-            const ordersList = document.getElementById('orders-list');
-            const emptyOrders = document.getElementById('empty-orders');
+        async function checkAuthAndLoadOrders() {
+            // Check if user is logged in
+            let user = null;
             
-            ordersList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>';
+            if (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                user = AuthAPI.getCurrentUser();
+            }
+            
+            if (!user) {
+                const stored = localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser');
+                if (stored) {
+                    try { user = JSON.parse(stored); } catch (e) {}
+                }
+            }
+            
+            if (!user) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            await loadOrders();
+        }
+        
+        async function loadOrders(statusFilter = 'all') {
+            const container = document.getElementById('orders-list');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading orders...</p></div>';
             
             try {
                 let orders = [];
                 
-                // Try to get orders from API
+                // Try API first
                 if (typeof OrdersAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
-                    const response = await OrdersAPI.getMyOrders();
-                    if (response.success) {
-                        orders = response.data || [];
-                    }
-                } else {
-                    // Fallback to localStorage
-                    const user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
-                    if (user && user._id) {
-                        orders = getOrdersByUserId(user._id);
-                    } else if (user && user.id) {
-                        orders = getOrdersByUserId(user.id);
+                    try {
+                        const response = await OrdersAPI.getMyOrders();
+                        if (response.success) {
+                            orders = response.data || [];
+                        }
+                    } catch (e) {
+                        console.log('API orders fetch failed');
                     }
                 }
+                
+                // Fallback to localStorage
+                if (orders.length === 0) {
+                    const user = AuthAPI?.getCurrentUser() || JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    const allLocalOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                    orders = allLocalOrders.filter(o => o.userId === user._id || o.userId === user.id);
+                }
+                
+                allOrders = orders;
                 
                 // Filter by status
+                let filteredOrders = orders;
                 if (statusFilter && statusFilter !== 'all') {
-                    orders = orders.filter(order => order.status === statusFilter);
+                    filteredOrders = orders.filter(o => o.status === statusFilter);
                 }
                 
-                if (orders.length === 0) {
-                    ordersList.innerHTML = '';
-                    emptyOrders.style.display = 'block';
-                    return;
-                }
-                
-                emptyOrders.style.display = 'none';
-                ordersList.innerHTML = orders.map(order => createOrderCard(order)).join('');
+                renderOrders(filteredOrders);
                 
             } catch (error) {
                 console.error('Error loading orders:', error);
-                ordersList.innerHTML = '<div class="error-state"><p>Error loading orders. Please try again.</p></div>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error Loading Orders</h3><p>Please try again later.</p></div>';
             }
         }
         
+        function renderOrders(orders) {
+            const container = document.getElementById('orders-list');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h3>No Orders Found</h3>
+                        <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+                        <a href="../index.html" class="btn btn-primary">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => createOrderCard(order)).join('');
+        }
+        
         function createOrderCard(order) {
-            const orderNumber = order.orderNumber || order.id || order._id;
-            const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
+            const orderNumber = order.orderNumber || order._id || order.id;
+            const orderDate = new Date(order.createdAt || order.date).toLocaleDateString('en-US', {
                 year: 'numeric', month: 'long', day: 'numeric'
             });
-            const statusClass = `status-${order.status || 'pending'}`;
-            const statusText = (order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1);
+            const status = order.status || 'pending';
             
-            const itemsHTML = (order.items || []).map(item => {
+            const itemsHTML = (order.items || []).slice(0, 3).map(item => {
                 const product = item.product || {};
-                const productName = product.name || item.name || 'Product';
-                const productImage = product.image || item.image || '../images/placeholder.jpg';
+                const name = product.name || item.name || 'Product';
+                const image = product.image || item.image || 'images/placeholder.jpg';
                 const price = item.price || product.price || 0;
+                const quantity = item.quantity || 1;
                 
                 return `
                     <div class="order-item">
-                        <img src="../${productImage}" alt="${productName}" onerror="this.src='../images/placeholder.jpg';">
+                        <img src="../${image}" alt="${name}" onerror="this.src='../images/placeholder.jpg';">
                         <div class="item-details">
-                            <h4>${productName}</h4>
-                            <p>Size: ${item.size || 'M'} | Color: ${item.color || 'Default'}</p>
-                            <p class="item-price">${formatPrice(price)}</p>
-                        </div>
-                        <div class="item-quantity">
-                            <span>Qty: ${item.quantity || 1}</span>
+                            <h4>${name}</h4>
+                            <p>Qty: ${quantity}</p>
+                            <p class="item-price">${formatPrice(price * quantity)}</p>
                         </div>
                     </div>
                 `;
             }).join('');
             
+            const moreItems = (order.items || []).length > 3 ? `<p style="text-align: center; color: var(--text-secondary); padding: 0.5rem;">+${order.items.length - 3} more items</p>` : '';
+            
             return `
                 <div class="order-card" data-order-id="${order._id || order.id}">
                     <div class="order-header">
                         <div class="order-info">
-                            <h3>Order #${orderNumber}</h3>
+                            <h3>Order #${String(orderNumber).slice(-8).toUpperCase()}</h3>
                             <p class="order-date">Placed on ${orderDate}</p>
                         </div>
-                        <div class="order-status">
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </div>
+                        <span class="status-badge status-${status}">${status}</span>
                     </div>
                     
                     <div class="order-items">
-                        ${itemsHTML || '<p>No items</p>'}
+                        ${itemsHTML}
+                        ${moreItems}
                     </div>
                     
                     <div class="order-summary">
                         <div class="order-total">
-                            <p><strong>Total: ${formatPrice(order.total || 0)}</strong></p>
+                            <strong>Total: ${formatPrice(order.total || 0)}</strong>
                         </div>
                         <div class="order-actions">
-                            <button class="btn btn-outline" onclick="viewOrderDetails('${order._id || order.id}')">View Details</button>
-                            ${order.status === 'pending' || order.status === 'processing' ? 
-                                `<button class="btn btn-secondary" onclick="cancelOrder('${order._id || order.id}')">Cancel Order</button>` : 
-                                `<button class="btn btn-primary" onclick="reorder('${order._id || order.id}')">Reorder</button>`
+                            ${status === 'pending' || status === 'processing' ? 
+                                `<button class="btn btn-secondary btn-sm" onclick="cancelOrder('${order._id || order.id}')">Cancel Order</button>` : 
+                                ''
                             }
+                            <button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${order._id || order.id}')">View Details</button>
                         </div>
                     </div>
                 </div>
             `;
         }
         
-        function setupOrderFilters() {
+        function setupFilters() {
             const filterBtns = document.querySelectorAll('.filter-btn');
             filterBtns.forEach(btn => {
-                btn.addEventListener('click', async () => {
+                btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    await loadOrders(btn.dataset.status);
+                    
+                    const status = btn.dataset.status;
+                    let filtered = allOrders;
+                    if (status !== 'all') {
+                        filtered = allOrders.filter(o => o.status === status);
+                    }
+                    renderOrders(filtered);
                 });
             });
         }
         
         function viewOrderDetails(orderId) {
-            showNotification('Order details view coming soon!', 'info');
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (order) {
+                alert(`Order Details:\n\nOrder #: ${order.orderNumber || orderId}\nStatus: ${order.status}\nTotal: ${formatPrice(order.total)}\nItems: ${order.items?.length || 0}`);
+            }
         }
         
         async function cancelOrder(orderId) {
@@ -199,15 +303,19 @@
                         return;
                     }
                 }
-                showNotification('Could not cancel order', 'error');
+                
+                // Fallback - update locally
+                const order = allOrders.find(o => (o._id || o.id) === orderId);
+                if (order) {
+                    order.status = 'cancelled';
+                    renderOrders(allOrders);
+                    showNotification('Order cancelled', 'success');
+                }
             } catch (error) {
                 showNotification(error.message || 'Error cancelling order', 'error');
             }
         }
         
-        function reorder(orderId) {
-            showNotification('Reorder feature coming soon!', 'info');
-        }
     </script>
 </body>
 </html>

@@ -106,25 +106,48 @@ function initializeUniversalNavigation() {
 
 function createUniversalNavigation() {
     const currentPath = window.location.pathname;
-    const isSubPage = currentPath.includes('/pages/') || currentPath.includes('/admin/');
-    const basePath = isSubPage ? '../' : '';
+    const isSubPage = currentPath.includes('/pages/');
+    const isAdminPage = currentPath.includes('/admin/');
+    
+    // Calculate paths based on current location
+    let homeLink, pagesPrefix, adminPrefix, loginLink;
+    
+    if (isSubPage) {
+        // We're in /pages/ folder
+        homeLink = '../index.html';
+        pagesPrefix = ''; // Stay in pages folder
+        adminPrefix = '../admin/';
+        loginLink = '../login.html';
+    } else if (isAdminPage) {
+        // We're in /admin/ folder
+        homeLink = '../index.html';
+        pagesPrefix = '../pages/';
+        adminPrefix = '';
+        loginLink = '../login.html';
+    } else {
+        // We're at root
+        homeLink = 'index.html';
+        pagesPrefix = 'pages/';
+        adminPrefix = 'admin/';
+        loginLink = 'login.html';
+    }
     
     return `
         <header class="main-header">
             <nav class="navbar">
                 <div class="nav-brand">
-                    <a href="${basePath}index.html">
+                    <a href="${homeLink}">
                         <i class="fas fa-sun"></i>
                         SOLARA
                     </a>
                 </div>
                 
                 <ul class="nav-menu">
-                    <li><a href="${basePath}index.html" class="nav-link">Home</a></li>
-                    <li><a href="${basePath}pages/men.html" class="nav-link">Men</a></li>
-                    <li><a href="${basePath}pages/women.html" class="nav-link">Women</a></li>
-                    <li><a href="${basePath}pages/kids.html" class="nav-link">Kids</a></li>
-                    <li><a href="${basePath}pages/contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="${homeLink}" class="nav-link">Home</a></li>
+                    <li><a href="${pagesPrefix}men.html" class="nav-link">Men</a></li>
+                    <li><a href="${pagesPrefix}women.html" class="nav-link">Women</a></li>
+                    <li><a href="${pagesPrefix}kids.html" class="nav-link">Kids</a></li>
+                    <li><a href="${pagesPrefix}contact.html" class="nav-link">Contact</a></li>
                 </ul>
                 
                 <div class="nav-actions">
@@ -134,15 +157,15 @@ function createUniversalNavigation() {
                     </div>
                     
                     <div class="user-actions">
-                        <a href="${basePath}pages/cart.html" class="nav-icon" id="cart-link">
+                        <a href="${pagesPrefix}cart.html" class="nav-icon" id="cart-link">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="cart-count">0</span>
                         </a>
-                        <a href="${basePath}pages/wishlist.html" class="nav-icon" id="wishlist-link">
+                        <a href="${pagesPrefix}wishlist.html" class="nav-icon" id="wishlist-link">
                             <i class="fas fa-heart"></i>
                             <span class="wishlist-count" id="wishlist-count">0</span>
                         </a>
-                        <a href="${basePath}login.html" class="nav-icon" id="login-link">
+                        <a href="${loginLink}" class="nav-icon" id="login-link">
                             <i class="fas fa-user"></i>
                             Login
                         </a>
@@ -153,12 +176,12 @@ function createUniversalNavigation() {
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                             <div class="dropdown-menu" id="my-account-menu">
-                                <a href="${basePath}pages/profile.html" id="profile-link"><i class="fas fa-id-card"></i> My Profile</a>
-                                <a href="${basePath}pages/orders.html" id="orders-link"><i class="fas fa-box"></i> My Orders</a>
-                                <a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                                <a href="${pagesPrefix}profile.html" id="profile-link"><i class="fas fa-id-card"></i> My Profile</a>
+                                <a href="${pagesPrefix}orders.html" id="orders-link"><i class="fas fa-box"></i> My Orders</a>
+                                <a href="#" id="logout-link" onclick="logout(); return false;"><i class="fas fa-sign-out-alt"></i> Logout</a>
                             </div>
                         </div>
-                        <a href="${basePath}admin/admin.html" class="nav-icon subtle" id="admin-link" title="Admin">
+                        <a href="${adminPrefix}admin.html" class="nav-icon subtle" id="admin-link" title="Admin">
                             <i class="fas fa-cog"></i>
                             Admin
                         </a>
@@ -357,31 +380,77 @@ async function register(userData) {
 }
 
 async function logout() {
+    console.log('🚪 Logout initiated');
+    
     // Use API logout if available
-    if (typeof AuthAPI !== 'undefined') {
-        await AuthAPI.logout();
+    try {
+        if (typeof AuthAPI !== 'undefined') {
+            await AuthAPI.logout();
+        }
+    } catch (e) {
+        console.log('API logout error (ignored):', e);
     }
     
+    // Clear all auth data
     currentUser = null;
-    localStorage.removeItem('loggedInUser');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('solaraAdminAuthed');
-    localStorage.removeItem('isAdmin');
-    updateAuthUI();
     
-    // Redirect to home page
-    if (window.location.pathname.includes('admin')) {
-        window.location.href = '../index.html';
-    } else if (window.location.pathname.includes('pages')) {
-        window.location.href = '../index.html';
+    // Clear all possible storage keys
+    const keysToRemove = [
+        'loggedInUser', 'currentUser', 'authToken', 
+        'solaraAdminAuthed', 'isAdmin', 'guestCart',
+        'fashionStoreUser', 'adminUser'
+    ];
+    keysToRemove.forEach(key => {
+        try { localStorage.removeItem(key); } catch(e) {}
+    });
+    
+    // Clear session cookies
+    document.cookie.split(";").forEach(c => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    
+    // Determine correct redirect path
+    const path = window.location.pathname;
+    let redirectUrl = '/index.html';
+    
+    if (path.includes('/admin/')) {
+        redirectUrl = '../index.html';
+    } else if (path.includes('/pages/')) {
+        redirectUrl = '../index.html';
     } else {
-        window.location.href = 'index.html';
+        redirectUrl = 'index.html';
     }
+    
+    console.log('🔄 Redirecting to:', redirectUrl);
+    
+    // Force redirect
+    window.location.replace(redirectUrl);
 }
 
-// Make logout globally accessible
+// Make logout globally accessible immediately
 window.logout = logout;
+window.handleLogout = logout;
+window.doLogout = logout;
+
+// Also set up as soon as possible
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupLogoutHandlers);
+} else {
+    setupLogoutHandlers();
+}
+
+function setupLogoutHandlers() {
+    // Use event delegation for all logout clicks
+    document.body.addEventListener('click', function(e) {
+        const target = e.target.closest('#logout-link, #logout-btn, .logout-btn, [data-logout]');
+        if (target) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔘 Logout button clicked');
+            logout();
+        }
+    }, true);
+}
 
 
 // Add onclick fallbacks for logout buttons
@@ -1610,15 +1679,24 @@ function setupEventListeners() {
         });
     });
     
-    // Profile link
+    // Profile link - handle paths correctly
     const profileLink = document.getElementById('profile-link');
     if (profileLink) {
         profileLink.addEventListener('click', (e) => {
             e.preventDefault();
-            if (currentUser) {
-                window.location.href = 'pages/profile.html';
+            const isSubPage = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
+            if (currentUser || (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn())) {
+                if (isSubPage) {
+                    window.location.href = 'profile.html';
+                } else {
+                    window.location.href = 'pages/profile.html';
+                }
             } else {
-                window.location.href = 'login.html';
+                if (isSubPage) {
+                    window.location.href = '../login.html';
+                } else {
+                    window.location.href = 'login.html';
+                }
             }
         });
     }

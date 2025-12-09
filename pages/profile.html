@@ -3,14 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Fashion Store</title>
+    <title>My Profile - SOLARA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container { padding: 2rem 0 4rem; min-height: 80vh; }
+        .profile-header { text-align: center; margin-bottom: 3rem; }
+        .profile-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .profile-content { display: grid; grid-template-columns: 280px 1fr; gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        @media (max-width: 768px) { .profile-content { grid-template-columns: 1fr; } }
+        .profile-sidebar { background: var(--bg-light); border-radius: 12px; padding: 1.5rem; height: fit-content; }
+        .profile-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+        .profile-nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-radius: 8px; color: var(--text-secondary); text-decoration: none; transition: all 0.3s; }
+        .profile-nav-link:hover, .profile-nav-link.active { background: var(--accent-color); color: white; }
+        .profile-nav-link i { width: 20px; }
+        .profile-main { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .profile-section { display: none; }
+        .profile-section.active { display: block; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .section-header h2 { font-size: 1.5rem; }
+        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; background: var(--bg-light); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; font-size: 3rem; color: var(--accent-color); }
+        .profile-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 600px) { .profile-form .form-row { grid-template-columns: 1fr; } }
+        .profile-form .form-group { margin-bottom: 1.5rem; }
+        .profile-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary); }
+        .profile-form input, .profile-form select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+        .profile-form input:read-only { background: var(--bg-light); }
+        .profile-form input:not(:read-only) { border-color: var(--accent-color); }
+        .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .addresses-list { display: grid; gap: 1rem; }
+        .address-card { padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; }
+        .address-card.default { border-color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.05); }
+        .address-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .address-label { font-weight: 600; }
+        .address-actions { display: flex; gap: 0.5rem; }
+        .address-actions button { background: none; border: none; cursor: pointer; color: var(--text-secondary); }
+        .address-actions button:hover { color: var(--accent-color); }
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-secondary); }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        .loading { text-align: center; padding: 2rem; }
+        .loading i { font-size: 2rem; color: var(--accent-color); }
+        .preferences-form .form-group { margin-bottom: 1.5rem; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+        .checkbox-label input { width: auto; }
+    </style>
 </head>
 <body>
-    <!-- Navigation will be loaded by JavaScript -->
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="men.html" class="nav-link">Men</a></li>
+                <li><a href="women.html" class="nav-link">Women</a></li>
+                <li><a href="kids.html" class="nav-link">Kids</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
+                <a href="wishlist.html" class="nav-icon">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <a href="#" class="nav-icon" id="logout-link" data-logout="true">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </nav>
+    </header>
 
     <!-- Profile Section -->
     <main class="profile-container">
@@ -39,9 +110,13 @@
                             <i class="fas fa-shopping-bag"></i>
                             My Orders
                         </a>
-                        <a href="cart.html" class="profile-nav-link">
-                            <i class="fas fa-shopping-cart"></i>
-                            Shopping Cart
+                        <a href="wishlist.html" class="profile-nav-link">
+                            <i class="fas fa-heart"></i>
+                            Wishlist
+                        </a>
+                        <a href="#" class="profile-nav-link logout-btn" data-logout="true">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
                         </a>
                     </div>
                 </div>
@@ -51,15 +126,14 @@
                     <section id="personal-info" class="profile-section active">
                         <div class="section-header">
                             <h2>Personal Information</h2>
-                            <button class="btn btn-outline" id="edit-personal-btn">Edit</button>
+                            <button class="btn btn-outline" id="edit-personal-btn">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
                         </div>
                         
                         <div class="profile-info">
-                            <div class="profile-avatar">
-                                <img src="../images/default-avatar.jpg" alt="Profile Picture" id="profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <button class="avatar-upload" id="avatar-upload">
-                                    <i class="fas fa-camera"></i>
-                                </button>
+                            <div class="profile-avatar" id="profile-avatar-display">
+                                <i class="fas fa-user"></i>
                             </div>
                             
                             <form class="profile-form" id="personal-form">
@@ -84,19 +158,9 @@
                                     <input type="tel" id="profile-phone" name="phone" readonly>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label for="profile-dob">Date of Birth</label>
-                                    <input type="date" id="profile-dob" name="dateOfBirth" readonly>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="profile-gender">Gender</label>
-                                    <input type="text" id="profile-gender" name="gender" readonly>
-                                </div>
-                                
-                                <div class="form-actions">
-                                    <button type="button" class="btn btn-secondary" id="cancel-personal-btn" style="display: none;">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" id="save-personal-btn" style="display: none;">Save Changes</button>
+                                <div class="form-actions" id="form-actions" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" id="cancel-edit-btn">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -106,11 +170,12 @@
                     <section id="addresses" class="profile-section">
                         <div class="section-header">
                             <h2>My Addresses</h2>
-                            <button class="btn btn-primary" id="add-address-btn">Add New Address</button>
+                            <button class="btn btn-primary" id="add-address-btn">
+                                <i class="fas fa-plus"></i> Add Address
+                            </button>
                         </div>
-                        
                         <div class="addresses-list" id="addresses-list">
-                            <!-- Addresses will be loaded dynamically -->
+                            <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
                         </div>
                     </section>
                     
@@ -119,57 +184,25 @@
                         <div class="section-header">
                             <h2>Preferences</h2>
                         </div>
-                        
                         <form class="preferences-form" id="preferences-form">
                             <div class="form-group">
                                 <label class="checkbox-label">
                                     <input type="checkbox" id="email-notifications" name="emailNotifications">
-                                    <span class="checkmark"></span>
-                                    Email notifications for new products and offers
+                                    Email notifications for orders and offers
                                 </label>
                             </div>
-                            
                             <div class="form-group">
                                 <label class="checkbox-label">
                                     <input type="checkbox" id="sms-notifications" name="smsNotifications">
-                                    <span class="checkmark"></span>
                                     SMS notifications for order updates
                                 </label>
                             </div>
-                            
                             <div class="form-group">
                                 <label class="checkbox-label">
                                     <input type="checkbox" id="newsletter" name="newsletter">
-                                    <span class="checkmark"></span>
                                     Subscribe to newsletter
                                 </label>
                             </div>
-                            
-                            <div class="form-group">
-                                <label for="size-preference">Preferred Size</label>
-                                <select id="size-preference" name="sizePreference">
-                                    <option value="">Select size preference</option>
-                                    <option value="XS">XS</option>
-                                    <option value="S">S</option>
-                                    <option value="M">M</option>
-                                    <option value="L">L</option>
-                                    <option value="XL">XL</option>
-                                    <option value="XXL">XXL</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="style-preference">Style Preference</label>
-                                <select id="style-preference" name="stylePreference">
-                                    <option value="">Select style preference</option>
-                                    <option value="casual">Casual</option>
-                                    <option value="formal">Formal</option>
-                                    <option value="sporty">Sporty</option>
-                                    <option value="vintage">Vintage</option>
-                                    <option value="modern">Modern</option>
-                                </select>
-                            </div>
-                            
                             <button type="submit" class="btn btn-primary">Save Preferences</button>
                         </form>
                     </section>
@@ -182,7 +215,7 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -190,8 +223,224 @@
     <!-- Scripts -->
     <script src="../js/api.js"></script>
     <script src="../js/data.js"></script>
-    <script src="../js/validation.js"></script>
     <script src="../js/main.js"></script>
+    <script>
+        let currentUserData = null;
+        let isEditing = false;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkAuthAndLoad();
+            setupProfileTabs();
+            setupEditFunctionality();
+            setupPreferencesForm();
+        });
+        
+        async function checkAuthAndLoad() {
+            // Check if user is logged in
+            let user = null;
+            
+            // Try API first
+            if (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                user = AuthAPI.getCurrentUser();
+                
+                // Try to get fresh data
+                try {
+                    const response = await AuthAPI.getMe();
+                    if (response.success) {
+                        user = response.data;
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                    }
+                } catch (e) {
+                    console.log('Could not fetch fresh user data');
+                }
+            }
+            
+            // Fallback to localStorage
+            if (!user) {
+                const stored = localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser');
+                if (stored) {
+                    try {
+                        user = JSON.parse(stored);
+                    } catch (e) {}
+                }
+            }
+            
+            if (!user) {
+                // Not logged in - redirect to login
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            currentUserData = user;
+            populateProfileData(user);
+            loadAddresses(user);
+            loadPreferences(user);
+        }
+        
+        function populateProfileData(user) {
+            document.getElementById('profile-firstName').value = user.firstName || '';
+            document.getElementById('profile-lastName').value = user.lastName || '';
+            document.getElementById('profile-email').value = user.email || '';
+            document.getElementById('profile-phone').value = user.phone || '';
+            
+            // Update avatar with initials
+            const avatar = document.getElementById('profile-avatar-display');
+            if (user.firstName) {
+                const initials = (user.firstName[0] || '') + (user.lastName?.[0] || '');
+                avatar.innerHTML = `<span style="font-size: 2rem; font-weight: 600;">${initials.toUpperCase()}</span>`;
+            }
+        }
+        
+        function loadAddresses(user) {
+            const container = document.getElementById('addresses-list');
+            const addresses = user.addresses || [];
+            
+            if (addresses.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>No addresses saved</h3>
+                        <p>Add an address for faster checkout</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = addresses.map((addr, index) => `
+                <div class="address-card ${addr.isDefault ? 'default' : ''}">
+                    <div class="address-header">
+                        <span class="address-label">${addr.label || 'Address ' + (index + 1)} ${addr.isDefault ? '(Default)' : ''}</span>
+                        <div class="address-actions">
+                            <button onclick="editAddress(${index})" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteAddress(${index})" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <p>${addr.firstName || ''} ${addr.lastName || ''}</p>
+                    <p>${addr.street || ''}</p>
+                    <p>${addr.city || ''}, ${addr.state || ''} ${addr.zipCode || ''}</p>
+                    <p>${addr.country || ''}</p>
+                </div>
+            `).join('');
+        }
+        
+        function loadPreferences(user) {
+            const prefs = user.preferences || {};
+            document.getElementById('email-notifications').checked = prefs.emailNotifications || false;
+            document.getElementById('sms-notifications').checked = prefs.smsNotifications || false;
+            document.getElementById('newsletter').checked = prefs.newsletter || false;
+        }
+        
+        function setupProfileTabs() {
+            const navLinks = document.querySelectorAll('.profile-nav-link[data-section]');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.dataset.section;
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show section
+                    document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(section).classList.add('active');
+                });
+            });
+        }
+        
+        function setupEditFunctionality() {
+            const editBtn = document.getElementById('edit-personal-btn');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            const form = document.getElementById('personal-form');
+            const formActions = document.getElementById('form-actions');
+            
+            editBtn.addEventListener('click', () => {
+                isEditing = true;
+                document.querySelectorAll('#personal-form input').forEach(input => {
+                    if (input.name !== 'email') { // Email shouldn't be editable
+                        input.removeAttribute('readonly');
+                    }
+                });
+                formActions.style.display = 'flex';
+                editBtn.style.display = 'none';
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                isEditing = false;
+                document.querySelectorAll('#personal-form input').forEach(input => {
+                    input.setAttribute('readonly', true);
+                });
+                formActions.style.display = 'none';
+                editBtn.style.display = 'block';
+                populateProfileData(currentUserData); // Reset to original
+            });
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const updateData = {
+                    firstName: document.getElementById('profile-firstName').value,
+                    lastName: document.getElementById('profile-lastName').value,
+                    phone: document.getElementById('profile-phone').value
+                };
+                
+                try {
+                    if (typeof UsersAPI !== 'undefined') {
+                        const response = await UsersAPI.updateProfile(updateData);
+                        if (response.success) {
+                            currentUserData = { ...currentUserData, ...updateData };
+                            localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                            showNotification('Profile updated successfully!', 'success');
+                            cancelBtn.click(); // Exit edit mode
+                        } else {
+                            showNotification(response.error || 'Failed to update', 'error');
+                        }
+                    } else {
+                        // Fallback - just save locally
+                        currentUserData = { ...currentUserData, ...updateData };
+                        localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                        localStorage.setItem('loggedInUser', JSON.stringify(currentUserData));
+                        showNotification('Profile updated!', 'success');
+                        cancelBtn.click();
+                    }
+                } catch (error) {
+                    showNotification(error.message || 'Error updating profile', 'error');
+                }
+            });
+        }
+        
+        function setupPreferencesForm() {
+            const form = document.getElementById('preferences-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const prefs = {
+                    emailNotifications: document.getElementById('email-notifications').checked,
+                    smsNotifications: document.getElementById('sms-notifications').checked,
+                    newsletter: document.getElementById('newsletter').checked
+                };
+                
+                try {
+                    if (typeof UsersAPI !== 'undefined') {
+                        await UsersAPI.updateProfile({ preferences: prefs });
+                    }
+                    currentUserData.preferences = prefs;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                    showNotification('Preferences saved!', 'success');
+                } catch (error) {
+                    showNotification('Error saving preferences', 'error');
+                }
+            });
+        }
+        
+        function editAddress(index) {
+            showNotification('Address editing coming soon!', 'info');
+        }
+        
+        function deleteAddress(index) {
+            showNotification('Address deletion coming soon!', 'info');
+        }
+        
+    </script>
 </body>
 </html>
-

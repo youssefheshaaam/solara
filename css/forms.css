@@ -127,70 +127,147 @@
     z-index: 1;
 }
 
-/* Checkbox and Radio Styles */
+/* ===== MODERN CHECKBOX & RADIO STYLES ===== */
+
+/* Base label styling */
 .checkbox-label,
 .radio-label {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 12px;
     cursor: pointer;
     font-weight: 500;
     color: var(--text-primary);
+    padding: 8px 0;
+    user-select: none;
+    line-height: 1.4;
 }
 
-/* Native input fallback styling across site */
+.checkbox-label:hover,
+.radio-label:hover {
+    color: var(--accent-color);
+}
+
+/* Modern Native Checkbox Styling */
 input[type="checkbox"],
 input[type="radio"] {
-    accent-color: var(--accent-color);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    flex-shrink: 0;
+    margin: 0;
 }
 
-.checkbox-label input[type="checkbox"],
-.radio-label input[type="radio"] {
-    display: none;
+input[type="radio"] {
+    border-radius: 50%;
 }
 
+input[type="checkbox"]:hover,
+input[type="radio"]:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+}
+
+input[type="radio"]:checked {
+    background: white;
+    border-color: var(--accent-color);
+    border-width: 6px;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Custom checkmark span (legacy support) */
 .checkmark,
 .radio-custom {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--bg-light);
-    border-radius: var(--radius-sm);
+    width: 22px;
+    height: 22px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
     position: relative;
-    transition: all var(--transition-fast);
+    transition: all 0.2s ease;
     flex-shrink: 0;
+    background: white;
 }
 
 .radio-custom {
     border-radius: 50%;
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark,
-.radio-label input[type="radio"]:checked + .radio-custom {
-    background-color: var(--accent-color);
+.checkbox-label:hover .checkmark,
+.radio-label:hover .radio-custom {
     border-color: var(--accent-color);
 }
 
-.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: var(--text-white);
-    font-size: 12px;
-    font-weight: bold;
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
 }
 
-.radio-label input[type="radio"]:checked + .radio-custom::after {
+.radio-label input[type="radio"]:checked + .radio-custom {
+    border-color: var(--accent-color);
+    border-width: 6px;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    background-color: var(--text-white);
-    border-radius: 50%;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+/* Hide native input when using custom checkmark */
+.checkbox-label input[type="checkbox"] + .checkmark,
+.radio-label input[type="radio"] + .radio-custom {
+    /* Input is visible by default for native styling */
+}
+
+.checkbox-label input[type="checkbox"]:has(+ .checkmark),
+.radio-label input[type="radio"]:has(+ .radio-custom) {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 /* Radio Group */
