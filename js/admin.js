@@ -90,24 +90,65 @@ function setupAdminLogin() {
     }
 }
 
-function handleAdminLogin(e) {
+async function handleAdminLogin(e) {
     e.preventDefault();
     const usernameInput = document.getElementById('admin-username');
     const passwordInput = document.getElementById('admin-password');
     const messageElement = document.getElementById('admin-login-message');
-
-    if (usernameInput.value === ADMIN_USERNAME && passwordInput.value === ADMIN_PASSWORD) {
-        setAdminAuthenticated();
-        messageElement.textContent = 'Login successful!';
-        messageElement.className = 'form-message success';
-        messageElement.style.display = 'block';
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-    } else {
-        messageElement.textContent = 'Invalid username or password.';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    
+    // Show loading
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+    }
+    
+    try {
+        // Try API admin login first
+        if (typeof AuthAPI !== 'undefined') {
+            const response = await AuthAPI.adminLogin(usernameInput.value, passwordInput.value);
+            
+            if (response.success) {
+                setAdminAuthenticated();
+                messageElement.textContent = 'Login successful!';
+                messageElement.className = 'form-message success';
+                messageElement.style.display = 'block';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+                return;
+            } else {
+                messageElement.textContent = response.error || 'Invalid admin credentials.';
+                messageElement.className = 'form-message error';
+                messageElement.style.display = 'block';
+            }
+        } else {
+            // Fallback to hardcoded credentials
+            if (usernameInput.value === ADMIN_USERNAME && passwordInput.value === ADMIN_PASSWORD) {
+                setAdminAuthenticated();
+                messageElement.textContent = 'Login successful!';
+                messageElement.className = 'form-message success';
+                messageElement.style.display = 'block';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+                return;
+            } else {
+                messageElement.textContent = 'Invalid username or password.';
+                messageElement.className = 'form-message error';
+                messageElement.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        console.error('Admin login error:', error);
+        messageElement.textContent = error.message || 'Login failed. Please try again.';
         messageElement.className = 'form-message error';
         messageElement.style.display = 'block';
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Login';
+        }
     }
 }
 

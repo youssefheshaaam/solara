@@ -404,7 +404,7 @@ const orders = [
 const DATA_API_URL = 'http://localhost:5000/api';
 
 // Data version - increment to force cache refresh
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
 
 // Flag to track if we've loaded from API
 let productsLoadedFromAPI = false;
@@ -705,17 +705,56 @@ function addToCart(productId, quantity = 1) {
     return cart;
 }
 
-function removeFromCart(productId) {
+async function removeFromCart(productId) {
+    try {
+        // Use API if logged in
+        if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+            const response = await CartAPI.remove(productId);
+            if (response.success) {
+                updateCartCount();
+                return response.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error removing from cart:', error);
+    }
+    
+    // Fallback to localStorage
     const cart = getCart();
-    const filteredCart = cart.filter(item => item.productId !== parseInt(productId));
+    const filteredCart = cart.filter(item => 
+        item.productId !== productId && 
+        item.productId !== parseInt(productId) &&
+        String(item.productId) !== String(productId)
+    );
     saveCart(filteredCart);
     updateCartCount();
     return filteredCart;
 }
 
-function updateCartItemQuantity(productId, quantity) {
+async function updateCartItemQuantity(productId, quantity) {
+    try {
+        // Use API if logged in
+        if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+            if (quantity <= 0) {
+                return await removeFromCart(productId);
+            }
+            const response = await CartAPI.update(productId, quantity);
+            if (response.success) {
+                updateCartCount();
+                return response.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error updating cart:', error);
+    }
+    
+    // Fallback to localStorage
     const cart = getCart();
-    const item = cart.find(item => item.productId === parseInt(productId));
+    const item = cart.find(item => 
+        item.productId === productId || 
+        item.productId === parseInt(productId) ||
+        String(item.productId) === String(productId)
+    );
     
     if (item) {
         if (quantity <= 0) {
@@ -749,10 +788,33 @@ function getCartTotal() {
 
 // ===== WISHLIST FUNCTIONS =====
 
-function addToWishlist(productId) {
+async function addToWishlist(productId) {
+    try {
+        // Use API if logged in
+        if (typeof UsersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+            const response = await UsersAPI.addToWishlist(productId);
+            if (response.success) {
+                // Also update local wishlist
+                const wishlist = getWishlist();
+                if (!wishlist.includes(productId) && !wishlist.includes(String(productId))) {
+                    wishlist.push(productId);
+                    saveWishlist(wishlist);
+                }
+                if (typeof updateWishlistCount === 'function') {
+                    updateWishlistCount();
+                }
+                return response.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error);
+    }
+    
+    // Fallback to localStorage
     const wishlist = getWishlist();
-    if (!wishlist.includes(parseInt(productId))) {
-        wishlist.push(parseInt(productId));
+    const pid = String(productId);
+    if (!wishlist.includes(pid) && !wishlist.includes(parseInt(productId))) {
+        wishlist.push(productId);
         saveWishlist(wishlist);
         if (typeof updateWishlistCount === 'function') {
             updateWishlistCount();
@@ -761,9 +823,37 @@ function addToWishlist(productId) {
     return wishlist;
 }
 
-function removeFromWishlist(productId) {
+async function removeFromWishlist(productId) {
+    try {
+        // Use API if logged in
+        if (typeof UsersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+            const response = await UsersAPI.removeFromWishlist(productId);
+            if (response.success) {
+                // Also update local wishlist
+                const wishlist = getWishlist();
+                const filteredWishlist = wishlist.filter(id => 
+                    id !== productId && 
+                    id !== parseInt(productId) &&
+                    String(id) !== String(productId)
+                );
+                saveWishlist(filteredWishlist);
+                if (typeof updateWishlistCount === 'function') {
+                    updateWishlistCount();
+                }
+                return response.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error removing from wishlist:', error);
+    }
+    
+    // Fallback to localStorage
     const wishlist = getWishlist();
-    const filteredWishlist = wishlist.filter(id => id !== parseInt(productId));
+    const filteredWishlist = wishlist.filter(id => 
+        id !== productId && 
+        id !== parseInt(productId) &&
+        String(id) !== String(productId)
+    );
     saveWishlist(filteredWishlist);
     if (typeof updateWishlistCount === 'function') {
         updateWishlistCount();
@@ -773,7 +863,11 @@ function removeFromWishlist(productId) {
 
 function isInWishlist(productId) {
     const wishlist = getWishlist();
-    return wishlist.includes(parseInt(productId));
+    return wishlist.some(id => 
+        id === productId || 
+        id === parseInt(productId) ||
+        String(id) === String(productId)
+    );
 }
 
 // Make wishlist functions global for onclick handlers
@@ -783,15 +877,35 @@ window.isInWishlist = isInWishlist;
 
 // ===== ORDER FUNCTIONS =====
 
-function createOrder(orderData) {
+async function createOrder(orderData) {
+    try {
+        // Use API if logged in
+        if (typeof OrdersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+            const response = await OrdersAPI.create(orderData);
+            if (response.success) {
+                // Clear cart after successful order
+                if (typeof CartAPI !== 'undefined') {
+                    await CartAPI.clear();
+                }
+                saveCart([]); // Clear local cart too
+                return response.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error creating order via API:', error);
+    }
+    
+    // Fallback to localStorage
     const orders = getOrders();
     const newOrderId = `FS-${new Date().getFullYear()}-${String(orders.length + 1).padStart(3, '0')}`;
     
     const newOrder = {
         id: newOrderId,
+        orderNumber: newOrderId,
         userId: orderData.userId,
         items: orderData.items,
         total: orderData.total,
+        subtotal: orderData.subtotal || orderData.total,
         status: 'processing',
         shippingAddress: orderData.shippingAddress,
         paymentMethod: orderData.paymentMethod,
@@ -800,6 +914,7 @@ function createOrder(orderData) {
     
     orders.push(newOrder);
     saveOrders(orders);
+    saveCart([]); // Clear cart after order
     return newOrder;
 }
 
