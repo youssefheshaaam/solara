@@ -1,0 +1,39 @@
+{
+  "auth": {
+    "registerSuccess": "Registration successful! Welcome to SOLARA.",
+    "loginSuccess": "Login successful! Welcome back.",
+    "logoutSuccess": "Logged out successfully.",
+    "invalidCredentials": "Invalid email or password.",
+    "accountDeactivated": "Your account has been deactivated.",
+    "emailExists": "An account with this email already exists."
+  },
+  "products": {
+    "notFound": "Product not found.",
+    "created": "Product created successfully.",
+    "updated": "Product updated successfully.",
+    "deleted": "Product deleted successfully."
+  },
+  "cart": {
+    "itemAdded": "Item added to cart.",
+    "itemRemoved": "Item removed from cart.",
+    "cartCleared": "Cart cleared.",
+    "outOfStock": "Product is out of stock."
+  },
+  "orders": {
+    "placed": "Order placed successfully.",
+    "cancelled": "Order cancelled.",
+    "notFound": "Order not found."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalidEmail": "Please enter a valid email.",
+    "passwordWeak": "Password is too weak."
+  },
+  "common": {
+    "success": "Success",
+    "error": "Error",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized access"
+  }
+}
+
