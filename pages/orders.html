@@ -9,44 +9,266 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .orders-container { padding: 2rem 0 4rem; min-height: 80vh; }
-        .orders-header { text-align: center; margin-bottom: 2rem; }
-        .orders-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .orders-filters { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
-        .filter-btn { padding: 0.5rem 1.25rem; border: 1px solid var(--border-color); background: white; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
-        .filter-btn:hover, .filter-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-        .orders-list { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-        .order-card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; }
-        .order-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: var(--bg-light); border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
-        .order-info h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
-        .order-date { color: var(--text-secondary); font-size: 0.875rem; }
-        .status-badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; text-transform: capitalize; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-processing { background: #cce5ff; color: #004085; }
-        .status-shipped { background: #d4edda; color: #155724; }
-        .status-delivered { background: #28a745; color: white; }
-        .status-cancelled { background: #f8d7da; color: #721c24; }
-        .order-items { padding: 1.5rem; }
-        .order-item { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border-color); }
-        .order-item:last-child { border-bottom: none; }
-        .order-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; background: var(--bg-light); }
-        .item-details { flex: 1; }
-        .item-details h4 { font-size: 1rem; margin-bottom: 0.25rem; }
-        .item-details p { color: var(--text-secondary); font-size: 0.875rem; margin: 0.15rem 0; }
-        .item-price { font-weight: 600; color: var(--accent-color); }
-        .order-summary { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: var(--bg-light); border-top: 1px solid var(--border-color); flex-wrap: wrap; gap: 1rem; }
-        .order-total { font-size: 1.1rem; }
-        .order-actions { display: flex; gap: 0.75rem; }
-        .empty-state { text-align: center; padding: 4rem 2rem; }
-        .empty-state i { font-size: 4rem; color: var(--border-color); margin-bottom: 1.5rem; }
-        .empty-state h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .empty-state p { color: var(--text-secondary); margin-bottom: 1.5rem; }
-        .loading { text-align: center; padding: 3rem; }
-        .loading i { font-size: 2rem; color: var(--accent-color); }
+        .orders-page {
+            min-height: 100vh;
+            background: #f8f9fa;
+            padding: 2rem 0 4rem;
+        }
+        
+        .orders-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .page-header p {
+            color: var(--text-secondary);
+        }
+        
+        /* Filter Tabs */
+        .order-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover { background: #f5f5f5; }
+        .filter-btn.active { background: var(--accent-color); color: white; }
+        
+        /* Order Card */
+        .order-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .order-number {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .order-date {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .status-badge {
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        
+        .status-pending { background: #fff3e0; color: #e65100; }
+        .status-processing { background: #e3f2fd; color: #1565c0; }
+        .status-shipped { background: #e8f5e9; color: #2e7d32; }
+        .status-delivered { background: #c8e6c9; color: #1b5e20; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        
+        .order-body {
+            padding: 1.5rem;
+        }
+        
+        /* Order Items */
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-item {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .item-image {
+            width: 70px;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+        
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .item-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .item-price {
+            font-weight: 600;
+            color: var(--accent-color);
+            white-space: nowrap;
+        }
+        
+        /* Order Footer */
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .order-total {
+            font-size: 1.1rem;
+        }
+        
+        .order-total span {
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .order-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Shipping Info */
+        .shipping-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .shipping-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .shipping-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* Empty State */
+        .empty-orders {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .empty-orders i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-orders h2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-orders p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            color: var(--accent-color);
+        }
+        
+        @media (max-width: 600px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-item {
+                flex-wrap: wrap;
+            }
+            
+            .item-price {
+                width: 100%;
+                text-align: left;
+                margin-top: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation Header -->
+    <!-- Navigation -->
     <header class="main-header">
         <nav class="navbar">
             <div class="nav-brand">
@@ -60,42 +282,33 @@
                 <li><a href="men.html" class="nav-link">Men</a></li>
                 <li><a href="women.html" class="nav-link">Women</a></li>
                 <li><a href="kids.html" class="nav-link">Kids</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="cart.html" class="nav-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
-                <a href="profile.html" class="nav-icon">
-                    <i class="fas fa-user"></i>
-                </a>
-                <button class="nav-icon logout-btn" id="logout-btn" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </button>
+                <a href="cart.html" class="nav-icon"><i class="fas fa-shopping-cart"></i></a>
+                <a href="profile.html" class="nav-icon"><i class="fas fa-user"></i></a>
             </div>
         </nav>
     </header>
 
-    <!-- Orders Section -->
-    <main class="orders-container">
-        <div class="container">
-            <div class="orders-header">
-                <h1>My Orders</h1>
+    <!-- Orders Page -->
+    <main class="orders-page">
+        <div class="orders-container">
+            <div class="page-header">
+                <h1><i class="fas fa-box"></i> My Orders</h1>
                 <p>Track and manage your orders</p>
             </div>
             
-            <div class="orders-filters">
-                <button class="filter-btn active" data-status="all">All Orders</button>
+            <!-- Filter Tabs -->
+            <div class="order-filters">
+                <button class="filter-btn active" data-status="">All Orders</button>
                 <button class="filter-btn" data-status="pending">Pending</button>
                 <button class="filter-btn" data-status="processing">Processing</button>
                 <button class="filter-btn" data-status="shipped">Shipped</button>
                 <button class="filter-btn" data-status="delivered">Delivered</button>
-                <button class="filter-btn" data-status="cancelled">Cancelled</button>
             </div>
             
-            <div class="orders-list" id="orders-list">
+            <!-- Orders List -->
+            <div id="orders-list">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i>
                     <p>Loading orders...</p>
@@ -119,203 +332,211 @@
     <script src="../js/main.js"></script>
     <script>
         let allOrders = [];
+        let currentFilter = '';
         
         document.addEventListener('DOMContentLoaded', async function() {
-            await checkAuthAndLoadOrders();
+            await initializeData();
+            await loadUserOrders();
             setupFilters();
         });
         
-        async function checkAuthAndLoadOrders() {
-            // Check if user is logged in
-            let user = null;
-            
-            if (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
-                user = AuthAPI.getCurrentUser();
-            }
-            
-            if (!user) {
-                const stored = localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser');
-                if (stored) {
-                    try { user = JSON.parse(stored); } catch (e) {}
-                }
-            }
-            
-            if (!user) {
-                window.location.href = '../login.html';
-                return;
-            }
-            
-            await loadOrders();
-        }
-        
-        async function loadOrders(statusFilter = 'all') {
+        async function loadUserOrders() {
             const container = document.getElementById('orders-list');
-            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading orders...</p></div>';
+            const currentUser = (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser()) ||
+                                JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
             
             try {
-                let orders = [];
-                
                 // Try API first
                 if (typeof OrdersAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
-                    try {
-                        const response = await OrdersAPI.getMyOrders();
-                        if (response.success) {
-                            orders = response.data || [];
-                        }
-                    } catch (e) {
-                        console.log('API orders fetch failed');
+                    const response = await OrdersAPI.getUserOrders();
+                    if (response.success && response.data) {
+                        allOrders = response.data;
                     }
                 }
                 
                 // Fallback to localStorage
-                if (orders.length === 0) {
-                    const user = AuthAPI?.getCurrentUser() || JSON.parse(localStorage.getItem('currentUser') || '{}');
-                    const allLocalOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
-                    orders = allLocalOrders.filter(o => o.userId === user._id || o.userId === user.id);
+                if (allOrders.length === 0) {
+                    const storedOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                    // Filter orders for current user
+                    if (currentUser._id || currentUser.id || currentUser.email) {
+                        allOrders = storedOrders.filter(o => 
+                            o.userId === currentUser._id ||
+                            o.userId === currentUser.id ||
+                            o.userEmail === currentUser.email ||
+                            o.shippingAddress?.email === currentUser.email
+                        );
+                    } else {
+                        // Show all orders if no user (for testing)
+                        allOrders = storedOrders;
+                    }
                 }
                 
-                allOrders = orders;
-                
-                // Filter by status
-                let filteredOrders = orders;
-                if (statusFilter && statusFilter !== 'all') {
-                    filteredOrders = orders.filter(o => o.status === statusFilter);
+                // Also merge with API orders if any
+                if (allOrders.length === 0) {
+                    // No orders found, try getting all local orders
+                    allOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
                 }
                 
-                renderOrders(filteredOrders);
+                renderOrders();
                 
             } catch (error) {
                 console.error('Error loading orders:', error);
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error Loading Orders</h3><p>Please try again later.</p></div>';
+                container.innerHTML = '<p class="error" style="text-align: center; padding: 2rem; color: #dc3545;">Error loading orders</p>';
             }
         }
         
-        function renderOrders(orders) {
+        function renderOrders() {
             const container = document.getElementById('orders-list');
             
-            if (orders.length === 0) {
+            let filtered = allOrders;
+            if (currentFilter) {
+                filtered = filtered.filter(o => o.status === currentFilter);
+            }
+            
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+            
+            if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-shopping-bag"></i>
-                        <h3>No Orders Found</h3>
-                        <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+                    <div class="empty-orders">
+                        <i class="fas fa-box-open"></i>
+                        <h2>${currentFilter ? 'No ' + currentFilter + ' orders' : 'No orders yet'}</h2>
+                        <p>When you place orders, they will appear here.</p>
                         <a href="../index.html" class="btn btn-primary">Start Shopping</a>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = orders.map(order => createOrderCard(order)).join('');
-        }
-        
-        function createOrderCard(order) {
-            const orderNumber = order.orderNumber || order._id || order.id;
-            const orderDate = new Date(order.createdAt || order.date).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-            const status = order.status || 'pending';
-            
-            const itemsHTML = (order.items || []).slice(0, 3).map(item => {
-                const product = item.product || {};
-                const name = product.name || item.name || 'Product';
-                const image = product.image || item.image || 'images/placeholder.jpg';
-                const price = item.price || product.price || 0;
-                const quantity = item.quantity || 1;
+            container.innerHTML = filtered.map(order => {
+                const orderNumber = order.orderNumber || order._id || order.id;
+                const date = new Date(order.createdAt || order.date).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                const status = order.status || 'pending';
+                const items = order.items || [];
+                const shipping = order.shippingAddress || {};
                 
                 return `
-                    <div class="order-item">
-                        <img src="../${image}" alt="${name}" onerror="this.src='../images/placeholder.jpg';">
-                        <div class="item-details">
-                            <h4>${name}</h4>
-                            <p>Qty: ${quantity}</p>
-                            <p class="item-price">${formatPrice(price * quantity)}</p>
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-number">Order #${String(orderNumber).slice(-8).toUpperCase()}</div>
+                                <div class="order-date">Placed on ${date}</div>
+                            </div>
+                            <span class="status-badge status-${status}">${status}</span>
+                        </div>
+                        
+                        <div class="order-body">
+                            <div class="shipping-info">
+                                <h4><i class="fas fa-truck"></i> Shipping to</h4>
+                                <p>${shipping.firstName || ''} ${shipping.lastName || ''}</p>
+                                <p>${shipping.street || ''}, ${shipping.city || ''}</p>
+                                <p>${shipping.phone || ''}</p>
+                            </div>
+                            
+                            <div class="order-items">
+                                ${items.map(item => `
+                                    <div class="order-item">
+                                        <div class="item-image">
+                                            <img src="../${item.image || 'images/placeholder.jpg'}" alt="${item.name}" onerror="this.src='../images/placeholder.jpg';">
+                                        </div>
+                                        <div class="item-details">
+                                            <div class="item-name">${item.name || 'Product'}</div>
+                                            <div class="item-meta">
+                                                Qty: ${item.quantity}
+                                                ${item.size ? ' • Size: ' + item.size : ''}
+                                                ${item.color ? ' • Color: ' + item.color : ''}
+                                            </div>
+                                        </div>
+                                        <div class="item-price">${formatPrice(item.price * item.quantity)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="order-footer">
+                                <div class="order-total">
+                                    Total: <span>${formatPrice(order.total || 0)}</span>
+                                </div>
+                                <div class="order-actions">
+                                    ${status === 'pending' ? `
+                                        <button class="btn btn-outline" onclick="cancelOrder('${order._id || order.id}')">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    ` : ''}
+                                    ${status === 'delivered' ? `
+                                        <button class="btn btn-outline" onclick="reorder('${order._id || order.id}')">
+                                            <i class="fas fa-redo"></i> Reorder
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
-            
-            const moreItems = (order.items || []).length > 3 ? `<p style="text-align: center; color: var(--text-secondary); padding: 0.5rem;">+${order.items.length - 3} more items</p>` : '';
-            
-            return `
-                <div class="order-card" data-order-id="${order._id || order.id}">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3>Order #${String(orderNumber).slice(-8).toUpperCase()}</h3>
-                            <p class="order-date">Placed on ${orderDate}</p>
-                        </div>
-                        <span class="status-badge status-${status}">${status}</span>
-                    </div>
-                    
-                    <div class="order-items">
-                        ${itemsHTML}
-                        ${moreItems}
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="order-total">
-                            <strong>Total: ${formatPrice(order.total || 0)}</strong>
-                        </div>
-                        <div class="order-actions">
-                            ${status === 'pending' || status === 'processing' ? 
-                                `<button class="btn btn-secondary btn-sm" onclick="cancelOrder('${order._id || order.id}')">Cancel Order</button>` : 
-                                ''
-                            }
-                            <button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${order._id || order.id}')">View Details</button>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
         
         function setupFilters() {
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            filterBtns.forEach(btn => {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    
-                    const status = btn.dataset.status;
-                    let filtered = allOrders;
-                    if (status !== 'all') {
-                        filtered = allOrders.filter(o => o.status === status);
-                    }
-                    renderOrders(filtered);
+                    currentFilter = btn.dataset.status;
+                    renderOrders();
                 });
             });
-        }
-        
-        function viewOrderDetails(orderId) {
-            const order = allOrders.find(o => (o._id || o.id) === orderId);
-            if (order) {
-                alert(`Order Details:\n\nOrder #: ${order.orderNumber || orderId}\nStatus: ${order.status}\nTotal: ${formatPrice(order.total)}\nItems: ${order.items?.length || 0}`);
-            }
         }
         
         async function cancelOrder(orderId) {
             if (!confirm('Are you sure you want to cancel this order?')) return;
             
-            try {
-                if (typeof OrdersAPI !== 'undefined') {
-                    const response = await OrdersAPI.cancel(orderId);
-                    if (response.success) {
-                        showNotification('Order cancelled successfully', 'success');
-                        await loadOrders();
-                        return;
-                    }
+            const orderIndex = allOrders.findIndex(o => (o._id || o.id) === orderId);
+            if (orderIndex > -1) {
+                allOrders[orderIndex].status = 'cancelled';
+                
+                // Update localStorage
+                const storedOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                const storedIndex = storedOrders.findIndex(o => (o._id || o.id) === orderId);
+                if (storedIndex > -1) {
+                    storedOrders[storedIndex].status = 'cancelled';
+                    localStorage.setItem('fashionStoreOrders', JSON.stringify(storedOrders));
                 }
                 
-                // Fallback - update locally
-                const order = allOrders.find(o => (o._id || o.id) === orderId);
-                if (order) {
-                    order.status = 'cancelled';
-                    renderOrders(allOrders);
-                    showNotification('Order cancelled', 'success');
-                }
-            } catch (error) {
-                showNotification(error.message || 'Error cancelling order', 'error');
+                renderOrders();
+                showNotification('Order cancelled', 'info');
             }
         }
         
+        async function reorder(orderId) {
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (!order || !order.items) return;
+            
+            // Add items back to cart
+            for (const item of order.items) {
+                try {
+                    if (typeof CartAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
+                        await CartAPI.add(item.product || item.productId, item.quantity, item.size, item.color);
+                    } else {
+                        const cart = getCart();
+                        cart.push({
+                            productId: item.product || item.productId,
+                            quantity: item.quantity,
+                            size: item.size,
+                            color: item.color,
+                            price: item.price
+                        });
+                        saveCart(cart);
+                    }
+                } catch (e) {
+                    console.error('Error adding to cart:', e);
+                }
+            }
+            
+            updateCartCount();
+            showNotification('Items added to cart!', 'success');
+            setTimeout(() => window.location.href = 'cart.html', 1000);
+        }
     </script>
 </body>
 </html>

@@ -6,194 +6,425 @@
     <title>Admin Dashboard - SOLARA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/forms.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fa; min-height: 100vh; }
+        
+        /* Sidebar */
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+        
+        .sidebar-brand i { color: var(--accent-color); }
+        
+        .sidebar-nav { flex: 1; }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: var(--accent-color); color: white; }
+        .nav-item i { width: 20px; }
+        
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: #ff6b6b;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .logout-btn:hover { background: rgba(255,107,107,0.1); }
+        
+        /* Main Content */
+        .admin-main {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 { font-size: 1.75rem; color: #1a1a2e; }
+        .page-header p { color: #666; margin-top: 0.25rem; }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.products { background: #e8f4fd; color: #2196f3; }
+        .stat-icon.orders { background: #fff4e5; color: #ff9800; }
+        .stat-icon.revenue { background: #e8f5e9; color: #4caf50; }
+        .stat-icon.customers { background: #fce4ec; color: #e91e63; }
+        
+        .stat-info h3 { font-size: 1.75rem; color: #1a1a2e; }
+        .stat-info p { color: #666; font-size: 0.9rem; }
+        
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover { background: #f5f5f5; }
+        .tab-btn.active { background: var(--accent-color); color: white; }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .content-section.active { display: block; }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 { font-size: 1.25rem; }
+        
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .products-table th,
+        .products-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .products-table th {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-active { background: #e8f5e9; color: #4caf50; }
+        .status-inactive { background: #ffebee; color: #f44336; }
+        .status-pending { background: #fff3e0; color: #ff9800; }
+        .status-processing { background: #e3f2fd; color: #2196f3; }
+        .status-shipped { background: #e8f5e9; color: #4caf50; }
+        .status-delivered { background: #e8f5e9; color: #2e7d32; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        
+        .action-btns { display: flex; gap: 0.5rem; }
+        .action-btns button {
+            padding: 0.5rem;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #666;
+        }
+        .action-btns button:hover { background: #e0e0e0; }
+        .action-btns button.delete:hover { background: #ffebee; color: #f44336; }
+        
+        /* Orders List */
+        .orders-list { display: flex; flex-direction: column; gap: 1rem; }
+        
+        .order-card {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            align-items: center;
+        }
+        
+        @media (max-width: 900px) {
+            .order-card { grid-template-columns: 1fr 1fr; }
+        }
+        
+        .order-card h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .order-card p { font-size: 0.85rem; color: #666; margin: 0; }
+        
+        /* Login Container */
+        .admin-login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-card h1 { text-align: center; margin-bottom: 0.5rem; }
+        .login-card > p { text-align: center; color: #666; margin-bottom: 2rem; }
+        
+        .hidden { display: none !important; }
+        
+        /* Responsive Sidebar */
+        @media (max-width: 900px) {
+            .admin-sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar-brand span, .nav-item span, .logout-btn span { display: none; }
+            .sidebar-brand { justify-content: center; }
+            .nav-item, .logout-btn { justify-content: center; padding: 1rem; }
+            .admin-main { margin-left: 70px; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Admin Navigation -->
-    <header class="admin-header">
-        <nav class="admin-navbar">
-            <div class="admin-brand">
-                <a href="../index.html">
-                    <i class="fas fa-sun"></i>
-                    SOLARA Admin
-                </a>
-            </div>
-            
-            <div class="admin-nav-menu">
-                <a href="admin.html" class="nav-link active">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a>
-                <a href="add-product.html" class="nav-link">
-                    <i class="fas fa-plus"></i>
-                    Add Product
-                </a>
-                <a href="#" class="nav-link" id="manage-products">
-                    <i class="fas fa-edit"></i>
-                    Manage Products
-                </a>
-                <a href="#" class="nav-link" onclick="alert('Orders Management feature coming soon!'); return false;">
-                    <i class="fas fa-shopping-cart"></i>
-                    Orders
-                </a>
-                <a href="#" class="nav-link" onclick="alert('Customer Management feature coming soon!'); return false;">
-                    <i class="fas fa-users"></i>
-                    Customers
-                </a>
-            </div>
-            
-            <div class="admin-actions">
-                <a href="../index.html" class="btn btn-outline">
-                    <i class="fas fa-external-link-alt"></i>
-                    View Store
-                </a>
-                <a href="#" class="nav-icon" id="admin-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Admin Login Form -->
+    <!-- Login Screen -->
     <div class="admin-login-container" id="admin-login-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Admin Login</h1>
-                <p>Enter credentials to access the dashboard</p>
-            </div>
-            <form class="auth-form" id="admin-login-form">
+        <div class="login-card">
+            <h1><i class="fas fa-sun" style="color: var(--accent-color);"></i> SOLARA</h1>
+            <p>Admin Dashboard Login</p>
+            <form id="admin-login-form">
                 <div class="form-group">
-                    <label for="admin-username">Username</label>
-                    <div class="input-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="admin-username" name="username" placeholder="admin" required>
-                    </div>
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" placeholder="admin@solara.com" required>
                 </div>
                 <div class="form-group">
                     <label for="admin-password">Password</label>
-                    <div class="input-group">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="admin-password" name="password" placeholder="admin" required>
-                        <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
+                    <input type="password" id="admin-password" placeholder="••••••••" required>
                 </div>
-                <div class="form-message" id="admin-login-message" style="display: none;"></div>
-                <button type="submit" class="btn btn-primary btn-full">Login</button>
+                <div class="form-message" id="admin-login-message"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
             </form>
         </div>
     </div>
 
     <!-- Admin Dashboard -->
-    <main class="admin-container" id="admin-container" style="display: none;">
-        <div class="admin-content">
-            <div class="dashboard-header">
-                <h1>Admin Dashboard</h1>
-                <p>Manage your fashion store products and orders</p>
-            </div>
+    <div class="admin-dashboard hidden" id="admin-dashboard">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="../index.html" class="sidebar-brand">
+                <i class="fas fa-sun"></i>
+                <span>SOLARA</span>
+            </a>
             
-            <!-- Dashboard Stats -->
-            <div class="dashboard-stats">
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="products">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="#" class="nav-item" data-tab="orders">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="add-product.html" class="nav-item">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Product</span>
+                </a>
+                <a href="../index.html" class="nav-item">
+                    <i class="fas fa-store"></i>
+                    <span>View Store</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="logout-btn" id="admin-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, Admin</p>
+                </div>
+                <a href="add-product.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Product
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-products">0</h3>
-                        <p>Total Products</p>
+                    <div class="stat-icon products"><i class="fas fa-box"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-products">0</h3>
+                        <p>Products</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-orders">0</h3>
-                        <p>Total Orders</p>
+                    <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-orders">0</h3>
+                        <p>Orders</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-revenue">$0</h3>
-                        <p>Total Revenue</p>
+                    <div class="stat-icon revenue"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-revenue">0 EGP</h3>
+                        <p>Revenue</p>
                     </div>
                 </div>
-                
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="total-customers">0</h3>
-                        <p>Total Customers</p>
+                    <div class="stat-icon customers"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-customers">0</h3>
+                        <p>Customers</p>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <h2>Quick Actions</h2>
-                <div class="action-buttons">
-                    <a href="add-product.html" class="action-btn">
-                        <i class="fas fa-plus"></i>
-                        <span>Add New Product</span>
-                    </a>
-                    <a href="#" class="action-btn" id="edit-products-btn">
-                        <i class="fas fa-edit"></i>
-                        <span>Manage Products</span>
-                    </a>
-                    <a href="#" class="action-btn" onclick="alert('Reports & Analytics feature coming soon!'); return false;">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>View Reports</span>
-                    </a>
-                    <a href="#" class="action-btn" onclick="alert('Settings feature coming soon!'); return false;">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="products">Products</button>
+                <button class="tab-btn" data-tab="orders">Orders</button>
             </div>
-            
-            <!-- Products Management -->
-            <div class="products-management">
+
+            <!-- Products Section -->
+            <div class="content-section active" id="products-section">
                 <div class="section-header">
-                    <h2>Products Management</h2>
-                    <div class="section-actions">
-                        <div class="search-box">
-                            <input type="text" placeholder="Search products..." id="product-search">
-                            <button type="button" id="search-btn">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                        <div class="filter-dropdown">
-                            <select id="category-filter">
-                                <option value="">All Categories</option>
-                                <option value="men">Men</option>
-                                <option value="women">Women</option>
-                                <option value="kids">Kids</option>
-                                <option value="featured">Featured</option>
-                            </select>
-                        </div>
-                        <a href="add-product.html" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add Product
-                        </a>
+                    <h2>All Products</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" id="product-search" placeholder="Search products..." style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <select id="category-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="">All Categories</option>
+                            <option value="men">Men</option>
+                            <option value="women">Women</option>
+                            <option value="kids">Kids</option>
+                        </select>
                     </div>
                 </div>
-                
-                <div class="products-table-container">
-                    <table class="products-table" id="products-table">
+                <div style="overflow-x: auto;">
+                    <table class="products-table">
                         <thead>
                             <tr>
-                                <th>Image</th>
-                                <th>Name</th>
+                                <th>Product</th>
                                 <th>Category</th>
                                 <th>Price</th>
                                 <th>Stock</th>
@@ -201,192 +432,330 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="products-tbody">
-                            <!-- Products will be loaded dynamically -->
-                        </tbody>
+                        <tbody id="products-tbody"></tbody>
                     </table>
                 </div>
-                
-                <div class="table-pagination">
-                    <button class="pagination-btn" id="prev-page" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                        Previous
-                    </button>
-                    <span class="pagination-info">
-                        Page <span id="current-page">1</span> of <span id="total-pages">1</span>
-                    </span>
-                    <button class="pagination-btn" id="next-page">
-                        Next
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="content-section" id="orders-section">
+                <div class="section-header">
+                    <h2>All Orders</h2>
+                    <select id="order-status-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="orders-list" id="orders-list">
+                    <p style="text-align: center; color: #666; padding: 2rem;">Loading orders...</p>
                 </div>
             </div>
-            
-            <!-- Recent Orders -->
-            <div class="recent-orders">
-                <h2>Recent Orders</h2>
-                <div class="orders-list" id="recent-orders">
-                    <!-- Recent orders will be loaded dynamically -->
-                    <div class="order-item">
-                        <div class="order-info">
-                            <h4>Order #FS-2024-001</h4>
-                            <p>John Doe - $110.00</p>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-delivered">Delivered</span>
-                        </div>
-                        <div class="order-date">
-                            <p>Jan 15, 2024</p>
-                        </div>
-                    </div>
-                    
-                    <div class="order-item">
-                        <div class="order-info">
-                            <h4>Order #FS-2024-002</h4>
-                            <p>Jane Smith - $50.00</p>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-shipped">Shipped</span>
-                        </div>
-                        <div class="order-date">
-                            <p>Jan 20, 2024</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Product Edit Modal -->
-    <div class="modal-overlay" id="edit-product-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Product</h3>
-                <button class="modal-close" id="close-edit-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="edit-product-form">
-                    <input type="hidden" id="edit-product-id">
-                    
-                    <div class="form-group">
-                        <label for="edit-product-name">Product Name</label>
-                        <input type="text" id="edit-product-name" name="name" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit-product-category">Category</label>
-                            <select id="edit-product-category" name="category" required>
-                                <option value="men">Men</option>
-                                <option value="women">Women</option>
-                                <option value="kids">Kids</option>
-                                <option value="featured">Featured</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="edit-product-price">Price</label>
-                            <input type="number" id="edit-product-price" name="price" step="0.01" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-product-description">Description</label>
-                        <textarea id="edit-product-description" name="description" rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-product-image">Image URL</label>
-                        <input type="url" id="edit-product-image" name="image" required>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        </main>
     </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="delete-product-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Delete Product</h3>
-                <button class="modal-close" id="close-delete-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this product? This action cannot be undone.</p>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-delete">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete">Delete Product</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Test Credentials Banner -->
-    <div class="credentials-banner" id="credentials-banner">
-        <button class="creds-toggle" onclick="toggleCredsBanner()" title="Test Credentials">
-            <i class="fas fa-key"></i>
-        </button>
-        <div class="creds-content">
-            <div class="creds-header">
-                <span>🔐 Test Credentials</span>
-                <button onclick="toggleCredsBanner()" class="creds-close">&times;</button>
-            </div>
-            <div class="creds-item" onclick="fillAdminCredentials('admin@solara.com', 'Admin@123')" style="cursor:pointer;">
-                <strong>Admin:</strong>
-                <span>admin@solara.com</span>
-                <span class="creds-pwd">Admin@123</span>
-                <small style="color:#667eea;">Click to fill</small>
-            </div>
-            <div class="creds-item">
-                <strong>Customer:</strong>
-                <span>customer@test.com</span>
-                <span class="creds-pwd">Test@123</span>
-            </div>
-        </div>
-    </div>
-    <style>
-        .credentials-banner { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Inter', sans-serif; }
-        .creds-toggle { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; cursor: pointer; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-        .creds-toggle:hover { transform: scale(1.1); }
-        .creds-content { display: none; position: absolute; bottom: 55px; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 280px; overflow: hidden; animation: slideUp 0.3s ease; }
-        .credentials-banner.open .creds-content { display: block; }
-        .credentials-banner.open .creds-toggle { background: #dc3545; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .creds-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; }
-        .creds-close { background: none; border: none; color: white; font-size: 1.3rem; cursor: pointer; }
-        .creds-item { padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 4px; transition: background 0.2s; }
-        .creds-item:hover { background: #f8f9fa; }
-        .creds-item:last-child { border-bottom: none; }
-        .creds-item strong { color: #333; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .creds-item span { color: #555; font-size: 0.9rem; }
-        .creds-pwd { font-family: monospace; background: #f5f5f5; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem !important; color: #667eea !important; }
-    </style>
-    <script>
-        function toggleCredsBanner() { document.getElementById('credentials-banner').classList.toggle('open'); }
-        function fillAdminCredentials(email, password) {
-            const emailField = document.getElementById('admin-email');
-            const passwordField = document.getElementById('admin-password');
-            if (emailField && passwordField) {
-                emailField.value = email;
-                passwordField.value = password;
-            }
-            toggleCredsBanner();
-        }
-    </script>
 
     <!-- Scripts -->
     <script src="../js/api.js"></script>
     <script src="../js/data.js"></script>
-    <script src="../js/admin.js"></script>
     <script src="../js/main.js"></script>
+    <script>
+        let isAdminLoggedIn = false;
+        let allProducts = [];
+        let allOrders = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeData();
+            checkAdminAuth();
+            setupEventListeners();
+        });
+
+        function checkAdminAuth() {
+            const adminAuthed = localStorage.getItem('solaraAdminAuthed');
+            const currentUser = AuthAPI?.getCurrentUser() || JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (adminAuthed === 'true' || currentUser.role === 'admin') {
+                isAdminLoggedIn = true;
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('admin-login-container').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('admin-login-container').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadDashboardData();
+        }
+
+        async function loadDashboardData() {
+            // Load products
+            try {
+                if (typeof ProductsAPI !== 'undefined') {
+                    const response = await ProductsAPI.getAll();
+                    if (response.success) {
+                        allProducts = response.data;
+                    }
+                }
+            } catch (e) {}
+            
+            if (allProducts.length === 0) {
+                allProducts = getProducts();
+            }
+            
+            // Load orders
+            allOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+            
+            // Try API orders
+            try {
+                if (typeof OrdersAPI !== 'undefined') {
+                    const response = await OrdersAPI.getAll();
+                    if (response.success && response.data.length > 0) {
+                        allOrders = response.data;
+                    }
+                }
+            } catch (e) {}
+            
+            // Update stats
+            document.getElementById('stat-products').textContent = allProducts.length;
+            document.getElementById('stat-orders').textContent = allOrders.length;
+            
+            const revenue = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            document.getElementById('stat-revenue').textContent = formatPrice(revenue);
+            
+            const customers = [...new Set(allOrders.map(o => o.userId || o.shippingAddress?.email))].length;
+            document.getElementById('stat-customers').textContent = customers;
+            
+            renderProducts();
+            renderOrders();
+        }
+
+        function renderProducts(filter = '') {
+            const tbody = document.getElementById('products-tbody');
+            const category = document.getElementById('category-filter').value;
+            const search = document.getElementById('product-search').value.toLowerCase();
+            
+            let filtered = allProducts;
+            if (category) filtered = filtered.filter(p => p.category === category);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            
+            tbody.innerHTML = filtered.map(product => {
+                const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                const pid = product._id || product.id;
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="../${imagePath}" alt="${product.name}" class="product-image" onerror="this.src='../images/placeholder.jpg'">
+                                <span>${product.name}</span>
+                            </div>
+                        </td>
+                        <td style="text-transform: capitalize;">${product.category}</td>
+                        <td>${formatPrice(product.price)}</td>
+                        <td>${product.stock || 0}</td>
+                        <td><span class="status-badge status-${product.status || 'active'}">${product.status || 'active'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="editProduct('${pid}')" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteProduct('${pid}')" class="delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No products found</td></tr>';
+        }
+
+        function renderOrders(statusFilter = '') {
+            const container = document.getElementById('orders-list');
+            
+            let filtered = allOrders;
+            if (statusFilter) filtered = filtered.filter(o => o.status === statusFilter);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No orders found</p>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(order => {
+                const orderNumber = order.orderNumber || order._id || order.id;
+                const date = new Date(order.createdAt || order.date).toLocaleDateString();
+                const customer = order.shippingAddress?.firstName + ' ' + (order.shippingAddress?.lastName || '');
+                const status = order.status || 'pending';
+                
+                return `
+                    <div class="order-card">
+                        <div>
+                            <h4>#${String(orderNumber).slice(-8).toUpperCase()}</h4>
+                            <p>${customer}</p>
+                        </div>
+                        <div>
+                            <p style="font-weight: 600;">${formatPrice(order.total || 0)}</p>
+                            <p>${order.items?.length || 0} items</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-${status}">${status}</span>
+                        </div>
+                        <div>
+                            <p>${date}</p>
+                        </div>
+                        <div class="action-btns">
+                            <button onclick="viewOrder('${order._id || order.id}')" title="View"><i class="fas fa-eye"></i></button>
+                            <button onclick="updateOrderStatus('${order._id || order.id}')" title="Update Status"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('admin-email').value;
+                const password = document.getElementById('admin-password').value;
+                const msg = document.getElementById('admin-login-message');
+                
+                try {
+                    if (typeof AuthAPI !== 'undefined') {
+                        const response = await AuthAPI.adminLogin(email, password);
+                        if (response.success) {
+                            localStorage.setItem('solaraAdminAuthed', 'true');
+                            isAdminLoggedIn = true;
+                            showDashboard();
+                            return;
+                        }
+                    }
+                    
+                    // Fallback check
+                    if (email === 'admin@solara.com' && password === 'Admin@123') {
+                        localStorage.setItem('solaraAdminAuthed', 'true');
+                        isAdminLoggedIn = true;
+                        showDashboard();
+                        return;
+                    }
+                    
+                    msg.textContent = 'Invalid credentials';
+                    msg.style.color = '#f44336';
+                } catch (error) {
+                    msg.textContent = error.message || 'Login failed';
+                    msg.style.color = '#f44336';
+                }
+            });
+            
+            // Logout
+            document.getElementById('admin-logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('solaraAdminAuthed');
+                localStorage.removeItem('isAdmin');
+                if (typeof AuthAPI !== 'undefined') AuthAPI.logout();
+                showLogin();
+            });
+            
+            // Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(btn.dataset.tab + '-section').classList.add('active');
+                });
+            });
+            
+            // Sidebar nav
+            document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const tab = item.dataset.tab;
+                    if (tab === 'dashboard') {
+                        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                        document.getElementById('products-section').classList.add('active');
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        document.querySelector('.tab-btn[data-tab="products"]').classList.add('active');
+                    } else {
+                        document.querySelector(`.tab-btn[data-tab="${tab}"]`)?.click();
+                    }
+                });
+            });
+            
+            // Search & filter
+            document.getElementById('product-search').addEventListener('input', () => renderProducts());
+            document.getElementById('category-filter').addEventListener('change', () => renderProducts());
+            document.getElementById('order-status-filter').addEventListener('change', (e) => renderOrders(e.target.value));
+        }
+
+        function editProduct(productId) {
+            localStorage.setItem('editingProductId', productId);
+            window.location.href = `edit-product.html?id=${productId}`;
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                if (typeof ProductsAPI !== 'undefined') {
+                    await ProductsAPI.delete(productId);
+                }
+                allProducts = allProducts.filter(p => (p._id || p.id) !== productId);
+                renderProducts();
+                showNotification('Product deleted', 'success');
+            } catch (error) {
+                showNotification('Error deleting product', 'error');
+            }
+        }
+
+        function viewOrder(orderId) {
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (!order) return;
+            
+            const items = (order.items || []).map(i => `${i.name || 'Item'} x${i.quantity}`).join('\n');
+            alert(`Order Details:\n\nOrder: #${order.orderNumber || orderId}\nCustomer: ${order.shippingAddress?.firstName} ${order.shippingAddress?.lastName}\nEmail: ${order.shippingAddress?.email}\nPhone: ${order.shippingAddress?.phone}\nAddress: ${order.shippingAddress?.street}, ${order.shippingAddress?.city}\n\nItems:\n${items}\n\nTotal: ${formatPrice(order.total)}\nStatus: ${order.status}\nPayment: ${order.paymentMethod}`);
+        }
+
+        async function updateOrderStatus(orderId) {
+            const newStatus = prompt('Enter new status (pending, processing, shipped, delivered, cancelled):');
+            if (!newStatus || !['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(newStatus)) {
+                alert('Invalid status');
+                return;
+            }
+            
+            const orderIndex = allOrders.findIndex(o => (o._id || o.id) === orderId);
+            if (orderIndex > -1) {
+                allOrders[orderIndex].status = newStatus;
+                localStorage.setItem('fashionStoreOrders', JSON.stringify(allOrders));
+                renderOrders();
+                showNotification('Order status updated', 'success');
+            }
+        }
+    </script>
+
+    <!-- Credentials Banner -->
+    <div class="credentials-banner" id="credentials-banner" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        <button onclick="document.getElementById('credentials-banner').classList.toggle('open')" style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-key"></i>
+        </button>
+        <div style="display: none; position: absolute; bottom: 55px; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 260px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 15px; font-weight: 600;">🔐 Admin Credentials</div>
+            <div style="padding: 12px 15px; cursor: pointer;" onclick="document.getElementById('admin-email').value='admin@solara.com'; document.getElementById('admin-password').value='Admin@123';">
+                <strong style="font-size: 0.8rem; color: #333;">ADMIN</strong><br>
+                <span style="font-size: 0.9rem;">admin@solara.com</span><br>
+                <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #667eea;">Admin@123</code>
+                <small style="display: block; color: #667eea; margin-top: 4px;">Click to fill</small>
+            </div>
+        </div>
+    </div>
+    <style>
+        .credentials-banner.open > div:last-child { display: block !important; }
+        .credentials-banner.open > button { background: #dc3545 !important; }
+    </style>
 </body>
 </html>
-
