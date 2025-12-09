@@ -5,7 +5,7 @@ const products = [
     {
         id: 1,
         name: "Classic Cotton T-Shirt",
-        price: 25.00,
+        price: 850.00,
         image: "images/products/1.gif",
         category: "men",
         description: "Comfortable cotton t-shirt perfect for everyday wear",
@@ -20,7 +20,7 @@ const products = [
     {
         id: 2,
         name: "Elegant Summer Dress",
-        price: 50.00,
+        price: 1200.00,
         image: "images/products/1R5A0057_1_2.jpg",
         category: "women",
         description: "Beautiful summer dress with floral pattern",
@@ -35,7 +35,7 @@ const products = [
     {
         id: 3,
         name: "Kids Winter Jacket",
-        price: 45.00,
+        price: 950.00,
         image: "images/products/1R5A0160.jpg",
         category: "kids",
         description: "Warm and cozy winter jacket for kids",
@@ -50,7 +50,7 @@ const products = [
     {
         id: 4,
         name: "Classic Oxford Shirt",
-        price: 40.00,
+        price: 900.00,
         image: "images/products/1W2A0097.jpg",
         category: "men",
         description: "Professional oxford shirt for business casual",
@@ -65,7 +65,7 @@ const products = [
     {
         id: 5,
         name: "Slim Fit Jeans",
-        price: 60.00,
+        price: 1100.00,
         image: "images/products/1W2A0099-Edit_5.jpg",
         category: "men",
         description: "Modern slim fit jeans with stretch comfort",
@@ -80,7 +80,7 @@ const products = [
     {
         id: 6,
         name: "Leather Derby Shoes",
-        price: 80.00,
+        price: 1400.00,
         image: "images/products/1W2A3842HQ_996391aa-7b22-4f88-a959-d83f639ffbbf_2.jpg",
         category: "men",
         description: "Premium leather derby shoes for formal occasions",
@@ -95,7 +95,7 @@ const products = [
     {
         id: 7,
         name: "Silk Ruffle Blouse",
-        price: 55.00,
+        price: 1050.00,
         image: "images/products/1W2A3908HQ_4.jpg",
         category: "women",
         description: "Elegant silk blouse with ruffle details",
@@ -110,7 +110,7 @@ const products = [
     {
         id: 8,
         name: "A-Line Midi Skirt",
-        price: 48.00,
+        price: 1000.00,
         image: "images/products/1W2A4118_2.jpg",
         category: "women",
         description: "Classic A-line midi skirt for versatile styling",
@@ -125,7 +125,7 @@ const products = [
     {
         id: 9,
         name: "Crossbody Leather Bag",
-        price: 75.00,
+        price: 1300.00,
         image: "images/products/1W2A4345_copy_5.jpg",
         category: "women",
         description: "Stylish crossbody bag made from premium leather",
@@ -139,7 +139,7 @@ const products = [
     {
         id: 10,
         name: "Graphic Print T-Shirt",
-        price: 15.00,
+        price: 750.00,
         image: "images/products/2_4.gif",
         category: "kids",
         description: "Fun graphic print t-shirt for kids",
@@ -154,7 +154,7 @@ const products = [
     {
         id: 11,
         name: "Comfortable Jogger Pants",
-        price: 20.00,
+        price: 800.00,
         image: "images/products/1W2A6581_0f869f30-1398-4694-9c5e-6413bded0bc8_1.jpg",
         category: "kids",
         description: "Comfortable jogger pants for active kids",
@@ -169,7 +169,7 @@ const products = [
     {
         id: 12,
         name: "Light-Up Sneakers",
-        price: 35.00,
+        price: 850.00,
         image: "images/products/1W2A6997_1fc82186-029c-4dca-8b2b-bcb246902a85_3.jpg",
         category: "kids",
         description: "Fun light-up sneakers that kids will love",
@@ -184,7 +184,7 @@ const products = [
     {
         id: 13,
         name: "Casual Polo Shirt",
-        price: 35.00,
+        price: 850.00,
         image: "images/products/1W2A7021.jpg",
         category: "men",
         description: "Classic polo shirt for casual occasions",
@@ -199,7 +199,7 @@ const products = [
     {
         id: 14,
         name: "Designer Blazer",
-        price: 120.00,
+        price: 1450.00,
         image: "images/products/215576B3-B23A-443F-AE54-5F7179347F5C_1.jpg",
         category: "women",
         description: "Professional blazer for business attire",
@@ -214,7 +214,7 @@ const products = [
     {
         id: 15,
         name: "Active Sports Shorts",
-        price: 25.00,
+        price: 850.00,
         image: "images/products/6_d81aa1cd-fb9c-42f8-9ee6-88c004f8c4fd_5.jpg",
         category: "kids",
         description: "Comfortable sports shorts for active kids",
@@ -229,7 +229,7 @@ const products = [
     {
         id: 16,
         name: "Streetwear Hoodie",
-        price: 65.00,
+        price: 1150.00,
         image: "images/products/9.gif",
         category: "men",
         description: "Trendy streetwear hoodie with modern design",
@@ -244,7 +244,7 @@ const products = [
     {
         id: 17,
         name: "Elegant Evening Gown",
-        price: 150.00,
+        price: 1500.00,
         image: "images/products/IMG_6838.gif",
         category: "women",
         description: "Stunning evening gown for special occasions",
@@ -259,7 +259,7 @@ const products = [
     {
         id: 18,
         name: "Urban Street Jacket",
-        price: 85.00,
+        price: 1250.00,
         image: "images/products/omar7barakat_StreetWear_-27_1.jpg",
         category: "men",
         description: "Modern urban jacket with streetwear style",

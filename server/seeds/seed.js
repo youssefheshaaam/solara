@@ -19,8 +19,8 @@ const products = [
     // MEN'S COLLECTION
     {
         name: "Classic Cotton T-Shirt",
-        price: 25.00,
-        comparePrice: 35.00,
+        price: 850.00,
+        comparePrice: 1100.00,
         image: "images/products/1.gif",
         category: "men",
         description: "Our signature Classic Cotton T-Shirt is the ultimate wardrobe essential. Crafted from 100% premium combed cotton, this tee offers exceptional softness and breathability. The relaxed fit provides all-day comfort while maintaining a clean, modern silhouette. Reinforced stitching at the collar and hem ensures long-lasting durability. Perfect for layering or wearing on its own.",
@@ -45,8 +45,8 @@ const products = [
     },
     {
         name: "Classic Oxford Shirt",
-        price: 45.00,
-        comparePrice: 60.00,
+        price: 950.00,
+        comparePrice: 1200.00,
         image: "images/products/1W2A0097.jpg",
         category: "men",
         description: "Elevate your everyday style with our Classic Oxford Shirt. This timeless piece features a button-down collar and single-button barrel cuffs. The premium cotton oxford fabric offers a refined texture with natural breathability. A perfect choice for business casual settings or dressed-down weekend wear. Pair with chinos or jeans for versatile styling options.",
@@ -71,8 +71,8 @@ const products = [
     },
     {
         name: "Slim Fit Stretch Jeans",
-        price: 65.00,
-        comparePrice: 85.00,
+        price: 1100.00,
+        comparePrice: 1400.00,
         image: "images/products/1W2A0099-Edit_5.jpg",
         category: "men",
         description: "Experience the perfect blend of style and comfort with our Slim Fit Stretch Jeans. The innovative stretch denim technology allows for maximum mobility while maintaining a sleek, tailored look. Features include a classic five-pocket design, branded rivets, and a signature leather patch. The dark indigo wash offers versatility for both casual and smart casual occasions.",
@@ -97,8 +97,8 @@ const products = [
     },
     {
         name: "Premium Leather Derby Shoes",
-        price: 120.00,
-        comparePrice: 150.00,
+        price: 1450.00,
+        comparePrice: 1800.00,
         image: "images/products/1W2A3842HQ_996391aa-7b22-4f88-a959-d83f639ffbbf_2.jpg",
         category: "men",
         description: "Step into sophistication with our Premium Leather Derby Shoes. Handcrafted from full-grain Italian leather, these shoes feature a Goodyear welted construction for superior durability and easy resoling. The cushioned insole provides all-day comfort, while the leather outsole offers elegant flex with every step. A timeless investment piece for the modern gentleman.",
@@ -123,8 +123,8 @@ const products = [
     },
     {
         name: "Classic Polo Shirt",
-        price: 38.00,
-        comparePrice: 50.00,
+        price: 900.00,
+        comparePrice: 1150.00,
         image: "images/products/1W2A7021.jpg",
         category: "men",
         description: "Our Classic Polo Shirt embodies timeless elegance with a modern twist. Crafted from premium cotton piqué fabric, it features a ribbed collar and cuffs that hold their shape. The two-button placket and vented hem provide refined details. Perfect for golf, casual Fridays, or weekend brunches. An essential piece that transitions seamlessly from day to evening.",
@@ -149,8 +149,8 @@ const products = [
     },
     {
         name: "Streetwear Premium Hoodie",
-        price: 75.00,
-        comparePrice: 95.00,
+        price: 1150.00,
+        comparePrice: 1450.00,
         image: "images/products/9.gif",
         category: "men",
         description: "Make a statement with our Streetwear Premium Hoodie. This heavyweight hoodie features a relaxed, oversized fit with dropped shoulders for that coveted streetwear aesthetic. The double-layered hood, kangaroo pocket, and ribbed cuffs provide both function and style. Made from a plush cotton blend that gets softer with every wash.",
@@ -175,8 +175,8 @@ const products = [
     },
     {
         name: "Urban Street Jacket",
-        price: 95.00,
-        comparePrice: 125.00,
+        price: 1250.00,
+        comparePrice: 1600.00,
         image: "images/products/omar7barakat_StreetWear_-27_1.jpg",
         category: "men",
         description: "The Urban Street Jacket is designed for the style-conscious city dweller. Features include multiple utility pockets, adjustable cuffs, and a modern cropped silhouette. The water-resistant cotton canvas shell keeps you protected from light rain, while the soft cotton lining ensures comfort. Perfect for layering over hoodies or wearing with a simple tee.",
@@ -203,8 +203,8 @@ const products = [
     // WOMEN'S COLLECTION
     {
         name: "Elegant Summer Dress",
-        price: 55.00,
-        comparePrice: 75.00,
+        price: 1050.00,
+        comparePrice: 1400.00,
         image: "images/products/1R5A0057_1_2.jpg",
         category: "women",
         description: "Embrace summer in our Elegant Summer Dress. This flowing midi-length dress features a flattering V-neckline and delicate cap sleeves. The lightweight fabric drapes beautifully, creating an effortlessly chic silhouette. Perfect for garden parties, brunches, or vacation wear. Pair with sandals for a casual look or heels for evening elegance.",
@@ -229,8 +229,8 @@ const products = [
     },
     {
         name: "Silk Ruffle Blouse",
-        price: 68.00,
-        comparePrice: 85.00,
+        price: 1200.00,
+        comparePrice: 1500.00,
         image: "images/products/1W2A3908HQ_4.jpg",
         category: "women",
         description: "Add a touch of romance to your wardrobe with our Silk Ruffle Blouse. This luxurious piece features cascading ruffles down the front and delicate mother-of-pearl buttons. The pure silk fabric offers a beautiful drape and subtle sheen. Perfect for office to evening transitions. Tuck into high-waisted trousers or wear untucked with jeans.",
@@ -255,8 +255,8 @@ const products = [
     },
     {
         name: "A-Line Midi Skirt",
-        price: 52.00,
-        comparePrice: 68.00,
+        price: 1000.00,
+        comparePrice: 1300.00,
         image: "images/products/1W2A4118_2.jpg",
         category: "women",
         description: "Our A-Line Midi Skirt is a versatile wardrobe staple that flatters every figure. The classic A-line silhouette falls gracefully below the knee for an elegant, feminine look. Features include a concealed side zipper and a comfortable elastic waistband at the back. Pair with blouses for the office or knit tops for weekend style.",
@@ -281,8 +281,8 @@ const products = [
     },
     {
         name: "Designer Leather Crossbody Bag",
-        price: 95.00,
-        comparePrice: 125.00,
+        price: 1300.00,
+        comparePrice: 1700.00,
         image: "images/products/1W2A4345_copy_5.jpg",
         category: "women",
         description: "Elevate your accessories game with our Designer Leather Crossbody Bag. Crafted from buttery-soft pebbled leather, this bag features an adjustable strap, secure magnetic closure, and multiple interior pockets. The perfect size for your daily essentials without weighing you down. A timeless investment piece that complements any outfit.",
@@ -307,8 +307,8 @@ const products = [
     },
     {
         name: "Tailored Wool Blazer",
-        price: 145.00,
-        comparePrice: 185.00,
+        price: 1450.00,
+        comparePrice: 1850.00,
         image: "images/products/215576B3-B23A-443F-AE54-5F7179347F5C_1.jpg",
         category: "women",
         description: "Command attention in our Tailored Wool Blazer. This impeccably crafted piece features a single-button closure, notched lapels, and functional pockets. The wool blend fabric provides structure while remaining comfortable for all-day wear. Perfect for the boardroom or dressed down with jeans for a polished casual look.",
@@ -333,8 +333,8 @@ const products = [
     },
     {
         name: "Elegant Evening Gown",
-        price: 185.00,
-        comparePrice: 250.00,
+        price: 1500.00,
+        comparePrice: 2000.00,
         image: "images/products/IMG_6838.gif",
         category: "women",
         description: "Make an unforgettable entrance in our Elegant Evening Gown. This show-stopping piece features a figure-flattering draped bodice and a flowing floor-length skirt. The luxurious silk chiffon fabric creates beautiful movement with every step. Complete with a subtle side slit and concealed back zipper for a flawless fit. Perfect for galas, weddings, and special occasions.",
@@ -361,8 +361,8 @@ const products = [
     // KIDS' COLLECTION
     {
         name: "Kids Winter Puffer Jacket",
-        price: 55.00,
-        comparePrice: 75.00,
+        price: 950.00,
+        comparePrice: 1200.00,
         image: "images/products/1R5A0160.jpg",
         category: "kids",
         description: "Keep your little ones warm and stylish with our Kids Winter Puffer Jacket. Features include a cozy fleece-lined hood, multiple zippered pockets, and reflective details for visibility in low light. The water-resistant shell keeps kids dry during outdoor play, while the synthetic insulation provides lightweight warmth. Machine washable for easy care.",
@@ -387,8 +387,8 @@ const products = [
     },
     {
         name: "Fun Graphic Print T-Shirt",
-        price: 18.00,
-        comparePrice: 25.00,
+        price: 750.00,
+        comparePrice: 950.00,
         image: "images/products/2_4.gif",
         category: "kids",
         description: "Let kids express their personality with our Fun Graphic Print T-Shirt. Made from soft, breathable cotton that's gentle on sensitive skin. Features playful designs that kids love and parents approve of. Pre-shrunk fabric ensures the perfect fit wash after wash. Available in a rainbow of colors to mix and match with their favorite bottoms.",
@@ -413,8 +413,8 @@ const products = [
     },
     {
         name: "Comfortable Jogger Pants",
-        price: 25.00,
-        comparePrice: 35.00,
+        price: 800.00,
+        comparePrice: 1050.00,
         image: "images/products/1W2A6581_0f869f30-1398-4694-9c5e-6413bded0bc8_1.jpg",
         category: "kids",
         description: "Perfect for school, sports, or lounging at home, our Comfortable Jogger Pants are a kid's wardrobe essential. The soft cotton blend moves with active kids while the elasticated waist with drawstring ensures a secure, adjustable fit. Features include side pockets for treasures and ribbed cuffs that stay in place. Easy pull-on style kids can manage themselves.",
@@ -439,8 +439,8 @@ const products = [
     },
     {
         name: "Light-Up LED Sneakers",
-        price: 42.00,
-        comparePrice: 55.00,
+        price: 850.00,
+        comparePrice: 1100.00,
         image: "images/products/1W2A6997_1fc82186-029c-4dca-8b2b-bcb246902a85_3.jpg",
         category: "kids",
         description: "Watch your kids light up with joy in our Light-Up LED Sneakers! These exciting shoes feature multicolor LED lights in the sole that can be set to different modes. The rechargeable battery provides hours of glowing fun. Beyond the lights, these sneakers offer comfortable cushioning, a secure velcro closure, and a non-slip sole for safe play.",
@@ -465,8 +465,8 @@ const products = [
     },
     {
         name: "Active Sports Shorts",
-        price: 22.00,
-        comparePrice: 30.00,
+        price: 750.00,
+        comparePrice: 950.00,
         image: "images/products/6_d81aa1cd-fb9c-42f8-9ee6-88c004f8c4fd_5.jpg",
         category: "kids",
         description: "Designed for active kids who love to move, our Active Sports Shorts feature moisture-wicking fabric that keeps them cool and dry during sports and play. The stretchy waistband with internal drawstring provides a comfortable, secure fit. Mesh side panels enhance breathability, while the quick-dry fabric is perfect for swimming and water play.",
@@ -491,8 +491,8 @@ const products = [
     },
     {
         name: "Cozy Fleece Hoodie",
-        price: 32.00,
-        comparePrice: 42.00,
+        price: 850.00,
+        comparePrice: 1100.00,
         image: "images/products/1.gif",
         category: "kids",
         description: "Wrap them in comfort with our Cozy Fleece Hoodie. Super-soft fleece fabric provides warmth without weight. Features include a lined hood for extra coziness, a spacious kangaroo pocket for cold hands or treasures, and ribbed cuffs and hem that hold their shape. Easy care and durable enough for everyday adventures.",

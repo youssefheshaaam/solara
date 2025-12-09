@@ -157,6 +157,7 @@ function createUniversalNavigation() {
                     </div>
                     
                     <div class="user-actions">
+                        <span class="welcome-message hidden" id="welcome-message" style="display: none; padding: 0.5rem 1rem; color: var(--text-primary); font-weight: 500; white-space: nowrap;"></span>
                         <a href="${pagesPrefix}cart.html" class="nav-icon" id="cart-link">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="cart-count">0</span>
@@ -253,16 +254,35 @@ function updateAuthUI() {
     const profileLink = document.getElementById('profile-link');
     const ordersLink = document.getElementById('orders-link');
     const logoutBtn = document.getElementById('logout-btn');
+    const welcomeMessage = document.getElementById('welcome-message');
     
     const isLoggedIn = currentUser || (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn());
     
     if (isLoggedIn) {
+        // Get user name
+        const user = currentUser || (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser()) || 
+                     JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
+        const userName = user.firstName || user.name || user.email?.split('@')[0] || 'User';
+        
+        // Show welcome message
+        if (welcomeMessage) {
+            welcomeMessage.textContent = `Welcome, ${userName}`;
+            welcomeMessage.style.display = 'block';
+            welcomeMessage.classList.remove('hidden');
+        }
+        
         // User is logged in - show profile, orders, logout; hide login
         if (loginLink) loginLink.classList.add('hidden');
         if (profileLink) profileLink.classList.remove('hidden');
         if (ordersLink) ordersLink.classList.remove('hidden');
         if (logoutBtn) logoutBtn.classList.remove('hidden');
     } else {
+        // Hide welcome message
+        if (welcomeMessage) {
+            welcomeMessage.style.display = 'none';
+            welcomeMessage.classList.add('hidden');
+        }
+        
         // User is logged out - show login; hide profile, orders, logout
         if (loginLink) loginLink.classList.remove('hidden');
         if (profileLink) profileLink.classList.add('hidden');
