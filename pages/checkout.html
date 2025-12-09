@@ -378,20 +378,21 @@
         
         /* Order Success Modal */
         .success-modal {
-            display: none;
+            display: none !important;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
+            background: rgba(0,0,0,0.6);
+            z-index: 99999;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
         }
         
         .success-modal.active {
-            display: flex;
+            display: flex !important;
         }
         
         .success-content {
@@ -623,7 +624,7 @@
                             </div>
                         </div>
                         
-                        <button type="submit" form="checkout-form" class="btn btn-primary place-order-btn" id="place-order-btn">
+                        <button type="button" class="btn btn-primary place-order-btn" id="place-order-btn">
                             <i class="fas fa-check"></i>
                             Place Order
                         </button>
@@ -751,8 +752,98 @@
             await initializeData();
             await loadCheckoutData();
             prefillUserData();
-            setupFormValidation();
+            
+            // Setup button click handler
+            document.getElementById('place-order-btn').onclick = placeOrderHandler;
         });
+        
+        async function placeOrderHandler() {
+            const form = document.getElementById('checkout-form');
+            const btn = document.getElementById('place-order-btn');
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            try {
+                // Gather form data
+                const shippingAddress = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    street: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('governorate').value,
+                    country: 'Egypt'
+                };
+                
+                const orderItems = cartProducts.map(item => ({
+                    product: item.productId,
+                    name: item.product.name,
+                    image: item.product.image || item.product.primaryImage,
+                    quantity: item.quantity,
+                    price: item.price || item.product.price,
+                    size: item.size,
+                    color: item.color
+                }));
+                
+                // Generate order number
+                const orderNum = 'SOL-' + Date.now().toString(36).toUpperCase();
+                
+                // Get current user
+                const user = (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser()) || 
+                             JSON.parse(localStorage.getItem('currentUser') || '{}');
+                
+                // Create order object
+                const order = {
+                    _id: orderNum,
+                    orderNumber: orderNum,
+                    userId: user._id || user.id || null,
+                    userEmail: user.email || shippingAddress.email,
+                    items: orderItems,
+                    shippingAddress: shippingAddress,
+                    paymentMethod: 'cod',
+                    subtotal: orderTotals.subtotal,
+                    shipping: orderTotals.shipping,
+                    codFee: orderTotals.codFee,
+                    total: orderTotals.total,
+                    notes: document.getElementById('notes').value || '',
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                const orders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                orders.push(order);
+                localStorage.setItem('fashionStoreOrders', JSON.stringify(orders));
+                
+                // Clear cart
+                saveCart([]);
+                updateCartCount();
+                
+                // Update modal with order info
+                document.getElementById('order-number-display').textContent = 'Order #' + orderNum.slice(-8).toUpperCase();
+                document.getElementById('shipping-summary').textContent = shippingAddress.street + ', ' + shippingAddress.city + ', ' + shippingAddress.state;
+                document.getElementById('total-amount').textContent = formatPrice(orderTotals.total);
+                
+                // Show success modal - add class to override CSS !important
+                document.getElementById('success-modal').classList.add('active');
+                
+                btn.innerHTML = '<i class="fas fa-check"></i> Order Placed!';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error placing order: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Place Order';
+            }
+        }
         
         async function loadCheckoutData() {
             try {
@@ -862,112 +953,6 @@
             element.querySelector('input').checked = true;
         }
         
-        function setupFormValidation() {
-            const form = document.getElementById('checkout-form');
-            
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const btn = document.getElementById('place-order-btn');
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                
-                // Update progress
-                document.querySelector('[data-step="1"]').classList.add('completed');
-                document.querySelector('[data-step="2"]').classList.add('completed');
-                document.querySelector('[data-step="3"]').classList.add('active');
-                
-                try {
-                    // Gather order data
-                    const formData = new FormData(form);
-                    
-                    const shippingAddress = {
-                        firstName: formData.get('firstName'),
-                        lastName: formData.get('lastName'),
-                        email: formData.get('email'),
-                        phone: formData.get('phone'),
-                        street: formData.get('address'),
-                        city: formData.get('city'),
-                        state: formData.get('governorate'),
-                        country: 'Egypt'
-                    };
-                    
-                    const orderItems = cartProducts.map(item => ({
-                        product: item.productId,
-                        name: item.product.name,
-                        image: item.product.image || item.product.primaryImage,
-                        quantity: item.quantity,
-                        price: item.price || item.product.price,
-                        size: item.size,
-                        color: item.color
-                    }));
-                    
-                    const orderData = {
-                        items: orderItems,
-                        shippingAddress,
-                        paymentMethod: 'cod',
-                        subtotal: orderTotals.subtotal,
-                        shipping: orderTotals.shipping,
-                        codFee: orderTotals.codFee,
-                        total: orderTotals.total,
-                        notes: formData.get('notes'),
-                        status: 'pending'
-                    };
-                    
-                    // Create order
-                    let order;
-                    if (typeof OrdersAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
-                        const response = await OrdersAPI.create(orderData);
-                        if (response.success) {
-                            order = response.data;
-                        }
-                    }
-                    
-                    // Fallback - create local order
-                    if (!order) {
-                        const user = (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser()) || 
-                                     JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
-                        
-                        const orderNum = 'SOL-' + Date.now().toString(36).toUpperCase();
-                        order = {
-                            _id: orderNum,
-                            orderNumber: orderNum,
-                            userId: user._id || user.id || null,
-                            userEmail: user.email || shippingAddress.email,
-                            ...orderData,
-                            createdAt: new Date().toISOString()
-                        };
-                        
-                        // Save to localStorage
-                        const orders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
-                        orders.push(order);
-                        localStorage.setItem('fashionStoreOrders', JSON.stringify(orders));
-                    }
-                    
-                    // Clear cart
-                    if (typeof CartAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
-                        await CartAPI.clear();
-                    } else {
-                        saveCart([]);
-                    }
-                    updateCartCount();
-                    
-                    // Show success modal with details
-                    document.getElementById('order-number-display').textContent = 
-                        `Order #${(order.orderNumber || order._id).toString().slice(-8).toUpperCase()}`;
-                    document.getElementById('shipping-summary').textContent = 
-                        `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}`;
-                    document.getElementById('total-amount').textContent = formatPrice(orderTotals.total);
-                    document.getElementById('success-modal').classList.add('active');
-                    
-                } catch (error) {
-                    console.error('Error placing order:', error);
-                    showNotification(error.message || 'Error placing order. Please try again.', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Place Order';
-                }
-            });
-        }
     </script>
 </body>
 </html>

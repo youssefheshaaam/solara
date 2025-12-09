@@ -2193,13 +2193,14 @@ if (window.location.pathname.includes('orders.html')) {
 }
 
 // Checkout page initialization
-if (window.location.pathname.includes('checkout.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        loadCheckoutItems();
-        setupCheckoutSteps();
-        setupCheckoutForm();
-    });
-}
+// NOTE: checkout.html has its own complete implementation, so we skip main.js handlers
+// if (window.location.pathname.includes('checkout.html')) {
+//     document.addEventListener('DOMContentLoaded', () => {
+//         loadCheckoutItems();
+//         setupCheckoutSteps();
+//         setupCheckoutForm();
+//     });
+// }
 
 async function loadCheckoutItems() {
     const checkoutItems = document.getElementById('checkout-items');

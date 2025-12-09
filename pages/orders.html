@@ -346,19 +346,35 @@
                                 JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
             
             try {
-                // Try API first
-                if (typeof OrdersAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
-                    const response = await OrdersAPI.getUserOrders();
-                    if (response.success && response.data) {
-                        allOrders = response.data;
+                // Try API first (only if logged in)
+                if (typeof OrdersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                    try {
+                        const response = await OrdersAPI.getMyOrders();
+                        if (response.success && response.data && Array.isArray(response.data)) {
+                            allOrders = response.data;
+                        }
+                    } catch (apiError) {
+                        console.warn('API call failed, using localStorage:', apiError);
+                        // Continue to localStorage fallback
                     }
                 }
                 
-                // Fallback to localStorage
-                if (allOrders.length === 0) {
-                    const storedOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
-                    // Filter orders for current user
-                    if (currentUser._id || currentUser.id || currentUser.email) {
+                // Fallback to localStorage (always check this as backup)
+                const storedOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                
+                // If we have API orders, merge with local orders (avoid duplicates)
+                if (allOrders.length > 0 && storedOrders.length > 0) {
+                    // Merge: prefer API orders, add local orders that aren't in API
+                    const apiOrderIds = new Set(allOrders.map(o => o._id || o.orderNumber || o.id));
+                    const localOnly = storedOrders.filter(o => {
+                        const id = o._id || o.orderNumber || o.id;
+                        return !apiOrderIds.has(id);
+                    });
+                    allOrders = [...allOrders, ...localOnly];
+                } else if (allOrders.length === 0 && storedOrders.length > 0) {
+                    // No API orders, use local orders
+                    // Filter orders for current user if logged in
+                    if (currentUser && (currentUser._id || currentUser.id || currentUser.email)) {
                         allOrders = storedOrders.filter(o => 
                             o.userId === currentUser._id ||
                             o.userId === currentUser.id ||
@@ -366,22 +382,36 @@
                             o.shippingAddress?.email === currentUser.email
                         );
                     } else {
-                        // Show all orders if no user (for testing)
+                        // No user logged in, show all local orders (for guest checkout)
                         allOrders = storedOrders;
                     }
                 }
                 
-                // Also merge with API orders if any
-                if (allOrders.length === 0) {
-                    // No orders found, try getting all local orders
-                    allOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
-                }
+                // Sort by date (newest first)
+                allOrders.sort((a, b) => {
+                    const dateA = new Date(a.createdAt || a.date || 0);
+                    const dateB = new Date(b.createdAt || b.date || 0);
+                    return dateB - dateA;
+                });
                 
                 renderOrders();
                 
             } catch (error) {
                 console.error('Error loading orders:', error);
-                container.innerHTML = '<p class="error" style="text-align: center; padding: 2rem; color: #dc3545;">Error loading orders</p>';
+                // Even on error, try to show local orders
+                try {
+                    const storedOrders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
+                    allOrders = storedOrders;
+                    renderOrders();
+                } catch (e) {
+                    container.innerHTML = `
+                        <div class="empty-orders">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h2>Error loading orders</h2>
+                            <p>Please try refreshing the page.</p>
+                        </div>
+                    `;
+                }
             }
         }
         
