@@ -1,5 +1,7 @@
 # SOLARA - Full-Stack E-Commerce Platform
-
+Admin:
+admin@solara.com
+Admin@123
 ## 🌟 Project Overview
 
 SOLARA is a modern, full-stack e-commerce web application built with Node.js, Express, and MongoDB. It features a sleek, minimal luxury aesthetic inspired by contemporary fashion brands. The platform delivers a complete shopping experience with user authentication, product management, shopping cart, and comprehensive administrative features.

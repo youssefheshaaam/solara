@@ -296,21 +296,21 @@ async function loadProductsTable() {
 function createProductTableRow(product) {
     const statusClass = product.status === 'active' ? 'status-active' : 'status-inactive';
     const statusText = product.status === 'active' ? 'Active' : 'Inactive';
+    const pid = product._id || product.id;
+    const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+    const category = product.category || 'fashion';
     
     return `
-        <tr>
+        <tr data-product-id="${pid}">
             <td>
-                <img src="../${product.image}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="image-placeholder" style="display:none; width:50px; height:50px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999; font-size:1.2em;">
-                    <i class="fas fa-image"></i>
-                </div>
+                <img src="../${imagePath}" alt="${product.name}" onerror="this.src='../images/placeholder.jpg';">
             </td>
             <td>
                 <div class="product-name">${product.name}</div>
                 <div class="product-brand">${product.brand || 'SOLARA'}</div>
             </td>
             <td>
-                <span class="product-category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</span>
+                <span class="product-category">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
             </td>
             <td>
                 <span class="product-price">${formatPrice(product.price)}</span>
@@ -323,10 +323,10 @@ function createProductTableRow(product) {
             </td>
             <td>
                 <div class="table-actions">
-                    <button class="btn btn-outline btn-sm edit-product-btn" data-product-id="${product.id}">
+                    <button class="btn btn-outline btn-sm edit-product-btn" data-product-id="${pid}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-sm delete-product-btn" data-product-id="${product.id}">
+                    <button class="btn btn-danger btn-sm delete-product-btn" data-product-id="${pid}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -484,52 +484,27 @@ function setupAdminEventListeners() {
 
 function editProduct(productId) {
     const product = findProductById(productId);
-    if (!product) return;
-    
-    // Fill edit form with product data
-    const form = document.getElementById('edit-product-form');
-    if (form) {
-        document.getElementById('product-id').value = product.id;
-        document.getElementById('product-name').value = product.name;
-        document.getElementById('product-category').value = product.category;
-        document.getElementById('product-brand').value = product.brand || '';
-        document.getElementById('product-description').value = product.description || '';
-        document.getElementById('product-price').value = product.price;
-        document.getElementById('product-compare-price').value = product.comparePrice || '';
-        document.getElementById('product-sku').value = product.sku || '';
-        document.getElementById('product-stock').value = product.stock || 0;
-        document.getElementById('product-image').value = product.image;
-        document.getElementById('product-material').value = product.material || '';
-        document.getElementById('product-care').value = product.care || '';
-        document.getElementById('product-tags').value = product.tags || '';
-        document.getElementById('product-meta-title').value = product.metaTitle || '';
-        document.getElementById('product-meta-description').value = product.metaDescription || '';
-        document.getElementById('featured-product').checked = product.featured || false;
-        document.getElementById('product-status').checked = product.status === 'active';
-        
-        // Set sizes
-        if (product.sizes) {
-            product.sizes.forEach(size => {
-                const checkbox = document.querySelector(`input[name="sizes"][value="${size}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        // Set colors
-        if (product.colors) {
-            const colorInputs = document.querySelectorAll('input[name="colors"]');
-            product.colors.forEach((color, index) => {
-                if (colorInputs[index]) {
-                    colorInputs[index].value = color;
-                }
-            });
-        }
-        
-        updateImagePreview();
+    if (!product) {
+        console.error('Product not found:', productId);
+        showAdminNotification('Product not found', 'error');
+        return;
     }
     
-    // Navigate to edit page
-    window.location.href = 'edit-product.html';
+    // Get the correct product ID (handle both MongoDB _id and localStorage id)
+    const pid = product._id || product.id;
+    
+    // Store product ID for edit page
+    localStorage.setItem('editingProductId', pid);
+    console.log('Stored product ID for editing:', pid);
+    
+    // Check if we're already on the edit page
+    if (window.location.pathname.includes('edit-product.html')) {
+        // We're on the edit page, populate the form
+        populateEditForm(product);
+    } else {
+        // Navigate to edit page
+        window.location.href = `edit-product.html?id=${pid}`;
+    }
 }
 
 async function handleAddProduct(e) {
@@ -1014,12 +989,122 @@ function setupProductFormValidation() {
     }
 }
 
-function loadProductForEdit() {
+async function loadProductForEdit() {
     // Get product ID from URL parameters or localStorage
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id') || localStorage.getItem('editingProductId');
     
-    if (productId) {
-        editProduct(productId);
+    if (!productId) {
+        showFormMessage(document.getElementById('edit-product-form'), 'No product selected', 'error');
+        return;
     }
+    
+    console.log('Loading product for edit:', productId);
+    
+    // Make sure data is loaded from API
+    if (typeof fetchProductsFromAPI === 'function') {
+        await fetchProductsFromAPI();
+    }
+    
+    const product = findProductById(productId);
+    
+    if (!product) {
+        showFormMessage(document.getElementById('edit-product-form'), 'Product not found', 'error');
+        console.error('Product not found:', productId);
+        return;
+    }
+    
+    console.log('Product found:', product);
+    
+    // Populate the form
+    populateEditForm(product);
+}
+
+function populateEditForm(product) {
+    const pid = product._id || product.id;
+    
+    // Set hidden ID field
+    const idField = document.getElementById('product-id');
+    if (idField) idField.value = pid;
+    
+    // Basic info
+    const nameField = document.getElementById('product-name');
+    if (nameField) nameField.value = product.name || '';
+    
+    const categoryField = document.getElementById('product-category');
+    if (categoryField) categoryField.value = product.category || '';
+    
+    const brandField = document.getElementById('product-brand');
+    if (brandField) brandField.value = product.brand || 'SOLARA';
+    
+    const descField = document.getElementById('product-description');
+    if (descField) descField.value = product.description || '';
+    
+    // Pricing
+    const priceField = document.getElementById('product-price');
+    if (priceField) priceField.value = product.price || 0;
+    
+    const comparePriceField = document.getElementById('product-compare-price');
+    if (comparePriceField) comparePriceField.value = product.comparePrice || '';
+    
+    // Inventory
+    const skuField = document.getElementById('product-sku');
+    if (skuField) skuField.value = product.sku || '';
+    
+    const stockField = document.getElementById('product-stock');
+    if (stockField) stockField.value = product.stock || 0;
+    
+    // Image
+    const imageField = document.getElementById('product-image');
+    if (imageField) imageField.value = product.image || product.primaryImage || '';
+    
+    // Additional info
+    const materialField = document.getElementById('product-material');
+    if (materialField) materialField.value = product.material || '';
+    
+    const careField = document.getElementById('product-care');
+    if (careField) careField.value = product.care || '';
+    
+    const tagsField = document.getElementById('product-tags');
+    if (tagsField) {
+        tagsField.value = Array.isArray(product.tags) ? product.tags.join(', ') : (product.tags || '');
+    }
+    
+    // SEO
+    const metaTitleField = document.getElementById('product-meta-title');
+    if (metaTitleField) metaTitleField.value = product.metaTitle || '';
+    
+    const metaDescField = document.getElementById('product-meta-description');
+    if (metaDescField) metaDescField.value = product.metaDescription || '';
+    
+    // Status
+    const featuredField = document.getElementById('featured-product');
+    if (featuredField) featuredField.checked = product.featured || false;
+    
+    const statusField = document.getElementById('product-status');
+    if (statusField) statusField.checked = product.status === 'active';
+    
+    // Sizes - uncheck all first
+    document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = false);
+    if (product.sizes && Array.isArray(product.sizes)) {
+        product.sizes.forEach(size => {
+            const checkbox = document.querySelector(`input[name="sizes"][value="${size}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+    
+    // Colors
+    if (product.colors && Array.isArray(product.colors)) {
+        const colorInputs = document.querySelectorAll('input[name="colors"]');
+        product.colors.forEach((color, index) => {
+            if (colorInputs[index]) colorInputs[index].value = color;
+        });
+    }
+    
+    // Update image preview
+    if (typeof updateImagePreview === 'function') {
+        updateImagePreview();
+    }
+    
+    console.log('Form populated successfully');
 }

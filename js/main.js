@@ -598,7 +598,6 @@ function setupProductCardEvents() {
             e.stopPropagation();
             const productId = button.dataset.productId;
             addToCart(productId);
-            showNotification('Product added to cart!', 'success');
         });
     });
     
@@ -620,8 +619,20 @@ function setupProductCardEvents() {
         });
     });
     
-    // Product card hover effects
+    // Product card click - show quick view
     document.querySelectorAll('.product-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', (e) => {
+            // Don't trigger if clicking on buttons
+            if (e.target.closest('button') || e.target.closest('.btn')) return;
+            
+            const productId = card.dataset.productId;
+            if (productId) {
+                showQuickView(productId);
+            }
+        });
+        
+        // Hover effects
         card.addEventListener('mouseenter', () => {
             card.classList.add('hovered');
         });
@@ -847,36 +858,40 @@ function updateCartSummary(subtotal, discount, total) {
 }
 
 function createCartItemHTML(item, product) {
+    // Handle both MongoDB _id and localStorage id formats
+    const pid = item.productId || product._id || product.id;
+    const imagePath = getAssetPath(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const category = product.category || 'fashion';
+    const size = item.size || 'M';
+    const color = item.color || 'Default';
+    
     return `
-        <div class="cart-item" data-product-id="${item.productId}">
+        <div class="cart-item" data-product-id="${pid}">
             <div class="item-image">
-                <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                    <i class="fas fa-image"></i>
-                </div>
+                <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.jpg')}';">
             </div>
             <div class="item-details">
                 <h3>${product.name}</h3>
-                <p class="item-category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)} Collection</p>
+                <p class="item-category">${category.charAt(0).toUpperCase() + category.slice(1)} Collection</p>
                 <div class="item-options">
-                    <span class="size">Size: M</span>
-                    <span class="color">Color: Blue</span>
+                    <span class="size">Size: ${size}</span>
+                    <span class="color">Color: ${color}</span>
                 </div>
                 <p class="item-price">${formatPrice(product.price)}</p>
             </div>
             <div class="item-quantity">
-                <button class="quantity-btn" data-action="decrease" data-product-id="${item.productId}">-</button>
-                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10" data-product-id="${item.productId}">
-                <button class="quantity-btn" data-action="increase" data-product-id="${item.productId}">+</button>
+                <button class="quantity-btn" data-action="decrease" data-product-id="${pid}">-</button>
+                <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10" data-product-id="${pid}">
+                <button class="quantity-btn" data-action="increase" data-product-id="${pid}">+</button>
             </div>
             <div class="item-total">
                 <p class="total-price">${formatPrice(product.price * item.quantity)}</p>
             </div>
             <div class="item-actions">
-                <button class="remove-btn" data-product-id="${item.productId}" title="Remove item">
+                <button class="remove-btn" data-product-id="${pid}" title="Remove item">
                     <i class="fas fa-trash"></i>
                 </button>
-                <button class="wishlist-btn" data-product-id="${item.productId}" title="Move to wishlist">
+                <button class="wishlist-btn" data-product-id="${pid}" title="Move to wishlist">
                     <i class="fas fa-heart"></i>
                 </button>
             </div>
@@ -1432,7 +1447,19 @@ function getNotificationIcon(type) {
 
 function showQuickView(productId) {
     const product = findProductById(productId);
-    if (!product) return;
+    if (!product) {
+        console.error('Product not found:', productId);
+        showNotification('Product not found', 'error');
+        return;
+    }
+    
+    // Handle both MongoDB _id and localStorage id
+    const pid = product._id || product.id;
+    const imagePath = getAssetPath(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const sizes = product.sizes || ['S', 'M', 'L', 'XL'];
+    const colors = product.colors || ['Black', 'White'];
+    const description = product.description || 'No description available';
+    const category = product.category || 'fashion';
     
     const modal = document.createElement('div');
     modal.className = 'modal-overlay quick-view-modal';
@@ -1447,38 +1474,40 @@ function showQuickView(productId) {
             <div class="modal-body">
                 <div class="quick-view-grid">
                     <div class="quick-view-image">
-                        <img src="${product.image}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                    <i class="fas fa-image"></i>
-                </div>
+                        <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.jpg')}';">
                     </div>
                     <div class="quick-view-details">
-                        <p class="category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)} Collection</p>
+                        <p class="category">${category.charAt(0).toUpperCase() + category.slice(1)} Collection</p>
                         <h2>${product.name}</h2>
                         <p class="price">${formatPrice(product.price)}</p>
-                        <p class="description">${product.description}</p>
+                        <p class="description">${description}</p>
                         <div class="product-options">
                             <div class="size-options">
                                 <label>Size:</label>
                                 <select class="size-select">
-                                    ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
+                                    ${sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
                                 </select>
                             </div>
                             <div class="color-options">
                                 <label>Color:</label>
                                 <select class="color-select">
-                                    ${product.colors.map(color => `<option value="${color}">${color}</option>`).join('')}
+                                    ${colors.map(color => `<option value="${color}">${color}</option>`).join('')}
                                 </select>
                             </div>
                         </div>
+                        <div class="product-info">
+                            <p><strong>Brand:</strong> ${product.brand || 'SOLARA'}</p>
+                            <p><strong>Material:</strong> ${product.material || 'Premium Quality'}</p>
+                            <p><strong>In Stock:</strong> ${product.stock > 0 ? `${product.stock} available` : 'Out of stock'}</p>
+                        </div>
                         <div class="quick-view-actions">
-                            <button class="btn btn-primary btn-add-to-cart" data-product-id="${product.id}">
+                            <button class="btn btn-primary btn-add-to-cart" data-product-id="${pid}" ${product.stock <= 0 ? 'disabled' : ''}>
                                 <i class="fas fa-shopping-cart"></i>
-                                Add to Cart
+                                ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
                             </button>
-                            <button class="btn btn-outline wishlist-btn" data-product-id="${product.id}">
+                            <button class="btn btn-outline wishlist-btn" data-product-id="${pid}">
                                 <i class="fas fa-heart"></i>
-                                Add to Wishlist
+                                Wishlist
                             </button>
                         </div>
                     </div>
@@ -1499,6 +1528,8 @@ function showQuickView(productId) {
 }
 
 function setupQuickViewEvents(modal, product) {
+    const pid = product._id || product.id;
+    
     // Close button
     const closeBtn = modal.querySelector('.modal-close');
     closeBtn.addEventListener('click', () => {
@@ -1514,18 +1545,21 @@ function setupQuickViewEvents(modal, product) {
     
     // Add to cart button
     const addToCartBtn = modal.querySelector('.btn-add-to-cart');
-    addToCartBtn.addEventListener('click', () => {
-        addToCart(product.id);
-        hideModal(modal);
-        showNotification('Product added to cart!', 'success');
-    });
+    if (addToCartBtn && !addToCartBtn.disabled) {
+        addToCartBtn.addEventListener('click', () => {
+            addToCart(pid);
+            hideModal(modal);
+        });
+    }
     
     // Wishlist button
     const wishlistBtn = modal.querySelector('.wishlist-btn');
-    wishlistBtn.addEventListener('click', () => {
-        toggleWishlist(product.id);
-        hideModal(modal);
-    });
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', () => {
+            toggleWishlist(pid);
+            hideModal(modal);
+        });
+    }
 }
 
 // hideModal is now defined globally as window.hideModal above
@@ -1731,29 +1765,53 @@ function debounce(func, wait) {
 
 // ===== CATEGORY-SPECIFIC FUNCTIONS =====
 
-function loadCategoryProducts(category) {
-    const products = getProductsByCategory(category);
+async function loadCategoryProducts(category) {
     const productsGrid = document.getElementById('products-grid');
     const productCount = document.getElementById('product-count');
     
     if (!productsGrid) return;
     
-    if (products.length === 0) {
-        productsGrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h3>No products found</h3>
-                <p>We're working on adding more ${category} products. Check back soon!</p>
-            </div>
-        `;
-        if (productCount) productCount.textContent = '0';
-        return;
+    // Show loading state
+    productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>';
+    
+    try {
+        // Make sure data is loaded from API first
+        await initializeData();
+        
+        // Try API first
+        let products = [];
+        if (typeof ProductsAPI !== 'undefined') {
+            const response = await ProductsAPI.getByCategory(category);
+            if (response.success && response.data) {
+                products = response.data;
+            }
+        }
+        
+        // Fallback to localStorage
+        if (products.length === 0) {
+            products = getProductsByCategory(category);
+        }
+        
+        if (products.length === 0) {
+            productsGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No products found</h3>
+                    <p>We're working on adding more ${category} products. Check back soon!</p>
+                </div>
+            `;
+            if (productCount) productCount.textContent = '0';
+            return;
+        }
+        
+        productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        if (productCount) productCount.textContent = products.length;
+        
+        setupProductCardEvents();
+    } catch (error) {
+        console.error('Error loading category products:', error);
+        productsGrid.innerHTML = '<div class="error-state"><p>Error loading products. Please try again.</p></div>';
     }
-    
-    productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
-    if (productCount) productCount.textContent = products.length;
-    
-    setupProductCardEvents();
 }
 
 function setupCategoryFilters() {
@@ -2025,18 +2083,25 @@ if (window.location.pathname.includes('kids.html')) {
 
 // Cart page initialization
 if (window.location.pathname.includes('cart.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        // Add some sample cart items for testing if cart is empty
-        const existingCart = getCart();
-        if (existingCart.length === 0) {
-            const sampleCart = [
-                { productId: 1, quantity: 2 },
-                { productId: 2, quantity: 1 }
-            ];
-            localStorage.setItem('fashionStoreCart', JSON.stringify(sampleCart));
-        }
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Initialize data first
+        await initializeData();
         
-        loadCartItems();
+        // Load cart items from API or localStorage
+        await loadCartItems();
+        
+        // Setup checkout button
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                const cart = getCart();
+                if (cart.length === 0) {
+                    showNotification('Your cart is empty', 'error');
+                    return;
+                }
+                window.location.href = 'checkout.html';
+            });
+        }
     });
 }
 
@@ -2366,14 +2431,38 @@ function setupProfileNavigation() {
     });
 }
 
-function loadUserProfile() {
-    const loggedInUser = localStorage.getItem('loggedInUser');
-    if (!loggedInUser) {
-        window.location.href = '../login.html';
-        return;
+async function loadUserProfile() {
+    let user = null;
+    
+    // Try to get user from API first
+    if (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+        user = AuthAPI.getCurrentUser();
+        
+        // Try to fetch fresh data from API
+        try {
+            const response = await AuthAPI.getMe();
+            if (response.success) {
+                user = response.data;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+        }
     }
     
-    const user = JSON.parse(loggedInUser);
+    // Fallback to localStorage
+    if (!user) {
+        const loggedInUser = localStorage.getItem('loggedInUser') || localStorage.getItem('currentUser');
+        if (loggedInUser) {
+            user = JSON.parse(loggedInUser);
+        }
+    }
+    
+    if (!user) {
+        const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
+        window.location.href = basePath + 'login.html';
+        return;
+    }
     
     // Fill in personal information
     const firstNameInput = document.getElementById('profile-firstName');
@@ -2389,6 +2478,12 @@ function loadUserProfile() {
     if (phoneInput) phoneInput.value = user.phone || '';
     if (dobInput) dobInput.value = user.dateOfBirth || '';
     if (genderInput) genderInput.value = user.gender || '';
+    
+    // Update avatar and name display
+    const profileName = document.querySelector('.profile-name');
+    const profileEmail = document.querySelector('.profile-email');
+    if (profileName) profileName.textContent = `${user.firstName} ${user.lastName}`;
+    if (profileEmail) profileEmail.textContent = user.email;
 }
 
 function setupProfileButtons() {

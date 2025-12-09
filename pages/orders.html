@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Fashion Store</title>
+    <title>My Orders - SOLARA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -30,125 +30,8 @@
             </div>
             
             <div class="orders-list" id="orders-list">
-                <!-- Orders will be loaded dynamically -->
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3>Order #FS-2024-001</h3>
-                            <p class="order-date">Placed on January 15, 2024</p>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-delivered">Delivered</span>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="../images/1_1gif" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div class="item-details">
-                                <h4>Classic Cotton T-Shirt</h4>
-                                <p>Size: M | Color: Blue</p>
-                                <p class="item-price">25.00 EGP</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span>Qty: 2</span>
-                            </div>
-                        </div>
-                        
-                        <div class="order-item">
-                            <img src="../images/jeans.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div class="item-details">
-                                <h4>Slim Fit Jeans</h4>
-                                <p>Size: 32 | Color: Dark Blue</p>
-                                <p class="item-price">60.00 EGP</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span>Qty: 1</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="order-total">
-                            <p><strong>Total: $110.00</strong></p>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn btn-outline">View Details</button>
-                            <button class="btn btn-primary">Reorder</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3>Order #FS-2024-002</h3>
-                            <p class="order-date">Placed on January 20, 2024</p>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-shipped">Shipped</span>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="../images/dress.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div class="item-details">
-                                <h4>Elegant Summer Dress</h4>
-                                <p>Size: S | Color: Floral</p>
-                                <p class="item-price">50.00 EGP</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span>Qty: 1</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="order-total">
-                            <p><strong>Total: $50.00</strong></p>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn btn-outline">Track Order</button>
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <h3>Order #FS-2024-003</h3>
-                            <p class="order-date">Placed on January 25, 2024</p>
-                        </div>
-                        <div class="order-status">
-                            <span class="status-badge status-processing">Processing</span>
-                        </div>
-                    </div>
-                    
-                    <div class="order-items">
-                        <div class="order-item">
-                            <img src="../images/shoes.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div class="item-details">
-                                <h4>Leather Derby Shoes</h4>
-                                <p>Size: 10 | Color: Brown</p>
-                                <p class="item-price">80.00 EGP</p>
-                            </div>
-                            <div class="item-quantity">
-                                <span>Qty: 1</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="order-total">
-                            <p><strong>Total: $80.00</strong></p>
-                        </div>
-                        <div class="order-actions">
-                            <button class="btn btn-outline">View Details</button>
-                            <button class="btn btn-secondary">Cancel Order</button>
-                        </div>
-                    </div>
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading orders...
                 </div>
             </div>
             
@@ -167,14 +50,164 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
+    <script src="../js/api.js"></script>
     <script src="../js/data.js"></script>
     <script src="../js/main.js"></script>
+    <script>
+        // Orders page specific functionality
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadOrders();
+            setupOrderFilters();
+        });
+        
+        async function loadOrders(statusFilter = 'all') {
+            const ordersList = document.getElementById('orders-list');
+            const emptyOrders = document.getElementById('empty-orders');
+            
+            ordersList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>';
+            
+            try {
+                let orders = [];
+                
+                // Try to get orders from API
+                if (typeof OrdersAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
+                    const response = await OrdersAPI.getMyOrders();
+                    if (response.success) {
+                        orders = response.data || [];
+                    }
+                } else {
+                    // Fallback to localStorage
+                    const user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
+                    if (user && user._id) {
+                        orders = getOrdersByUserId(user._id);
+                    } else if (user && user.id) {
+                        orders = getOrdersByUserId(user.id);
+                    }
+                }
+                
+                // Filter by status
+                if (statusFilter && statusFilter !== 'all') {
+                    orders = orders.filter(order => order.status === statusFilter);
+                }
+                
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '';
+                    emptyOrders.style.display = 'block';
+                    return;
+                }
+                
+                emptyOrders.style.display = 'none';
+                ordersList.innerHTML = orders.map(order => createOrderCard(order)).join('');
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersList.innerHTML = '<div class="error-state"><p>Error loading orders. Please try again.</p></div>';
+            }
+        }
+        
+        function createOrderCard(order) {
+            const orderNumber = order.orderNumber || order.id || order._id;
+            const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            const statusClass = `status-${order.status || 'pending'}`;
+            const statusText = (order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1);
+            
+            const itemsHTML = (order.items || []).map(item => {
+                const product = item.product || {};
+                const productName = product.name || item.name || 'Product';
+                const productImage = product.image || item.image || '../images/placeholder.jpg';
+                const price = item.price || product.price || 0;
+                
+                return `
+                    <div class="order-item">
+                        <img src="../${productImage}" alt="${productName}" onerror="this.src='../images/placeholder.jpg';">
+                        <div class="item-details">
+                            <h4>${productName}</h4>
+                            <p>Size: ${item.size || 'M'} | Color: ${item.color || 'Default'}</p>
+                            <p class="item-price">${formatPrice(price)}</p>
+                        </div>
+                        <div class="item-quantity">
+                            <span>Qty: ${item.quantity || 1}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="order-card" data-order-id="${order._id || order.id}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <h3>Order #${orderNumber}</h3>
+                            <p class="order-date">Placed on ${orderDate}</p>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items">
+                        ${itemsHTML || '<p>No items</p>'}
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="order-total">
+                            <p><strong>Total: ${formatPrice(order.total || 0)}</strong></p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-outline" onclick="viewOrderDetails('${order._id || order.id}')">View Details</button>
+                            ${order.status === 'pending' || order.status === 'processing' ? 
+                                `<button class="btn btn-secondary" onclick="cancelOrder('${order._id || order.id}')">Cancel Order</button>` : 
+                                `<button class="btn btn-primary" onclick="reorder('${order._id || order.id}')">Reorder</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function setupOrderFilters() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    await loadOrders(btn.dataset.status);
+                });
+            });
+        }
+        
+        function viewOrderDetails(orderId) {
+            showNotification('Order details view coming soon!', 'info');
+        }
+        
+        async function cancelOrder(orderId) {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+            
+            try {
+                if (typeof OrdersAPI !== 'undefined') {
+                    const response = await OrdersAPI.cancel(orderId);
+                    if (response.success) {
+                        showNotification('Order cancelled successfully', 'success');
+                        await loadOrders();
+                        return;
+                    }
+                }
+                showNotification('Could not cancel order', 'error');
+            } catch (error) {
+                showNotification(error.message || 'Error cancelling order', 'error');
+            }
+        }
+        
+        function reorder(orderId) {
+            showNotification('Reorder feature coming soon!', 'info');
+        }
+    </script>
 </body>
 </html>
-

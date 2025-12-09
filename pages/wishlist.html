@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Navigation will be loaded by JavaScript -->
+
     <!-- Wishlist Content -->
     <main class="wishlist-container">
         <div class="container">
@@ -18,21 +20,44 @@
             </div>
             
             <div class="wishlist-content" id="wishlist-content">
-                <!-- Wishlist items will be loaded here -->
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading wishlist...</div>
             </div>
         </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
     <!-- Scripts -->
+    <script src="../js/api.js"></script>
     <script src="../js/data.js"></script>
     <script src="../js/main.js"></script>
     <script>
         // Load wishlist items
-        function loadWishlistItems() {
+        async function loadWishlistPage() {
+            const container = document.getElementById('wishlist-content');
+            
+            // Initialize data first
+            await initializeData();
+            
             const wishlist = getWishlist();
             const products = getProducts();
-            const wishlistProducts = products.filter(product => wishlist.includes(product.id));
-            const container = document.getElementById('wishlist-content');
+            
+            // Filter products that are in wishlist - handle both MongoDB _id and localStorage id
+            const wishlistProducts = products.filter(product => {
+                const pid = product._id || product.id;
+                return wishlist.some(wid => 
+                    wid === pid || 
+                    wid === parseInt(pid) ||
+                    String(wid) === String(pid)
+                );
+            });
             
             if (wishlistProducts.length === 0) {
                 container.innerHTML = `
@@ -46,38 +71,60 @@
             } else {
                 container.innerHTML = `
                     <div class="wishlist-grid">
-                        ${wishlistProducts.map(product => `
-                            <div class="wishlist-item">
+                        ${wishlistProducts.map(product => {
+                            const pid = product._id || product.id;
+                            const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                            return `
+                            <div class="wishlist-item" data-product-id="${pid}">
                                 <div class="item-image">
-                                    <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                    <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                                        <i class="fas fa-image"></i>
-                                    </div>
+                                    <img src="../${imagePath}" alt="${product.name}" onerror="this.src='../images/placeholder.jpg';">
                                 </div>
                                 <div class="item-details">
                                     <h3>${product.name}</h3>
                                     <p class="price">${formatPrice(product.price)}</p>
-                                    <p class="category">${product.category}</p>
+                                    <p class="category">${(product.category || 'fashion').charAt(0).toUpperCase() + (product.category || 'fashion').slice(1)}</p>
                                 </div>
                                 <div class="item-actions">
-                                    <button class="btn btn-primary" onclick="addToCart(${product.id}); showNotification('Added to cart!', 'success');">
+                                    <button class="btn btn-primary" onclick="addToCartFromWishlist('${pid}')">
                                         <i class="fas fa-shopping-cart"></i>
                                         Add to Cart
                                     </button>
-                                    <button class="btn btn-outline" onclick="removeFromWishlist(${product.id}); this.closest('.wishlist-item').remove(); showNotification('Removed from wishlist', 'info');">
+                                    <button class="btn btn-outline" onclick="removeFromWishlistPage('${pid}', this)">
                                         <i class="fas fa-trash"></i>
                                         Remove
                                     </button>
                                 </div>
                             </div>
-                        `).join('')}
+                        `;}).join('')}
                     </div>
                 `;
             }
         }
         
+        async function addToCartFromWishlist(productId) {
+            await addToCart(productId);
+            showNotification('Added to cart!', 'success');
+        }
+        
+        async function removeFromWishlistPage(productId, button) {
+            await removeFromWishlist(productId);
+            const item = button.closest('.wishlist-item');
+            if (item) {
+                item.style.opacity = '0';
+                setTimeout(() => {
+                    item.remove();
+                    // Check if wishlist is now empty
+                    const remaining = document.querySelectorAll('.wishlist-item');
+                    if (remaining.length === 0) {
+                        loadWishlistPage();
+                    }
+                }, 300);
+            }
+            showNotification('Removed from wishlist', 'info');
+        }
+        
         // Load wishlist on page load
-        document.addEventListener('DOMContentLoaded', loadWishlistItems);
+        document.addEventListener('DOMContentLoaded', loadWishlistPage);
     </script>
 </body>
 </html>

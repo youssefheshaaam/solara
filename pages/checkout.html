@@ -6,52 +6,11 @@
     <title>Checkout - SOLARA</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation Header -->
-    <header class="main-header">
-        <nav class="navbar">
-            <div class="nav-brand">
-                <a href="../index.html">
-                    <i class="fas fa-sun"></i>
-                    SOLARA
-                </a>
-            </div>
-            
-            <ul class="nav-menu">
-                <li><a href="../index.html" class="nav-link">Home</a></li>
-                <li><a href="men.html" class="nav-link">Men</a></li>
-                <li><a href="women.html" class="nav-link">Women</a></li>
-                <li><a href="kids.html" class="nav-link">Kids</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
-            </ul>
-            
-            <div class="nav-actions">
-                <a href="cart.html" class="nav-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
-                <a href="#" class="nav-icon">
-                    <i class="fas fa-heart"></i>
-                    <span class="wishlist-count" id="wishlist-count">0</span>
-                </a>
-                <a href="profile.html" class="nav-icon">
-                    <i class="fas fa-user-circle"></i>
-                    Profile
-                </a>
-                <a href="#" class="nav-icon" id="logout-link">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
-                <a href="../admin/admin.html" class="nav-icon" id="admin-link">
-                    <i class="fas fa-cog"></i>
-                    Admin
-                </a>
-            </div>
-        </nav>
-    </header>
+    <!-- Navigation will be loaded by JavaScript -->
 
     <!-- Checkout Section -->
     <main class="checkout-container">
@@ -59,15 +18,15 @@
             <div class="checkout-header">
                 <h1>Checkout</h1>
                 <div class="checkout-steps">
-                    <div class="step active">
+                    <div class="step active" data-step="1">
                         <span class="step-number">1</span>
                         <span class="step-label">Shipping</span>
                     </div>
-                    <div class="step">
+                    <div class="step" data-step="2">
                         <span class="step-number">2</span>
                         <span class="step-label">Payment</span>
                     </div>
-                    <div class="step">
+                    <div class="step" data-step="3">
                         <span class="step-number">3</span>
                         <span class="step-label">Review</span>
                     </div>
@@ -83,117 +42,103 @@
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="firstName">First Name</label>
-                                    <input type="text" id="firstName" name="firstName" required>
+                                    <label for="shipping-first-name">First Name *</label>
+                                    <input type="text" id="shipping-first-name" name="firstName" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="lastName">Last Name</label>
-                                    <input type="text" id="lastName" name="lastName" required>
+                                    <label for="shipping-last-name">Last Name *</label>
+                                    <input type="text" id="shipping-last-name" name="lastName" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" required>
+                                <label for="shipping-email">Email Address *</label>
+                                <input type="email" id="shipping-email" name="email" required>
                             </div>
                             
                             <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" required>
+                                <label for="shipping-phone">Phone Number *</label>
+                                <input type="tel" id="shipping-phone" name="phone" required>
                             </div>
                             
                             <div class="form-group">
-                                <label for="address">Street Address</label>
-                                <input type="text" id="address" name="address" required>
+                                <label for="shipping-address">Street Address *</label>
+                                <input type="text" id="shipping-address" name="address" required>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="city">City</label>
-                                    <input type="text" id="city" name="city" required>
+                                    <label for="shipping-city">City *</label>
+                                    <input type="text" id="shipping-city" name="city" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="state">State/Province</label>
-                                    <input type="text" id="state" name="state" required>
+                                    <label for="shipping-state">State/Province *</label>
+                                    <input type="text" id="shipping-state" name="state" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="zipCode">ZIP/Postal Code</label>
-                                    <input type="text" id="zipCode" name="zipCode" required>
+                                    <label for="shipping-zip">ZIP/Postal Code *</label>
+                                    <input type="text" id="shipping-zip" name="zipCode" required>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="country">Country</label>
-                                <select id="country" name="country" required>
+                                <label for="shipping-country">Country *</label>
+                                <select id="shipping-country" name="country" required>
                                     <option value="">Select Country</option>
+                                    <option value="EG" selected>Egypt</option>
                                     <option value="US">United States</option>
-                                    <option value="CA">Canada</option>
                                     <option value="UK">United Kingdom</option>
+                                    <option value="CA">Canada</option>
                                     <option value="AU">Australia</option>
                                     <option value="DE">Germany</option>
                                     <option value="FR">France</option>
-                                    <option value="IT">Italy</option>
-                                    <option value="ES">Spain</option>
+                                    <option value="SA">Saudi Arabia</option>
+                                    <option value="AE">UAE</option>
                                 </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="save-address">
-                                    <span class="checkmark"></span>
-                                    Save this address for future orders
-                                </label>
                             </div>
                         </section>
                         
                         <!-- Payment Information -->
                         <section class="checkout-section" id="payment-section">
-                            <h2>Payment Information</h2>
+                            <h2>Payment Method</h2>
                             
                             <div class="payment-methods">
                                 <div class="payment-method">
-                                    <input type="radio" id="credit-card" name="paymentMethod" value="credit-card" checked>
-                                    <label for="credit-card" class="payment-label">
+                                    <input type="radio" id="payment-card" name="payment-method" value="card" checked>
+                                    <label for="payment-card" class="payment-label">
                                         <i class="fas fa-credit-card"></i>
                                         Credit/Debit Card
                                     </label>
                                 </div>
                                 <div class="payment-method">
-                                    <input type="radio" id="paypal" name="paymentMethod" value="paypal">
-                                    <label for="paypal" class="payment-label">
-                                        <i class="fab fa-paypal"></i>
-                                        PayPal
-                                    </label>
-                                </div>
-                                <div class="payment-method">
-                                    <input type="radio" id="apple-pay" name="paymentMethod" value="apple-pay">
-                                    <label for="apple-pay" class="payment-label">
-                                        <i class="fab fa-apple-pay"></i>
-                                        Apple Pay
+                                    <input type="radio" id="payment-cod" name="payment-method" value="cod">
+                                    <label for="payment-cod" class="payment-label">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        Cash on Delivery
                                     </label>
                                 </div>
                             </div>
                             
-                            <div class="credit-card-form" id="credit-card-form">
+                            <div class="credit-card-form" id="card-form">
                                 <div class="form-group">
-                                    <label for="cardNumber">Card Number</label>
-                                    <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                                    <label for="card-number">Card Number</label>
+                                    <input type="text" id="card-number" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
                                 </div>
                                 
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="expiryDate">Expiry Date</label>
-                                        <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" maxlength="5">
+                                        <label for="card-expiry">Expiry Date</label>
+                                        <input type="text" id="card-expiry" name="expiryDate" placeholder="MM/YY" maxlength="5">
                                     </div>
                                     <div class="form-group">
-                                        <label for="cvv">CVV</label>
-                                        <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="4">
+                                        <label for="card-cvv">CVV</label>
+                                        <input type="text" id="card-cvv" name="cvv" placeholder="123" maxlength="4">
                                     </div>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="cardName">Name on Card</label>
-                                    <input type="text" id="cardName" name="cardName" placeholder="John Doe">
+                                    <label for="card-name">Name on Card</label>
+                                    <input type="text" id="card-name" name="cardName">
                                 </div>
                             </div>
                         </section>
@@ -201,44 +146,8 @@
                         <!-- Order Review -->
                         <section class="checkout-section" id="review-section">
                             <h2>Order Review</h2>
-                            
-                            <div class="order-items" id="checkout-items">
-                                <!-- Order items will be loaded dynamically -->
-                            </div>
-                            
-                            <div class="order-summary">
-                                <div class="summary-line">
-                                    <span>Subtotal</span>
-                                    <span>$110.00</span>
-                                </div>
-                                <div class="summary-line">
-                                    <span>Shipping</span>
-                                    <span class="free-shipping">FREE</span>
-                                </div>
-                                <div class="summary-line">
-                                    <span>Tax</span>
-                                    <span>$8.80</span>
-                                </div>
-                                <div class="summary-line total">
-                                    <span><strong>Total</strong></span>
-                                    <span><strong>$118.80</strong></span>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="terms-agreement" required>
-                                    <span class="checkmark"></span>
-                                    I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
-                                </label>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="newsletter-signup">
-                                    <span class="checkmark"></span>
-                                    Subscribe to our newsletter for updates and offers
-                                </label>
+                            <div class="checkout-items-list" id="checkout-items-list">
+                                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
                             </div>
                         </section>
                         
@@ -247,7 +156,7 @@
                                 <i class="fas fa-arrow-left"></i>
                                 Back to Cart
                             </button>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="place-order-btn">
                                 <i class="fas fa-lock"></i>
                                 Place Order
                             </button>
@@ -258,49 +167,28 @@
                 <div class="checkout-summary">
                     <div class="summary-card">
                         <h3>Order Summary</h3>
-                        
-                        <div class="order-items">
-                            <div class="order-item">
-                                <img src="../images/1_1gif" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <div class="item-details">
-                                    <h4>Classic Cotton T-Shirt</h4>
-                                    <p>Size: M | Qty: 2</p>
-                                    <p class="price">50.00 EGP</p>
-                                </div>
-                            </div>
-                            
-                            <div class="order-item">
-                                <img src="../images/jeans.jpeg" alt="Product" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <div class="item-details">
-                                    <h4>Slim Fit Jeans</h4>
-                                    <p>Size: 32 | Qty: 1</p>
-                                    <p class="price">60.00 EGP</p>
-                                </div>
-                            </div>
+                        <div class="summary-items" id="summary-items">
+                            <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
                         </div>
                         
-                        <div class="summary-totals">
+                        <div class="summary-totals" id="summary-totals">
                             <div class="summary-line">
                                 <span>Subtotal</span>
-                                <span>$110.00</span>
+                                <span id="summary-subtotal">$0.00</span>
                             </div>
                             <div class="summary-line">
                                 <span>Shipping</span>
-                                <span class="free-shipping">FREE</span>
-                            </div>
-                            <div class="summary-line">
-                                <span>Tax</span>
-                                <span>$8.80</span>
+                                <span id="summary-shipping">FREE</span>
                             </div>
                             <div class="summary-line total">
                                 <span><strong>Total</strong></span>
-                                <span><strong>$118.80</strong></span>
+                                <span id="summary-total"><strong>$0.00</strong></span>
                             </div>
                         </div>
                         
                         <div class="secure-checkout">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Your payment information is secure and encrypted</span>
+                            <span>Your payment information is secure</span>
                         </div>
                     </div>
                 </div>
@@ -312,15 +200,233 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-bottom">
-                <p>&copy; 2024 Fashion Store. All rights reserved.</p>
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
+    <script src="../js/api.js"></script>
     <script src="../js/data.js"></script>
     <script src="../js/validation.js"></script>
     <script src="../js/main.js"></script>
+    <script>
+        // Checkout page initialization
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeData();
+            await loadCheckoutSummary();
+            setupCheckoutForm();
+            prefillUserInfo();
+            setupPaymentToggle();
+        });
+        
+        async function loadCheckoutSummary() {
+            const itemsList = document.getElementById('checkout-items-list');
+            const summaryItems = document.getElementById('summary-items');
+            
+            try {
+                let items = [];
+                let cartData = null;
+                
+                // Try API for logged-in users
+                if (typeof CartAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
+                    const response = await CartAPI.get();
+                    if (response.success && response.data.items) {
+                        cartData = response.data;
+                        items = response.data.items.map(item => ({
+                            productId: item.product._id || item.product,
+                            quantity: item.quantity,
+                            product: item.product,
+                            price: item.price
+                        }));
+                    }
+                } else {
+                    // Fallback to localStorage
+                    const cart = getCart();
+                    items = cart;
+                }
+                
+                if (items.length === 0) {
+                    itemsList.innerHTML = '<p>Your cart is empty. <a href="../index.html">Continue shopping</a></p>';
+                    summaryItems.innerHTML = '<p>No items</p>';
+                    return;
+                }
+                
+                const products = getProducts();
+                let subtotal = 0;
+                
+                // Build items HTML
+                const itemsHTML = items.map(item => {
+                    const product = item.product || products.find(p => 
+                        p._id === item.productId || p.id === item.productId ||
+                        String(p._id) === String(item.productId) || String(p.id) === String(item.productId)
+                    );
+                    if (!product) return '';
+                    
+                    const price = item.price || product.price;
+                    const itemTotal = price * item.quantity;
+                    subtotal += itemTotal;
+                    
+                    const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                    
+                    return `
+                        <div class="checkout-item">
+                            <img src="../${imagePath}" alt="${product.name}" onerror="this.src='../images/placeholder.jpg';">
+                            <div class="item-info">
+                                <h4>${product.name}</h4>
+                                <p>Qty: ${item.quantity}</p>
+                            </div>
+                            <span class="item-price">${formatPrice(itemTotal)}</span>
+                        </div>
+                    `;
+                }).filter(html => html).join('');
+                
+                itemsList.innerHTML = itemsHTML || '<p>No items</p>';
+                summaryItems.innerHTML = itemsHTML || '<p>No items</p>';
+                
+                // Update totals
+                const shipping = subtotal > 100 ? 0 : 10;
+                const total = cartData ? cartData.total : (subtotal + shipping);
+                
+                document.getElementById('summary-subtotal').textContent = formatPrice(cartData ? cartData.subtotal : subtotal);
+                document.getElementById('summary-shipping').textContent = shipping === 0 ? 'FREE' : formatPrice(shipping);
+                document.getElementById('summary-total').innerHTML = `<strong>${formatPrice(total)}</strong>`;
+                
+            } catch (error) {
+                console.error('Error loading checkout summary:', error);
+                itemsList.innerHTML = '<p>Error loading cart. Please try again.</p>';
+            }
+        }
+        
+        function prefillUserInfo() {
+            const user = AuthAPI && AuthAPI.getCurrentUser() ? AuthAPI.getCurrentUser() : 
+                         JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('loggedInUser') || '{}');
+            
+            if (user) {
+                const firstNameField = document.getElementById('shipping-first-name');
+                const lastNameField = document.getElementById('shipping-last-name');
+                const emailField = document.getElementById('shipping-email');
+                const phoneField = document.getElementById('shipping-phone');
+                
+                if (firstNameField && user.firstName) firstNameField.value = user.firstName;
+                if (lastNameField && user.lastName) lastNameField.value = user.lastName;
+                if (emailField && user.email) emailField.value = user.email;
+                if (phoneField && user.phone) phoneField.value = user.phone;
+            }
+        }
+        
+        function setupPaymentToggle() {
+            const cardRadio = document.getElementById('payment-card');
+            const codRadio = document.getElementById('payment-cod');
+            const cardForm = document.getElementById('card-form');
+            
+            if (cardRadio && codRadio && cardForm) {
+                cardRadio.addEventListener('change', () => {
+                    cardForm.style.display = 'block';
+                });
+                codRadio.addEventListener('change', () => {
+                    cardForm.style.display = 'none';
+                });
+            }
+        }
+        
+        function setupCheckoutForm() {
+            const form = document.getElementById('checkout-form');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const placeOrderBtn = document.getElementById('place-order-btn');
+                    placeOrderBtn.disabled = true;
+                    placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    
+                    try {
+                        // Gather form data
+                        const shippingAddress = {
+                            firstName: document.getElementById('shipping-first-name').value,
+                            lastName: document.getElementById('shipping-last-name').value,
+                            email: document.getElementById('shipping-email').value,
+                            phone: document.getElementById('shipping-phone').value,
+                            address: document.getElementById('shipping-address').value,
+                            city: document.getElementById('shipping-city').value,
+                            state: document.getElementById('shipping-state').value,
+                            zipCode: document.getElementById('shipping-zip').value,
+                            country: document.getElementById('shipping-country').value
+                        };
+                        
+                        const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+                        
+                        // Get cart items
+                        let items = [];
+                        let total = 0;
+                        
+                        if (typeof CartAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
+                            const cartResponse = await CartAPI.get();
+                            if (cartResponse.success && cartResponse.data.items) {
+                                items = cartResponse.data.items.map(item => ({
+                                    product: item.product._id || item.product,
+                                    quantity: item.quantity,
+                                    price: item.price
+                                }));
+                                total = cartResponse.data.total;
+                            }
+                        } else {
+                            const cart = getCart();
+                            const products = getProducts();
+                            items = cart.map(item => {
+                                const product = products.find(p => 
+                                    p._id === item.productId || p.id === item.productId
+                                );
+                                return {
+                                    product: item.productId,
+                                    quantity: item.quantity,
+                                    price: product ? product.price : 0
+                                };
+                            });
+                            total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                        }
+                        
+                        if (items.length === 0) {
+                            showNotification('Your cart is empty', 'error');
+                            return;
+                        }
+                        
+                        // Create order
+                        const orderData = {
+                            items,
+                            shippingAddress,
+                            paymentMethod,
+                            subtotal: total,
+                            total
+                        };
+                        
+                        const order = await createOrder(orderData);
+                        
+                        if (order) {
+                            // Clear cart
+                            saveCart([]);
+                            if (typeof CartAPI !== 'undefined' && AuthAPI && AuthAPI.isLoggedIn()) {
+                                await CartAPI.clear();
+                            }
+                            updateCartCount();
+                            
+                            showNotification('Order placed successfully!', 'success');
+                            
+                            setTimeout(() => {
+                                window.location.href = 'orders.html';
+                            }, 1500);
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error placing order:', error);
+                        showNotification(error.message || 'Failed to place order', 'error');
+                    } finally {
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = '<i class="fas fa-lock"></i> Place Order';
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
-
