@@ -233,7 +233,18 @@ function setupNavigationActiveStates() {
 // ===== AUTHENTICATION =====
 
 function checkUserAuth() {
-    const loggedInUser = localStorage.getItem('loggedInUser');
+    // Check for API auth first
+    if (typeof AuthAPI !== 'undefined') {
+        const user = AuthAPI.getCurrentUser();
+        if (user) {
+            currentUser = user;
+            updateAuthUI();
+            return;
+        }
+    }
+    
+    // Fallback to localStorage
+    const loggedInUser = localStorage.getItem('loggedInUser') || localStorage.getItem('currentUser');
     if (loggedInUser) {
         currentUser = JSON.parse(loggedInUser);
         updateAuthUI();
@@ -262,59 +273,106 @@ function updateAuthUI() {
 }
 
 async function login(email, password) {
-    // Get users from localStorage
-    const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
-    const user = users.find(u => u.email === email);
-    
-    if (!user) {
-        return { success: false, message: 'No account found with this email address' };
+    try {
+        // Use the API for login
+        if (typeof AuthAPI !== 'undefined') {
+            const response = await AuthAPI.login(email, password);
+            if (response.success) {
+                currentUser = response.data.user;
+                updateAuthUI();
+                return { success: true, user: response.data.user };
+            }
+            return { success: false, message: response.error || 'Login failed' };
+        }
+        
+        // Fallback to localStorage if API not available
+        const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
+        const user = users.find(u => u.email === email);
+        
+        if (!user) {
+            return { success: false, message: 'No account found with this email address' };
+        }
+        
+        if (user.password !== password) {
+            return { success: false, message: 'Invalid email or password' };
+        }
+        
+        currentUser = user;
+        localStorage.setItem('loggedInUser', JSON.stringify(user));
+        updateAuthUI();
+        return { success: true, user };
+    } catch (error) {
+        return { success: false, message: error.message || 'Login failed' };
     }
-    
-    // Simple password check (in real production, use proper hashing)
-    if (user.password !== password) {
-        return { success: false, message: 'Invalid email or password' };
-    }
-    
-    currentUser = user;
-    localStorage.setItem('loggedInUser', JSON.stringify(user));
-    updateAuthUI();
-    return { success: true, user };
 }
 
 async function register(userData) {
-    // Get existing users from localStorage
-    const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
-    
-    // Check if email already exists
-    if (users.find(u => u.email === userData.email)) {
-        return { success: false, message: 'Email already exists' };
+    try {
+        // Use the API for registration
+        if (typeof AuthAPI !== 'undefined') {
+            const response = await AuthAPI.register({
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                email: userData.email,
+                password: userData.password,
+                confirmPassword: userData.password,
+                phone: userData.phone,
+                dateOfBirth: userData.dateOfBirth,
+                gender: userData.gender
+            });
+            
+            if (response.success) {
+                currentUser = response.data.user;
+                updateAuthUI();
+                return { success: true, user: response.data.user };
+            }
+            return { success: false, message: response.error || 'Registration failed' };
+        }
+        
+        // Fallback to localStorage if API not available
+        const users = JSON.parse(localStorage.getItem('solaraUsers') || '[]');
+        
+        if (users.find(u => u.email === userData.email)) {
+            return { success: false, message: 'Email already exists' };
+        }
+        
+        const newUser = {
+            id: Date.now(),
+            ...userData,
+            createdAt: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        localStorage.setItem('solaraUsers', JSON.stringify(users));
+        
+        currentUser = newUser;
+        localStorage.setItem('loggedInUser', JSON.stringify(newUser));
+        updateAuthUI();
+        
+        return { success: true, user: newUser };
+    } catch (error) {
+        return { success: false, message: error.message || 'Registration failed' };
     }
-    
-    // Add new user
-    const newUser = {
-        id: Date.now(),
-        ...userData,
-        createdAt: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('solaraUsers', JSON.stringify(users));
-    
-    currentUser = newUser;
-    localStorage.setItem('loggedInUser', JSON.stringify(newUser));
-    updateAuthUI();
-    
-    return { success: true, user: newUser };
 }
 
-function logout() {
+async function logout() {
+    // Use API logout if available
+    if (typeof AuthAPI !== 'undefined') {
+        await AuthAPI.logout();
+    }
+    
     currentUser = null;
     localStorage.removeItem('loggedInUser');
-    localStorage.removeItem('solaraAdminAuthed'); // Also clear admin auth
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('solaraAdminAuthed');
+    localStorage.removeItem('isAdmin');
     updateAuthUI();
     
     // Redirect to home page
     if (window.location.pathname.includes('admin')) {
+        window.location.href = '../index.html';
+    } else if (window.location.pathname.includes('pages')) {
         window.location.href = '../index.html';
     } else {
         window.location.href = 'index.html';
@@ -382,29 +440,55 @@ function setupPasswordToggle() {
 
 // ===== PRODUCT DISPLAY =====
 
-function loadProducts(category = 'all', sortBy = 'newest') {
+async function loadProducts(category = 'all', sortBy = 'newest') {
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
     
-    let products = getProductsByCategory(category);
-    products = sortProducts(products, sortBy);
+    // Show loading state
+    productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>';
     
-    
-    if (products.length === 0) {
-        productsGrid.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <h3>No products found</h3>
-                <p>Try adjusting your filters or search terms</p>
-            </div>
-        `;
-        return;
+    try {
+        let products = [];
+        
+        // Use API if available
+        if (typeof ProductsAPI !== 'undefined') {
+            const params = { sort: sortBy };
+            if (category && category !== 'all') {
+                params.category = category;
+            }
+            const response = await ProductsAPI.getAll(params);
+            if (response.success) {
+                products = response.data;
+            }
+        } else {
+            // Fallback to localStorage
+            products = getProductsByCategory(category);
+            products = sortProducts(products, sortBy);
+        }
+        
+        if (products.length === 0) {
+            productsGrid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search terms</p>
+                </div>
+            `;
+            return;
+        }
+        
+        productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        
+        // Add event listeners to product cards
+        setupProductCardEvents();
+    } catch (error) {
+        console.error('Error loading products:', error);
+        // Fallback to localStorage data
+        let products = getProductsByCategory(category);
+        products = sortProducts(products, sortBy);
+        productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        setupProductCardEvents();
     }
-    
-    productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
-    
-    // Add event listeners to product cards
-    setupProductCardEvents();
 }
 
 function loadBestSellers() {
@@ -442,26 +526,31 @@ function loadNewArrivals() {
 }
 
 function createProductCard(product) {
-    const inWishlist = isInWishlist(product.id);
+    // Handle both MongoDB (_id) and localStorage (id) product formats
+    const productId = product._id || product.id;
+    const inWishlist = isInWishlist(productId);
     const wishlistClass = inWishlist ? 'active' : '';
     
-    // Add sale badge for some products (random for demo)
-    const isOnSale = Math.random() > 0.7; // 30% chance of being on sale
+    // Add sale badge for products with comparePrice or randomly for demo
+    const isOnSale = product.comparePrice ? true : Math.random() > 0.7;
     const saleBadge = isOnSale ? '<div class="sale-badge">SALE</div>' : '';
     
+    // Handle image path - API returns relative path
+    const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+    
     return `
-        <div class="product-card" data-product-id="${product.id}">
+        <div class="product-card" data-product-id="${productId}">
             <div class="product-image">
                 ${saleBadge}
-                <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <img src="${getAssetPath(imagePath)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="image-placeholder" style="display:none;">
                     <i class="fas fa-image"></i>
                 </div>
                 <div class="product-overlay">
-                    <button class="wishlist-btn ${wishlistClass}" data-product-id="${product.id}" title="Add to wishlist">
+                    <button class="wishlist-btn ${wishlistClass}" data-product-id="${productId}" title="Add to wishlist">
                         <i class="fas fa-heart"></i>
                     </button>
-                    <button class="quick-view-btn" data-product-id="${product.id}" title="Quick view">
+                    <button class="quick-view-btn" data-product-id="${productId}" title="Quick view">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
@@ -471,7 +560,7 @@ function createProductCard(product) {
                 <h3>${product.name}</h3>
                 <p class="price">${formatPrice(product.price)}</p>
                 <div class="product-actions">
-                    <button class="btn btn-primary btn-add-to-cart" data-product-id="${product.id}">
+                    <button class="btn btn-primary btn-add-to-cart" data-product-id="${productId}">
                         <i class="fas fa-shopping-cart"></i>
                         Add to Cart
                     </button>
