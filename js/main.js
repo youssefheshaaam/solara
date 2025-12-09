@@ -1704,14 +1704,22 @@ function setupEventListeners() {
         }
     });
     
-    // Wishlist link
-    const wishlistLink = document.getElementById('wishlist-link');
-    if (wishlistLink) {
-        wishlistLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showWishlistModal();
-        });
-    }
+    // Wishlist link - ensure navigation works
+    document.addEventListener('click', (e) => {
+        const wishlistLink = e.target.closest('#wishlist-link');
+        if (wishlistLink && !wishlistLink.onclick) {
+            // Ensure the link navigates - don't prevent default if href exists
+            const href = wishlistLink.getAttribute('href');
+            if (!href || href === '#' || href === '') {
+                // No valid href, provide fallback navigation
+                e.preventDefault();
+                const currentPath = window.location.pathname;
+                const basePath = currentPath.includes('/pages/') ? '' : 'pages/';
+                window.location.href = basePath + 'wishlist.html';
+            }
+            // If href exists, let browser handle it naturally
+        }
+    });
     
     // Quick view buttons
     document.addEventListener('click', (e) => {
