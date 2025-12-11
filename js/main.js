@@ -923,7 +923,7 @@ function updateCartSummary(subtotal, discount, total) {
     
     if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
     if (discountEl) {
-        discountEl.textContent = discount > 0 ? `-${formatPrice(discount)}` : '$0.00';
+        discountEl.textContent = discount > 0 ? `-${formatPrice(discount)}` : formatPrice(0);
     }
     if (totalEl) totalEl.textContent = formatPrice(total);
 }
@@ -2098,9 +2098,6 @@ function filterBySize(sizes) {
     displayFilteredProducts(filteredProducts);
 }
 
-// Removed setupAgeFilter function - kids category no longer exists
-
-// Removed filterByAge function - kids category no longer exists
 
 // ===== PAGE-SPECIFIC INITIALIZATION =====
 

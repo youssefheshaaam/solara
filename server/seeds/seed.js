@@ -358,14 +358,14 @@ const products = [
         ratings: { average: 5.0, count: 48 }
     },
 
-    // FORMER KIDS' COLLECTION - REASSIGNED TO MEN
+    // REASSIGNED TO MEN
     {
-        name: "Kids Winter Puffer Jacket",
+        name: "Winter Puffer Jacket",
         price: 950.00,
         comparePrice: 1200.00,
         image: "images/products/1R5A0160.jpg",
         category: "men",
-        description: "Keep your little ones warm and stylish with our Kids Winter Puffer Jacket. Features include a cozy fleece-lined hood, multiple zippered pockets, and reflective details for visibility in low light. The water-resistant shell keeps kids dry during outdoor play, while the synthetic insulation provides lightweight warmth. Machine washable for easy care.",
+        description: "Keep warm and stylish with our Winter Puffer Jacket. Features include a cozy fleece-lined hood, multiple zippered pockets, and reflective details for visibility in low light. The water-resistant shell keeps you dry during outdoor activities, while the synthetic insulation provides lightweight warmth. Machine washable for easy care.",
         brand: "SOLARA",
         sizes: ["4", "6", "8", "10", "12", "14"],
         colors: ["Red", "Royal Blue", "Forest Green", "Black", "Pink"],
@@ -382,7 +382,7 @@ const products = [
             "Do not iron",
             "Can be dry cleaned"
         ],
-        tags: ["jacket", "winter", "kids", "warm"],
+        tags: ["jacket", "winter", "warm"],
         ratings: { average: 4.8, count: 156 }
     },
     {
@@ -391,7 +391,7 @@ const products = [
         comparePrice: 950.00,
         image: "images/products/2_4.gif",
         category: "women",
-        description: "Let kids express their personality with our Fun Graphic Print T-Shirt. Made from soft, breathable cotton that's gentle on sensitive skin. Features playful designs that kids love and parents approve of. Pre-shrunk fabric ensures the perfect fit wash after wash. Available in a rainbow of colors to mix and match with their favorite bottoms.",
+        description: "Express your personality with our Fun Graphic Print T-Shirt. Made from soft, breathable cotton. Features playful designs. Pre-shrunk fabric ensures the perfect fit wash after wash. Available in a rainbow of colors to mix and match.",
         brand: "SOLARA",
         sizes: ["2T", "3T", "4T", "5", "6", "7", "8", "10", "12"],
         colors: ["Blue", "Red", "Green", "Yellow", "Purple", "Orange"],
@@ -408,7 +408,7 @@ const products = [
             "Do not iron print directly",
             "Do not dry clean"
         ],
-        tags: ["t-shirt", "kids", "graphic", "fun"],
+        tags: ["t-shirt", "graphic", "fun"],
         ratings: { average: 4.7, count: 234 }
     },
     {
@@ -417,7 +417,7 @@ const products = [
         comparePrice: 1050.00,
         image: "images/products/1W2A6581_0f869f30-1398-4694-9c5e-6413bded0bc8_1.jpg",
         category: "women",
-        description: "Perfect for school, sports, or lounging at home, our Comfortable Jogger Pants are a kid's wardrobe essential. The soft cotton blend moves with active kids while the elasticated waist with drawstring ensures a secure, adjustable fit. Features include side pockets for treasures and ribbed cuffs that stay in place. Easy pull-on style kids can manage themselves.",
+        description: "Perfect for school, sports, or lounging at home, our Comfortable Jogger Pants are a wardrobe essential. The soft cotton blend moves with you while the elasticated waist with drawstring ensures a secure, adjustable fit. Features include side pockets and ribbed cuffs that stay in place. Easy pull-on style.",
         brand: "SOLARA",
         sizes: ["2T", "3T", "4T", "5", "6", "7", "8", "10", "12", "14"],
         colors: ["Heather Gray", "Navy", "Black", "Olive", "Burgundy"],
@@ -434,7 +434,7 @@ const products = [
             "Warm iron if needed",
             "Do not dry clean"
         ],
-        tags: ["joggers", "kids", "comfortable", "school"],
+        tags: ["joggers", "comfortable", "school"],
         ratings: { average: 4.6, count: 189 }
     },
     {
@@ -443,7 +443,7 @@ const products = [
         comparePrice: 1100.00,
         image: "images/products/1W2A6997_1fc82186-029c-4dca-8b2b-bcb246902a85_3.jpg",
         category: "women",
-        description: "Watch your kids light up with joy in our Light-Up LED Sneakers! These exciting shoes feature multicolor LED lights in the sole that can be set to different modes. The rechargeable battery provides hours of glowing fun. Beyond the lights, these sneakers offer comfortable cushioning, a secure velcro closure, and a non-slip sole for safe play.",
+        description: "Light up your style with our Light-Up LED Sneakers! These exciting shoes feature multicolor LED lights in the sole that can be set to different modes. The rechargeable battery provides hours of glowing fun. Beyond the lights, these sneakers offer comfortable cushioning, a secure velcro closure, and a non-slip sole.",
         brand: "SOLARA",
         sizes: ["10", "11", "12", "13", "1", "2", "3", "4"],
         colors: ["White/Rainbow", "Black/Rainbow", "Pink/Rainbow", "Blue/Rainbow"],
@@ -460,7 +460,7 @@ const products = [
             "Charge fully before first use",
             "Remove insole for cleaning"
         ],
-        tags: ["sneakers", "LED", "kids", "fun"],
+        tags: ["sneakers", "LED", "fun"],
         ratings: { average: 4.9, count: 312 }
     },
     {
@@ -469,7 +469,7 @@ const products = [
         comparePrice: 950.00,
         image: "images/products/6_d81aa1cd-fb9c-42f8-9ee6-88c004f8c4fd_5.jpg",
         category: "women",
-        description: "Designed for active kids who love to move, our Active Sports Shorts feature moisture-wicking fabric that keeps them cool and dry during sports and play. The stretchy waistband with internal drawstring provides a comfortable, secure fit. Mesh side panels enhance breathability, while the quick-dry fabric is perfect for swimming and water play.",
+        description: "Designed for active lifestyles, our Active Sports Shorts feature moisture-wicking fabric that keeps you cool and dry during sports and play. The stretchy waistband with internal drawstring provides a comfortable, secure fit. Mesh side panels enhance breathability, while the quick-dry fabric is perfect for swimming and water activities.",
         brand: "SOLARA",
         sizes: ["4", "5", "6", "7", "8", "10", "12", "14"],
         colors: ["Blue", "Red", "Black", "Green", "Navy"],
@@ -486,7 +486,7 @@ const products = [
             "Do not iron",
             "Do not dry clean"
         ],
-        tags: ["shorts", "sports", "kids", "active"],
+        tags: ["shorts", "sports", "active"],
         ratings: { average: 4.5, count: 145 }
     },
     {
@@ -495,7 +495,7 @@ const products = [
         comparePrice: 1100.00,
         image: "images/products/1.gif",
         category: "women",
-        description: "Wrap them in comfort with our Cozy Fleece Hoodie. Super-soft fleece fabric provides warmth without weight. Features include a lined hood for extra coziness, a spacious kangaroo pocket for cold hands or treasures, and ribbed cuffs and hem that hold their shape. Easy care and durable enough for everyday adventures.",
+        description: "Wrap yourself in comfort with our Cozy Fleece Hoodie. Super-soft fleece fabric provides warmth without weight. Features include a lined hood for extra coziness, a spacious kangaroo pocket, and ribbed cuffs and hem that hold their shape. Easy care and durable enough for everyday adventures.",
         brand: "SOLARA",
         sizes: ["2T", "3T", "4T", "5", "6", "7", "8", "10", "12", "14"],
         colors: ["Heather Gray", "Navy", "Red", "Pink", "Black", "Forest Green"],
@@ -512,7 +512,7 @@ const products = [
             "Do not iron",
             "Do not dry clean"
         ],
-        tags: ["hoodie", "fleece", "kids", "cozy"],
+        tags: ["hoodie", "fleece", "cozy"],
         ratings: { average: 4.7, count: 178 }
     }
 ];
@@ -528,7 +528,7 @@ const users = [
         isActive: true,
         preferences: {
             language: "en",
-            currency: "USD",
+            currency: "EGP",
             emailNotifications: true
         }
     },
@@ -553,7 +553,7 @@ const users = [
         }],
         preferences: {
             language: "en",
-            currency: "USD",
+            currency: "EGP",
             emailNotifications: true
         }
     }
