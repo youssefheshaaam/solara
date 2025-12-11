@@ -167,7 +167,7 @@ const productValidation = [
     
     body('category')
         .notEmpty().withMessage('Category is required')
-        .isIn(['men', 'women', 'kids']).withMessage('Invalid category'),
+        .isIn(['men', 'women']).withMessage('Invalid category'),
     
     body('brand')
         .optional()
@@ -214,7 +214,7 @@ const productUpdateValidation = [
     
     body('category')
         .optional()
-        .isIn(['men', 'women', 'kids']).withMessage('Invalid category'),
+        .isIn(['men', 'women']).withMessage('Invalid category'),
     
     body('stock')
         .optional()

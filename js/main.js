@@ -146,7 +146,6 @@ function createUniversalNavigation() {
                     <li><a href="${homeLink}" class="nav-link">Home</a></li>
                     <li><a href="${pagesPrefix}men.html" class="nav-link">Men</a></li>
                     <li><a href="${pagesPrefix}women.html" class="nav-link">Women</a></li>
-                    <li><a href="${pagesPrefix}kids.html" class="nav-link">Kids</a></li>
                     <li><a href="${pagesPrefix}contact.html" class="nav-link">Contact</a></li>
                 </ul>
                 
@@ -1971,7 +1970,6 @@ function getCurrentPageCategory() {
     const path = window.location.pathname;
     if (path.includes('men.html')) return 'men';
     if (path.includes('women.html')) return 'women';
-    if (path.includes('kids.html')) return 'kids';
     return null;
 }
 
@@ -2102,49 +2100,9 @@ function filterBySize(sizes) {
     displayFilteredProducts(filteredProducts);
 }
 
-function setupAgeFilter() {
-    const ageButtons = document.querySelectorAll('.age-btn');
-    
-    ageButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Update active button
-            ageButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            const ageGroup = button.dataset.age;
-            filterByAge(ageGroup);
-        });
-    });
-}
+// Removed setupAgeFilter function - kids category no longer exists
 
-function filterByAge(ageGroup) {
-    const products = getProducts();
-    let filteredProducts = products.filter(product => product.category === 'kids');
-    
-    if (ageGroup && ageGroup !== 'all') {
-        // Filter by age group based on product name or description
-        filteredProducts = filteredProducts.filter(product => {
-            const name = product.name.toLowerCase();
-            const description = (product.description || '').toLowerCase();
-            
-            switch (ageGroup) {
-                case 'toddler':
-                    return name.includes('toddler') || name.includes('baby') || 
-                           description.includes('toddler') || description.includes('baby');
-                case 'kids':
-                    return name.includes('kids') || name.includes('child') || 
-                           description.includes('kids') || description.includes('child');
-                case 'teen':
-                    return name.includes('teen') || name.includes('youth') || 
-                           description.includes('teen') || description.includes('youth');
-                default:
-                    return true;
-            }
-        });
-    }
-    
-    displayFilteredProducts(filteredProducts);
-}
+// Removed filterByAge function - kids category no longer exists
 
 // ===== PAGE-SPECIFIC INITIALIZATION =====
 
@@ -2168,15 +2126,6 @@ if (window.location.pathname.includes('women.html')) {
     });
 }
 
-if (window.location.pathname.includes('kids.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        loadCategoryProducts('kids');
-        setupCategoryFilters();
-        setupSorting();
-        setupPriceFilter();
-        setupAgeFilter();
-    });
-}
 
 // Cart page initialization
 if (window.location.pathname.includes('cart.html')) {

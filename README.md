@@ -74,7 +74,6 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 ├── /pages                        # Customer pages
 │   ├── men.html                  # Men's products
 │   ├── women.html                # Women's products
-│   ├── kids.html                 # Kids' products
 │   ├── cart.html                 # Shopping cart
 │   ├── checkout.html             # Checkout process
 │   ├── wishlist.html             # User wishlist
@@ -518,7 +517,7 @@ All incoming data is validated using Joi schemas before processing:
 const productSchema = Joi.object({
     name: Joi.string().min(2).max(100).required(),
     price: Joi.number().positive().required(),
-    category: Joi.string().valid('men', 'women', 'kids').required(),
+    category: Joi.string().valid('men', 'women').required(),
     description: Joi.string().max(1000),
     stock: Joi.number().integer().min(0).default(0),
     sizes: Joi.array().items(Joi.string()),
