@@ -644,14 +644,6 @@ function createProductCard(product) {
                 <div class="image-placeholder" style="display:none;">
                     <i class="fas fa-image"></i>
                 </div>
-                <div class="product-overlay">
-                    <button class="wishlist-btn ${wishlistClass}" data-product-id="${productId}" title="Add to wishlist">
-                        <i class="fas fa-heart"></i>
-                    </button>
-                    <button class="quick-view-btn" data-product-id="${productId}" title="Quick view">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
             </div>
             <div class="product-card-content">
                 <p class="category">${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</p>
@@ -2029,6 +2021,10 @@ function setupPriceFilter() {
     const maxPriceDisplay = document.getElementById('max-price');
     
     if (priceRange && maxPriceDisplay) {
+        // Set initial max price from input max attribute
+        const initialMaxPrice = priceRange.getAttribute('max') || '5000';
+        maxPriceDisplay.textContent = initialMaxPrice + ' EGP';
+        
         priceRange.addEventListener('input', (e) => {
             const maxPrice = parseFloat(e.target.value);
             maxPriceDisplay.textContent = `${maxPrice} EGP`;
@@ -2040,6 +2036,8 @@ function setupPriceFilter() {
 function filterByPrice(maxPrice) {
     const products = getProducts();
     const currentPageCategory = getCurrentPageCategory();
+    const priceRange = document.getElementById('price-range');
+    const minPrice = priceRange ? parseFloat(priceRange.getAttribute('min')) || 0 : 0;
     
     let filteredProducts = products;
     
@@ -2048,8 +2046,8 @@ function filterByPrice(maxPrice) {
         filteredProducts = filteredProducts.filter(product => product.category === currentPageCategory);
     }
     
-    // Filter by price
-    filteredProducts = filteredProducts.filter(product => product.price <= maxPrice);
+    // Filter by price range
+    filteredProducts = filteredProducts.filter(product => product.price >= minPrice && product.price <= maxPrice);
     
     displayFilteredProducts(filteredProducts);
 }

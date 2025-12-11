@@ -85,23 +85,19 @@
     </section>
 
     <!-- Filters and Sorting -->
-    <section class="filters-section">
+    <section class="filters-section" style="background: white; padding: 2rem 0; border-bottom: 1px solid #eee;">
         <div class="container">
-            <div class="filters-container">
-                <div class="filter-group">
-                    <h3>Filter by Category</h3>
-                    <div class="filter-options">
-                        <button class="filter-btn active" data-category="all">All Items</button>
-                        <button class="filter-btn" data-category="shirts">Shirts</button>
-                        <button class="filter-btn" data-category="pants">Pants</button>
-                        <button class="filter-btn" data-category="shoes">Shoes</button>
-                        <button class="filter-btn" data-category="accessories">Accessories</button>
+            <div class="filters-container" style="display: flex; gap: 2rem; align-items: flex-end; flex-wrap: wrap; justify-content: center;">
+                <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Filter by Category</h3>
+                    <div class="filter-options" style="display: flex; gap: 0.5rem;">
+                        <button class="filter-btn active" data-category="all" style="padding: 0.5rem 1.25rem; border: 2px solid var(--accent-color); background: var(--accent-color); color: white; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">All Items</button>
                     </div>
                 </div>
                 
-                <div class="filter-group">
-                    <h3>Sort by</h3>
-                    <select class="sort-select" id="sort-select">
+                <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Sort by</h3>
+                    <select class="sort-select" id="sort-select" style="padding: 0.5rem 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; font-size: 0.9rem; cursor: pointer; min-width: 180px;">
                         <option value="newest">Newest First</option>
                         <option value="price-low">Price: Low to High</option>
                         <option value="price-high">Price: High to Low</option>
@@ -110,50 +106,15 @@
                     </select>
                 </div>
                 
-                <div class="filter-group">
-                    <h3>Price Range</h3>
-                    <div class="price-range">
-                        <input type="range" id="price-range" min="0" max="200" value="200">
-                        <div class="price-labels">
-                            <span>0 EGP</span>
-                            <span id="max-price">200 EGP</span>
+                <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 200px;">
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Price Range</h3>
+                    <div class="price-range" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <input type="range" id="price-range" min="700" max="5000" value="5000" step="50" style="width: 100%;">
+                        <div class="price-labels" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #666;">
+                            <span>700 EGP</span>
+                            <span id="max-price">5000 EGP</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Style Categories -->
-    <section class="style-categories">
-        <div class="container">
-            <h2 class="section-title">Style Categories</h2>
-            <div class="style-category-grid">
-                <div class="style-category-card" data-style="casual">
-                    <div class="style-icon">
-                        <i class="fas fa-tshirt"></i>
-                    </div>
-                    <h3>Casual Wear</h3>
-                    <p>Comfortable and relaxed clothing for everyday style</p>
-                    <a href="#casual-products" class="btn btn-outline">Shop Casual</a>
-                </div>
-                
-                <div class="style-category-card" data-style="formal">
-                    <div class="style-icon">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <h3>Formal Wear</h3>
-                    <p>Professional and sophisticated pieces for business occasions</p>
-                    <a href="#formal-products" class="btn btn-outline">Shop Formal</a>
-                </div>
-                
-                <div class="style-category-card" data-style="athletic">
-                    <div class="style-icon">
-                        <i class="fas fa-running"></i>
-                    </div>
-                    <h3>Athletic Wear</h3>
-                    <p>Performance-focused clothing for active lifestyles</p>
-                    <a href="#athletic-products" class="btn btn-outline">Shop Athletic</a>
                 </div>
             </div>
         </div>
@@ -181,62 +142,62 @@
     </section>
 
     <!-- Size Guide Section -->
-    <section class="size-guide">
+    <section class="size-guide" style="padding: 4rem 0;">
         <div class="container">
-            <h2>Men's Size Guide</h2>
-            <div class="size-guide-content">
+            <h2 style="text-align: center; margin-bottom: 3rem;">Men's Size Guide</h2>
+            <div class="size-guide-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1000px; margin: 0 auto;">
                 <div class="size-chart">
-                    <h3>Clothing Sizes</h3>
-                    <table class="size-table">
+                    <h3 style="margin-bottom: 1.5rem;">Clothing Sizes</h3>
+                    <table class="size-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Size</th>
-                                <th>Chest (in)</th>
-                                <th>Waist (in)</th>
-                                <th>Height (ft)</th>
-                                <th>Weight (kg)</th>
+                            <tr style="background: #f5f5f5;">
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Size</th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Chest (in)</th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Waist (in)</th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Height (ft)</th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Weight (kg)</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>S</td>
-                                <td>34-36</td>
-                                <td>28-30</td>
-                                <td>5'6"-5'8"</td>
-                                <td>59-68</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">S</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">34-36</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">28-30</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">5'6"-5'8"</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">59-68</td>
                             </tr>
                             <tr>
-                                <td>M</td>
-                                <td>38-40</td>
-                                <td>32-34</td>
-                                <td>5'8"-5'10"</td>
-                                <td>68-77</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">M</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">38-40</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">32-34</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">5'8"-5'10"</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">68-77</td>
                             </tr>
                             <tr>
-                                <td>L</td>
-                                <td>42-44</td>
-                                <td>36-38</td>
-                                <td>5'10"-6'0"</td>
-                                <td>77-86</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">L</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">42-44</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">36-38</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">5'10"-6'0"</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">77-86</td>
                             </tr>
                             <tr>
-                                <td>XL</td>
-                                <td>46-48</td>
-                                <td>40-42</td>
-                                <td>6'0"-6'2"</td>
-                                <td>86-95</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">XL</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">46-48</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">40-42</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">6'0"-6'2"</td>
+                                <td style="padding: 1rem; border: 1px solid #ddd;">86-95</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="size-tips">
-                    <h3>Size Tips</h3>
-                    <ul>
-                        <li>Measure your chest at the fullest part</li>
-                        <li>Measure your waist at the narrowest point</li>
-                        <li>Consider your preferred fit (slim, regular, relaxed)</li>
-                        <li>Check our detailed size charts for each product</li>
-                        <li>Contact us if you need help with sizing</li>
+                    <h3 style="margin-bottom: 1.5rem;">Size Tips</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Measure your chest at the fullest part</li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Measure your waist at the narrowest point</li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Consider your preferred fit (slim, regular, relaxed)</li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Check our detailed size charts for each product</li>
+                        <li style="padding: 0.75rem 0;">Contact us if you need help with sizing</li>
                     </ul>
                 </div>
             </div>
@@ -244,24 +205,38 @@
     </section>
 
     <!-- Styling Tips Section -->
-    <section class="styling-tips">
+    <section class="styling-tips" style="padding: 4rem 0; background: #fafafa;">
         <div class="container">
-            <h2>Men's Styling Guide</h2>
-            <div class="tips-grid">
-                <div class="tip-card">
-                    <i class="fas fa-palette"></i>
-                    <h3>Color Coordination</h3>
-                    <p>Learn how to build a versatile wardrobe with neutral colors and strategic accent pieces</p>
+            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #1a1a2e;">Men's Styling Guide</h2>
+            <div class="tips-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+                <style>
+                    @media (max-width: 768px) {
+                        .tips-grid {
+                            grid-template-columns: 1fr !important;
+                        }
+                        .filters-container {
+                            flex-direction: column !important;
+                            align-items: stretch !important;
+                        }
+                        .filter-group {
+                            width: 100% !important;
+                        }
+                    }
+                </style>
+                <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                    <i class="fas fa-palette" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Color Coordination</h3>
+                    <p style="color: #666; line-height: 1.6;">Learn how to build a versatile wardrobe with neutral colors and strategic accent pieces</p>
                 </div>
-                <div class="tip-card">
-                    <i class="fas fa-ruler"></i>
-                    <h3>Perfect Fit</h3>
-                    <p>Understanding how clothes should fit your body type for maximum style impact</p>
+                <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                    <i class="fas fa-ruler" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Perfect Fit</h3>
+                    <p style="color: #666; line-height: 1.6;">Understanding how clothes should fit your body type for maximum style impact</p>
                 </div>
-                <div class="tip-card">
-                    <i class="fas fa-star"></i>
-                    <h3>Trending Styles</h3>
-                    <p>Stay updated with the latest men's fashion trends and how to incorporate them</p>
+                <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                    <i class="fas fa-star" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Trending Styles</h3>
+                    <p style="color: #666; line-height: 1.6;">Stay updated with the latest men's fashion trends and how to incorporate them</p>
                 </div>
             </div>
         </div>
@@ -298,10 +273,7 @@
                 <div class="footer-section">
                     <h4>Men's Collection</h4>
                     <ul>
-                        <li><a href="#">Shirts & Tops</a></li>
-                        <li><a href="#">Pants & Jeans</a></li>
-                        <li><a href="#">Shoes & Sneakers</a></li>
-                        <li><a href="#">Accessories</a></li>
+                        <li><a href="men.html">View All</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
