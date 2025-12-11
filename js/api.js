@@ -451,6 +451,19 @@ const UsersAPI = {
         return await apiRequest(endpoint);
     },
     
+    async updateByAdmin(userId, data) {
+        return await apiRequest(`/users/${userId}/admin`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+    },
+    
+    async delete(userId) {
+        return await apiRequest(`/users/${userId}`, {
+            method: 'DELETE',
+        });
+    },
+    
     async getStats() {
         return await apiRequest('/users/stats');
     }
