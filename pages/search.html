@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - SOLARA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="../index.html">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="men.html" class="nav-link">Men</a></li>
+                <li><a href="women.html" class="nav-link">Women</a></li>
+                <li><a href="contact.html" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="cart.html" class="nav-icon" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="#" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="../login.html" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                        Login
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <a href="#" class="nav-icon hidden" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                    <a href="../admin/admin.html" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search Results Section -->
+    <section class="products-section" style="padding: 4rem 0; min-height: 60vh;">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="search-title">Search Results</h2>
+                <p id="search-subtitle">Enter a search term to find products</p>
+            </div>
+            
+            <div class="products-grid" id="products-grid">
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <h3>Search for products</h3>
+                    <p>Enter a search term in the navigation bar above</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>SOLARA</h3>
+                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="men.html">Men's Collection</a></li>
+                        <li><a href="women.html">Women's Collection</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="../login.html">Login</a></li>
+                        <li><a href="../register.html">Register</a></li>
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 SOLARA. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../js/api.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        // Page-specific initialization for Search Results
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Ensure products grid is empty initially
+            const productsGrid = document.getElementById('products-grid');
+            if (productsGrid) {
+                productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            }
+            
+            // Get search query from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q') || urlParams.get('search');
+            
+            if (searchQuery) {
+                // Update search input
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.value = searchQuery;
+                }
+                
+                // Perform search
+                await performSearch(searchQuery);
+            } else {
+                // No search query, show empty state
+                if (productsGrid) {
+                    productsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>Search for products</h3>
+                            <p>Enter a search term in the navigation bar above</p>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        // Override performSearch to always show results on this page
+        async function performSearch(query) {
+            if (!query || query.length === 0) {
+                return;
+            }
+            
+            const productsGrid = document.getElementById('products-grid');
+            const searchTitle = document.getElementById('search-title');
+            const searchSubtitle = document.getElementById('search-subtitle');
+            
+            if (!productsGrid) return;
+            
+            // Show loading state
+            productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Searching products...</div>';
+            
+            try {
+                // Use API for search - search ALL products (no category filter)
+                let products = [];
+                if (typeof ProductsAPI !== 'undefined') {
+                    const response = await ProductsAPI.search(query, { limit: 1000 });
+                    if (response.success && response.data) {
+                        products = response.data;
+                        console.log(`Search for "${query}" returned ${products.length} products:`, products.map(p => p.name));
+                    } else {
+                        console.error('Search API error:', response);
+                    }
+                } else {
+                    // Fallback to local search
+                    const allProducts = getProducts();
+                    const lowercaseQuery = query.toLowerCase();
+                    products = allProducts.filter(product => 
+                        product.name.toLowerCase().includes(lowercaseQuery) ||
+                        (product.description && product.description.toLowerCase().includes(lowercaseQuery)) ||
+                        (product.brand && product.brand.toLowerCase().includes(lowercaseQuery)) ||
+                        (product.material && product.material.toLowerCase().includes(lowercaseQuery)) ||
+                        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery)))
+                    );
+                    console.log(`Local search for "${query}" returned ${products.length} products:`, products.map(p => p.name));
+                }
+                
+                // Update title and subtitle
+                if (searchTitle) {
+                    searchTitle.textContent = `Search Results for "${query}"`;
+                }
+                if (searchSubtitle) {
+                    searchSubtitle.textContent = `Found ${products.length} product${products.length !== 1 ? 's' : ''}`;
+                }
+                
+                if (products.length === 0) {
+                    productsGrid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>No products found</h3>
+                            <p>No results for "${query}"</p>
+                            <p style="margin-top: 0.5rem; color: var(--text-secondary);">Try adjusting your search terms</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+                setupProductCardEvents();
+            } catch (error) {
+                console.error('Error performing search:', error);
+                productsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error searching products</h3>
+                        <p>Please try again later</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

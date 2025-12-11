@@ -184,8 +184,16 @@ productSchema.statics.search = async function(query, options = {}) {
 
     const filter = { status: 'active' };
 
+    // Use regex-based search (works without text index)
     if (query) {
-        filter.$text = { $search: query };
+        const searchRegex = { $regex: query, $options: 'i' };
+        filter.$or = [
+            { name: searchRegex },
+            { description: searchRegex },
+            { brand: searchRegex },
+            { material: searchRegex },
+            { tags: searchRegex }
+        ];
     }
 
     if (category && category !== 'all') {

@@ -10,9 +10,15 @@ let currentSort = 'newest';
 document.addEventListener('DOMContentLoaded', async function() {
     await initializeApp();
     setupEventListeners();
-    await loadProducts();
-    await loadBestSellers();
-    await loadNewArrivals();
+    
+    // Don't load products on search page - it handles its own loading
+    const isSearchPage = window.location.pathname.includes('search.html');
+    if (!isSearchPage) {
+        await loadProducts();
+        await loadBestSellers();
+        await loadNewArrivals();
+    }
+    
     updateCartCount();
     updateWishlistCount();
     checkUserAuth();
@@ -54,6 +60,7 @@ async function initializeApp() {
     
     // Setup search functionality
     setupSearch();
+    
     
     // Setup category filters
     setupCategoryFilters();
@@ -1081,27 +1088,39 @@ function setupSearch() {
     const searchBtn = document.getElementById('search-btn');
     
     if (searchInput) {
-        searchInput.addEventListener('input', debounce((e) => {
-            const query = e.target.value;
-            performSearch(query);
-        }, 300));
+        // Handle Enter key press - only way to search
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) {
+                    performSearch(query);
+                }
+            }
+        });
     }
     
     if (searchBtn) {
         searchBtn.addEventListener('click', () => {
-            const query = searchInput.value;
-            performSearch(query);
+            const query = searchInput ? searchInput.value.trim() : '';
+            if (query) {
+                performSearch(query);
+            }
         });
     }
 }
 
-function performSearch(query) {
-    const products = searchProducts(query, currentCategory);
-    const sortedProducts = sortProducts(products, currentSort);
-    displaySearchResults(sortedProducts);
+async function performSearch(query) {
+    if (!query || query.length === 0) {
+        return;
+    }
+    
+    // Always navigate to search results page
+    const searchPath = window.location.pathname.includes('/pages/') ? 'search.html' : 'pages/search.html';
+    window.location.href = `${searchPath}?q=${encodeURIComponent(query)}`;
 }
 
-function displaySearchResults(products) {
+function displaySearchResults(products, query = '') {
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
     
@@ -1110,10 +1129,20 @@ function displaySearchResults(products) {
             <div class="empty-state">
                 <i class="fas fa-search"></i>
                 <h3>No products found</h3>
-                <p>Try adjusting your search terms</p>
+                <p>No results for "${query}"</p>
+                <p style="margin-top: 0.5rem; color: var(--text-secondary);">Try adjusting your search terms</p>
             </div>
         `;
         return;
+    }
+    
+    // Update page title or add search results header
+    const sectionHeader = document.querySelector('.section-header');
+    if (sectionHeader && query) {
+        const titleElement = sectionHeader.querySelector('h2');
+        if (titleElement) {
+            titleElement.textContent = `Search Results for "${query}" (${products.length} found)`;
+        }
     }
     
     productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
