@@ -1866,10 +1866,10 @@ async function loadCategoryProducts(category) {
         // Make sure data is loaded from API first
         await initializeData();
         
-        // Try API first
+        // Try API first - request all products (no pagination limit)
         let products = [];
         if (typeof ProductsAPI !== 'undefined') {
-            const response = await ProductsAPI.getByCategory(category);
+            const response = await ProductsAPI.getByCategory(category, { limit: 1000, page: 1 });
             if (response.success && response.data) {
                 products = response.data;
             }

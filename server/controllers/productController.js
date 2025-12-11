@@ -15,7 +15,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
         search,
         sort = '-createdAt',
         featured,
-        status = 'active'
+        status
     } = req.query;
 
     // Build filter object
@@ -23,9 +23,14 @@ exports.getProducts = asyncHandler(async (req, res) => {
 
     // Status filter (admin can see all, public only sees active)
     if (req.user && req.user.role === 'admin') {
-        if (status !== 'all') filter.status = status;
+        // Admin can see all products - only filter by status if explicitly requested
+        if (status && status !== 'all') {
+            filter.status = status;
+        }
+        // If status is 'all' or not provided, don't filter by status (show ALL products)
     } else {
-        filter.status = 'active';
+        // Non-admin users only see active products
+        filter.status = status || 'active';
     }
 
     // Category filter

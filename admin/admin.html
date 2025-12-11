@@ -508,7 +508,6 @@
                                         <option value="">Select category</option>
                                         <option value="men">Men's Collection</option>
                                         <option value="women">Women's Collection</option>
-                                        <option value="featured">Featured Products</option>
                                     </select>
                                     <span class="error-message" id="category-error"></span>
                                 </div>
@@ -739,7 +738,6 @@
                                         <option value="">Select category</option>
                                         <option value="men">Men's Collection</option>
                                         <option value="women">Women's Collection</option>
-                                        <option value="featured">Featured Products</option>
                                     </select>
                                     <span class="error-message" id="edit-category-error"></span>
                                 </div>
@@ -1018,7 +1016,12 @@
                 if (typeof ProductsAPI === 'undefined') {
                     throw new Error('Backend API not available');
                 }
-                const response = await ProductsAPI.getAll();
+                // Admin should see ALL products (including inactive)
+                // Request with high limit to get all products in one call
+                // Backend will return all products if admin is authenticated (token in header)
+                // Use limit 1000 which should pass validation (max is 10000, but server might need restart)
+                const response = await ProductsAPI.getAll({ limit: 1000 });
+                
                 if (response.success) {
                     allProducts = response.data || [];
                 } else {
@@ -1026,9 +1029,20 @@
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
-                allProducts = [];
-                if (typeof showNotification === 'function') {
-                    showNotification('Failed to load products: ' + error.message, 'error');
+                console.error('Error details:', error);
+                // Try with smaller limit as fallback
+                try {
+                    const fallbackResponse = await ProductsAPI.getAll({ limit: 100 });
+                    if (fallbackResponse.success) {
+                        allProducts = fallbackResponse.data || [];
+                        console.log('Loaded products with fallback limit:', allProducts.length);
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                    allProducts = [];
+                    if (typeof showNotification === 'function') {
+                        showNotification('Failed to load products: ' + error.message, 'error');
+                    }
                 }
             }
             
