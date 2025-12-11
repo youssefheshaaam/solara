@@ -247,6 +247,12 @@
             setupCategoryFilters();
             setupSorting();
             setupPriceFilter();
+            
+            // Setup load more button
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', loadMoreCategoryProducts);
+            }
         });
     </script>
 </body>

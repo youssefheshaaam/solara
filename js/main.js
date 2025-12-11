@@ -1853,52 +1853,230 @@ function debounce(func, wait) {
 
 // ===== CATEGORY-SPECIFIC FUNCTIONS =====
 
+// Pagination state for category pages
+let categoryPaginationState = {
+    category: null,
+    currentPage: 1,
+    totalProducts: 0,
+    totalPages: 0,
+    isLoading: false
+};
+
 async function loadCategoryProducts(category) {
     const productsGrid = document.getElementById('products-grid');
     const productCount = document.getElementById('product-count');
+    const loadMoreBtn = document.getElementById('load-more-btn');
     
     if (!productsGrid) return;
     
+    // Reset pagination state
+    categoryPaginationState = {
+        category: category,
+        currentPage: 1,
+        totalProducts: 0,
+        totalPages: 0,
+        isLoading: false
+    };
+    
     // Show loading state
     productsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading products...</div>';
+    
+    // Hide load more button initially
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'none';
+    }
     
     try {
         // Make sure data is loaded from API first
         await initializeData();
         
-        // Try API first - request all products (no pagination limit)
-        let products = [];
+        // Load first page with 12 products
+        let response = null;
         if (typeof ProductsAPI !== 'undefined') {
-            const response = await ProductsAPI.getByCategory(category, { limit: 1000, page: 1 });
-            if (response.success && response.data) {
-                products = response.data;
+            response = await ProductsAPI.getByCategory(category, { limit: 12, page: 1 });
+        }
+        
+        if (response && response.success && response.data) {
+            const products = response.data;
+            const pagination = response.pagination || {};
+            
+            // Update pagination state
+            categoryPaginationState.currentPage = pagination.page || 1;
+            categoryPaginationState.totalProducts = pagination.total || products.length;
+            categoryPaginationState.totalPages = pagination.pages || 1;
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No products found</h3>
+                        <p>We're working on adding more ${category} products. Check back soon!</p>
+                    </div>
+                `;
+                if (productCount) productCount.textContent = '0';
+                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+                return;
             }
+            
+            productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+            if (productCount) productCount.textContent = categoryPaginationState.totalProducts;
+            
+            // Show/hide load more button
+            if (loadMoreBtn) {
+                if (categoryPaginationState.currentPage < categoryPaginationState.totalPages) {
+                    loadMoreBtn.style.display = 'block';
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Load More Products';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+            }
+            
+            setupProductCardEvents();
+        } else {
+            // Fallback to localStorage
+            const products = getProductsByCategory(category);
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>No products found</h3>
+                        <p>We're working on adding more ${category} products. Check back soon!</p>
+                    </div>
+                `;
+                if (productCount) productCount.textContent = '0';
+                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+                return;
+            }
+            
+            // For localStorage fallback, show first 12
+            const displayedProducts = products.slice(0, 12);
+            productsGrid.innerHTML = displayedProducts.map(product => createProductCard(product)).join('');
+            if (productCount) productCount.textContent = products.length;
+            
+            // Show load more if there are more products
+            if (loadMoreBtn && products.length > 12) {
+                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Load More Products';
+            } else if (loadMoreBtn) {
+                loadMoreBtn.style.display = 'none';
+            }
+            
+            // Store all products for localStorage pagination
+            categoryPaginationState.totalProducts = products.length;
+            categoryPaginationState.totalPages = Math.ceil(products.length / 12);
+            window._categoryProductsCache = products; // Store for loadMoreCategoryProducts
+            
+            setupProductCardEvents();
         }
-        
-        // Fallback to localStorage
-        if (products.length === 0) {
-            products = getProductsByCategory(category);
-        }
-        
-        if (products.length === 0) {
-            productsGrid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <h3>No products found</h3>
-                    <p>We're working on adding more ${category} products. Check back soon!</p>
-                </div>
-            `;
-            if (productCount) productCount.textContent = '0';
-            return;
-        }
-        
-        productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
-        if (productCount) productCount.textContent = products.length;
-        
-        setupProductCardEvents();
     } catch (error) {
         console.error('Error loading category products:', error);
         productsGrid.innerHTML = '<div class="error-state"><p>Error loading products. Please try again.</p></div>';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+    }
+}
+
+// Make loadMoreCategoryProducts globally accessible
+window.loadMoreCategoryProducts = async function loadMoreCategoryProducts() {
+    const productsGrid = document.getElementById('products-grid');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    if (!productsGrid || !loadMoreBtn) return;
+    
+    // Prevent multiple simultaneous requests
+    if (categoryPaginationState.isLoading) return;
+    
+    const category = categoryPaginationState.category;
+    if (!category) return;
+    
+    categoryPaginationState.isLoading = true;
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    
+    try {
+        const nextPage = categoryPaginationState.currentPage + 1;
+        
+        if (typeof ProductsAPI !== 'undefined') {
+            // Use API
+            const response = await ProductsAPI.getByCategory(category, { limit: 12, page: nextPage });
+            
+            if (response && response.success && response.data) {
+                const newProducts = response.data;
+                
+                if (newProducts.length > 0) {
+                    // Append new products to grid
+                    const newHTML = newProducts.map(product => createProductCard(product)).join('');
+                    productsGrid.insertAdjacentHTML('beforeend', newHTML);
+                    
+                    // Update pagination state
+                    categoryPaginationState.currentPage = nextPage;
+                    const pagination = response.pagination || {};
+                    categoryPaginationState.totalPages = pagination.pages || categoryPaginationState.totalPages;
+                    
+                    // Update product count
+                    const productCount = document.getElementById('product-count');
+                    if (productCount) {
+                        productCount.textContent = categoryPaginationState.totalProducts;
+                    }
+                    
+                    // Setup events for new products
+                    setupProductCardEvents();
+                    
+                    // Hide button if no more pages
+                    if (categoryPaginationState.currentPage >= categoryPaginationState.totalPages) {
+                        loadMoreBtn.style.display = 'none';
+                    } else {
+                        loadMoreBtn.disabled = false;
+                        loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Load More Products';
+                    }
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        } else {
+            // Fallback to localStorage
+            const allProducts = window._categoryProductsCache || getProductsByCategory(category);
+            const startIndex = (nextPage - 1) * 12;
+            const endIndex = startIndex + 12;
+            const newProducts = allProducts.slice(startIndex, endIndex);
+            
+            if (newProducts.length > 0) {
+                const newHTML = newProducts.map(product => createProductCard(product)).join('');
+                productsGrid.insertAdjacentHTML('beforeend', newHTML);
+                
+                categoryPaginationState.currentPage = nextPage;
+                
+                // Update product count
+                const productCount = document.getElementById('product-count');
+                if (productCount) {
+                    productCount.textContent = allProducts.length;
+                }
+                
+                setupProductCardEvents();
+                
+                if (endIndex >= allProducts.length) {
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    loadMoreBtn.disabled = false;
+                    loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Load More Products';
+                }
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading more products:', error);
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.innerHTML = '<i class="fas fa-plus"></i> Load More Products';
+        if (typeof showNotification === 'function') {
+            showNotification('Failed to load more products. Please try again.', 'error');
+        }
+    } finally {
+        categoryPaginationState.isLoading = false;
     }
 }
 
