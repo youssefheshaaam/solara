@@ -30,7 +30,18 @@
         @media (max-width: 600px) { .profile-form .form-row { grid-template-columns: 1fr; } }
         .profile-form .form-group { margin-bottom: 1.5rem; }
         .profile-form label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary); }
-        .profile-form input, .profile-form select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+        .profile-form input, .profile-form select, .profile-form textarea { 
+            width: 100%; 
+            padding: 0.75rem 1rem; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            color: var(--text-primary) !important;
+            background-color: white !important;
+        }
+        .profile-form input::placeholder, .profile-form textarea::placeholder {
+            color: var(--text-light) !important;
+        }
         .profile-form input:read-only { background: var(--bg-light); }
         .profile-form input:not(:read-only) { border-color: var(--accent-color); }
         .form-actions { display: flex; gap: 1rem; margin-top: 2rem; }

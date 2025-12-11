@@ -375,6 +375,7 @@ a:hover {
     flex: 1;
     padding: var(--spacing-xs);
     font-size: var(--font-size-sm);
+    color: var(--text-primary);
 }
 
 .search-box button {
@@ -1243,6 +1244,11 @@ a:hover {
     border: 1px solid var(--text-light);
     background-color: var(--bg-secondary);
     font-size: var(--font-size-base);
+    color: var(--text-primary);
+}
+
+.newsletter-form input::placeholder {
+    color: var(--text-light);
 }
 
 .newsletter-form input:focus {
@@ -1625,6 +1631,8 @@ a:hover {
     text-align: center;
     border: 1px solid var(--bg-light);
     padding: var(--spacing-xs);
+    color: var(--text-primary);
+    background-color: white;
 }
 
 .cart-summary {
@@ -1883,6 +1891,18 @@ select {
     background: white;
     font-size: var(--font-size-base);
     cursor: pointer;
+    color: var(--text-primary);
+}
+
+/* Global fix for all form inputs to ensure visible text */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea {
+    color: var(--text-primary) !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"])::placeholder,
+textarea::placeholder {
+    color: var(--text-light) !important;
 }
 
 select:focus {
