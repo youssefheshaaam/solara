@@ -4,15 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOLARA - Modern Minimal Luxury</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Urbanist:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/forms.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Scroll behavior -->
+    <script>
+        if (history.scrollRestoration) {
+            history.scrollRestoration = 'manual';
+        }
+        window.onload = function() {
+            window.scrollTo(0, 0);
+        };
+    </script>
 </head>
 <body>
     <!-- Navigation Header -->
-    <header class="main-header">
-        <nav class="navbar glass-effect">
+    <header class="main-header" id="main-header">
+        <nav class="navbar">
             <div class="nav-brand">
                 <a href="index.html">
                     <i class="fas fa-sun"></i>
@@ -20,8 +36,8 @@
                 </a>
             </div>
             
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link">Home</a></li>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
                 <li><a href="pages/men.html" class="nav-link">Men</a></li>
                 <li><a href="pages/women.html" class="nav-link">Women</a></li>
                 <li><a href="pages/kids.html" class="nav-link">Kids</a></li>
@@ -45,30 +61,29 @@
                     </a>
                     <a href="login.html" class="nav-icon" id="login-link">
                         <i class="fas fa-user"></i>
-                        Login
                     </a>
-                    <a href="#" class="nav-icon hidden" id="profile-link">
+                    <a href="pages/profile.html" class="nav-icon hidden" id="profile-link">
                         <i class="fas fa-user-circle"></i>
-                        Profile
                     </a>
                     <a href="#" class="nav-icon hidden" id="logout-link">
                         <i class="fas fa-sign-out-alt"></i>
-                        Logout
                     </a>
                     <a href="admin/admin.html" class="nav-icon" id="admin-link">
                         <i class="fas fa-cog"></i>
-                        Admin
                     </a>
                 </div>
             </div>
             
-            <div class="hamburger">
+            <div class="hamburger" id="hamburger">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
         </nav>
     </header>
+
+    <!-- Menu Overlay for Mobile -->
+    <div class="menu-overlay" id="menu-overlay"></div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -77,11 +92,37 @@
             <div class="hero-overlay">
                 <div class="container">
                     <div class="hero-content">
-                        <h1>More Than Just Clothes, It's a Legacy</h1>
-                        <p>Discover curated essentials that define contemporary style. Where minimal meets luxury, and every piece tells a story.</p>
-                        <a href="#featured" class="btn btn-primary">SHOP COLLECTION</a>
+                        <div class="hero-tagline display-heading">DISCOVER</div>
+                        <div class="hero-tagline-sub display-heading">YOUR STYLE</div>
+                        <p>Curated essentials that define contemporary style. Where minimal meets luxury, and every piece tells a story.</p>
+                        <a href="#featured" class="btn btn-outline-light btn-lg">SHOP COLLECTION</a>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Journey Link -->
+        <div class="hero-journey">
+            <a href="#gender-section">Explore Collections <i class="fas fa-chevron-down"></i></a>
+        </div>
+    </section>
+
+    <!-- Gender Split Section -->
+    <section class="gender-section" id="gender-section">
+        <div class="gender-side" onclick="window.location.href='pages/men.html'">
+            <img src="images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.style.background='#1C1C1C'">
+            <div class="gender-overlay">
+                <h2 class="gender-label display-heading">FOR HIM</h2>
+                <p class="gender-description">Discover essential pieces that embody confidence and refinement — crafted for the modern man.</p>
+                <a href="pages/men.html" class="btn btn-outline-light gender-btn">Explore Collection</a>
+            </div>
+        </div>
+        <div class="gender-side" onclick="window.location.href='pages/women.html'">
+            <img src="images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.style.background='#EADBC8'">
+            <div class="gender-overlay">
+                <h2 class="gender-label display-heading">FOR HER</h2>
+                <p class="gender-description">Discover captivating styles that embody grace, strength and allure — crafted for the modern woman.</p>
+                <a href="pages/women.html" class="btn btn-outline-light gender-btn">Explore Collection</a>
             </div>
         </div>
     </section>
@@ -96,12 +137,9 @@
             <div class="collections-grid">
                 <div class="collection-card">
                     <div class="collection-image">
-                        <img src="images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.style.display='none'">
-                        <div class="image-placeholder" style="display:none; width:100%; height:300px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                            <i class="fas fa-image"></i>
-                        </div>
+                        <img src="images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
                         <div class="collection-overlay">
-                            <a href="pages/men.html" class="btn btn-outline">Shop Men</a>
+                            <a href="pages/men.html" class="btn btn-outline-light">Shop Men</a>
                         </div>
                     </div>
                     <div class="collection-content">
@@ -111,12 +149,9 @@
                 </div>
                 <div class="collection-card">
                     <div class="collection-image">
-                        <img src="images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.style.display='none'">
-                        <div class="image-placeholder" style="display:none; width:100%; height:300px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                            <i class="fas fa-image"></i>
-                        </div>
+                        <img src="images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
                         <div class="collection-overlay">
-                            <a href="pages/women.html" class="btn btn-outline">Shop Women</a>
+                            <a href="pages/women.html" class="btn btn-outline-light">Shop Women</a>
                         </div>
                     </div>
                     <div class="collection-content">
@@ -126,12 +161,9 @@
                 </div>
                 <div class="collection-card">
                     <div class="collection-image">
-                        <img src="images/products/1R5A0160.jpg" alt="Kids' Collection" onerror="this.style.display='none'">
-                        <div class="image-placeholder" style="display:none; width:100%; height:300px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                            <i class="fas fa-image"></i>
-                        </div>
+                        <img src="images/products/1R5A0160.jpg" alt="Kids' Collection" onerror="this.parentElement.style.background='#f5f5f5'">
                         <div class="collection-overlay">
-                            <a href="pages/kids.html" class="btn btn-outline">Shop Kids</a>
+                            <a href="pages/kids.html" class="btn btn-outline-light">Shop Kids</a>
                         </div>
                     </div>
                     <div class="collection-content">
@@ -153,22 +185,20 @@
                     <p>Every item in our collection is carefully selected to represent the perfect balance between minimalism and luxury, creating a wardrobe that works for every occasion.</p>
                     <a href="pages/contact.html" class="btn btn-primary">Learn More</a>
                 </div>
+                <div class="brand-image">
+                    <img src="images/products/1W2A4118_2.jpg" alt="Brand Story" onerror="this.style.display='none'">
+                </div>
             </div>
         </div>
     </section>
 
     <!-- New Arrivals Section -->
-    <section class="new-arrivals">
+    <section class="products-section">
         <div class="container">
-            <div class="section-header">
-                <h2>New Arrivals</h2>
-                <p>Fresh styles just added to our collection</p>
-            </div>
+            <h2 class="section-title">New Arrivals</h2>
+            <p class="text-center" style="margin-bottom: 2rem; color: #666;">Fresh styles just added to our collection</p>
             <div class="products-grid" id="new-arrivals-grid">
                 <!-- New arrivals will be loaded dynamically -->
-            </div>
-            <div class="text-center">
-                <a href="#featured" class="btn btn-outline">View All New Arrivals</a>
             </div>
         </div>
     </section>
@@ -179,9 +209,9 @@
             <img src="images/Sale.gif" alt="Sale Animation" class="sale-gif" onerror="this.style.display='none'">
             <div class="sale-overlay">
                 <div class="sale-text">
-                    <h2>MASSIVE SAVINGS AWAIT</h2>
+                    <h2 class="display-heading">MASSIVE SAVINGS</h2>
                     <p>Up to 30% off on selected items</p>
-                    <a href="#featured" class="btn btn-outline">SHOP SALE</a>
+                    <a href="#featured" class="btn btn-outline-light">SHOP SALE</a>
                 </div>
             </div>
         </div>
@@ -208,37 +238,28 @@
         <div class="container">
             <h2 class="section-title">Collections</h2>
             <div class="categories-grid">
-                <div class="category-card" data-category="men">
-                    <img src="images/products/1W2A0099-Edit_5.jpg" alt="Men's Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                        <i class="fas fa-image"></i>
-                    </div>
+                <div class="category-card" onclick="window.location.href='pages/men.html'">
+                    <img src="images/products/1W2A0099-Edit_5.jpg" alt="Men's Fashion" onerror="this.style.background='#f5f5f5'">
                     <div class="category-overlay">
                         <h3>Men's Collection</h3>
                         <p>Trendy and comfortable clothing</p>
-                        <a href="pages/men.html" class="btn btn-outline">Shop Men</a>
+                        <a href="pages/men.html" class="btn btn-outline-light">Shop Men</a>
                     </div>
                 </div>
-                <div class="category-card" data-category="women">
-                    <img src="images/products/1W2A3908HQ_4.jpg" alt="Women's Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                        <i class="fas fa-image"></i>
-                    </div>
+                <div class="category-card" onclick="window.location.href='pages/women.html'">
+                    <img src="images/products/1W2A3908HQ_4.jpg" alt="Women's Fashion" onerror="this.style.background='#f5f5f5'">
                     <div class="category-overlay">
                         <h3>Women's Collection</h3>
                         <p>Elegant and stylish outfits</p>
-                        <a href="pages/women.html" class="btn btn-outline">Shop Women</a>
+                        <a href="pages/women.html" class="btn btn-outline-light">Shop Women</a>
                     </div>
                 </div>
-                <div class="category-card" data-category="kids">
-                    <img src="images/products/2_4.gif" alt="Kids Fashion" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div class="image-placeholder" style="display:none; width:100%; height:100%; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
-                        <i class="fas fa-image"></i>
-                    </div>
+                <div class="category-card" onclick="window.location.href='pages/kids.html'">
+                    <img src="images/products/2_4.gif" alt="Kids Fashion" onerror="this.style.background='#f5f5f5'">
                     <div class="category-overlay">
                         <h3>Kids' Collection</h3>
                         <p>Fun and comfortable for little ones</p>
-                        <a href="pages/kids.html" class="btn btn-outline">Shop Kids</a>
+                        <a href="pages/kids.html" class="btn btn-outline-light">Shop Kids</a>
                     </div>
                 </div>
             </div>
@@ -246,13 +267,13 @@
     </section>
 
     <!-- Best Sellers Section -->
-    <section class="best-sellers-section">
+    <section class="products-section" style="background-color: var(--bg-light);">
         <div class="container">
             <h2 class="section-title">BEST SELLERS</h2>
             <div class="products-grid" id="best-sellers-grid">
                 <!-- Best sellers will be loaded dynamically -->
             </div>
-            <div class="text-center">
+            <div class="text-center" style="margin-top: 2rem;">
                 <a href="#featured" class="btn btn-outline">View All</a>
             </div>
         </div>
@@ -347,111 +368,67 @@
             </div>
         </div>
     </div>
-    <style>
-        .credentials-banner {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            z-index: 9999;
-            font-family: 'Inter', sans-serif;
-        }
-        .creds-toggle {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
-        .creds-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-        .creds-content {
-            display: none;
-            position: absolute;
-            bottom: 55px;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            min-width: 280px;
-            overflow: hidden;
-            animation: slideUp 0.3s ease;
-        }
-        .credentials-banner.open .creds-content {
-            display: block;
-        }
-        .credentials-banner.open .creds-toggle {
-            background: #dc3545;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .creds-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .creds-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.3rem;
-            cursor: pointer;
-            line-height: 1;
-        }
-        .creds-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .creds-item:last-child {
-            border-bottom: none;
-        }
-        .creds-item strong {
-            color: #333;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .creds-item span {
-            color: #555;
-            font-size: 0.9rem;
-        }
-        .creds-pwd {
-            font-family: monospace;
-            background: #f5f5f5;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem !important;
-            color: #667eea !important;
-        }
-    </style>
+
     <script>
         function toggleCredsBanner() {
             document.getElementById('credentials-banner').classList.toggle('open');
         }
+        
+        // Navbar scroll behavior
+        const header = document.getElementById('main-header');
+        let lastScrollTop = 0;
+        
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+        
+        // Mobile menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            if (menuOverlay) menuOverlay.classList.toggle('active');
+        });
+        
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+        }
+        
+        // Smooth scroll to gender section
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
     </script>
 
     <!-- Scripts -->
     <script src="js/api.js"></script>
     <script src="js/data.js"></script>
     <script src="js/main.js"></script>
+</body>
+</html>
+
+</body>
+</html>
+</body>
+</html>
 </body>
 </html>
