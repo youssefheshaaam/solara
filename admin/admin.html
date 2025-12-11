@@ -229,6 +229,31 @@
         
         .hidden { display: none !important; }
         
+        /* Form message styles */
+        .form-message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+        
+        .form-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .form-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
         /* Fix all form inputs text color throughout admin - CRITICAL */
         input,
         select,
@@ -931,8 +956,9 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('DOM Content Loaded');
             await initializeData();
+            // Set up login form listener immediately (needed for login screen)
+            setupEventListeners();
             checkAdminAuth();
-            // Don't set up event listeners here - only in showDashboard() after dashboard is visible
         });
 
         function checkAdminAuth() {
@@ -1303,31 +1329,64 @@
                     const email = document.getElementById('admin-email').value;
                     const password = document.getElementById('admin-password').value;
                     const msg = document.getElementById('admin-login-message');
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    
+                    // Clear previous messages
+                    if (msg) {
+                        msg.textContent = '';
+                        msg.className = 'form-message';
+                        msg.style.display = 'none';
+                    }
+                    
+                    // Disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                    }
                     
                     try {
-                        if (typeof AuthAPI !== 'undefined') {
-                            const response = await AuthAPI.adminLogin(email, password);
-                            if (response.success) {
-                                localStorage.setItem('solaraAdminAuthed', 'true');
-                                isAdminLoggedIn = true;
-                                showDashboard();
-                                return;
-                            }
+                        // API ONLY - NO FALLBACKS
+                        if (typeof AuthAPI === 'undefined') {
+                            throw new Error('Backend API not available. Please ensure the server is running.');
                         }
                         
-                        // Fallback check
-                        if (email === 'admin@solara.com' && password === 'Admin@123') {
-                            localStorage.setItem('solaraAdminAuthed', 'true');
-                            isAdminLoggedIn = true;
+                        const response = await AuthAPI.adminLogin(email, password);
+                        
+                        if (!response.success) {
+                            throw new Error(response.error || 'Invalid credentials');
+                        }
+                        
+                        // Success - set auth state
+                        localStorage.setItem('solaraAdminAuthed', 'true');
+                        isAdminLoggedIn = true;
+                        
+                        // Show success message briefly
+                        if (msg) {
+                            msg.textContent = 'Login successful! Redirecting...';
+                            msg.className = 'form-message success';
+                            msg.style.display = 'block';
+                        }
+                        
+                        // Show dashboard
+                        setTimeout(() => {
                             showDashboard();
-                            return;
-                        }
+                        }, 500);
                         
-                        msg.textContent = 'Invalid credentials';
-                        msg.style.color = '#f44336';
                     } catch (error) {
-                        msg.textContent = error.message || 'Login failed';
-                        msg.style.color = '#f44336';
+                        console.error('Admin login error:', error);
+                        const errorMsg = error.message || 'Login failed. Please check your credentials and try again.';
+                        
+                        if (msg) {
+                            msg.textContent = errorMsg;
+                            msg.className = 'form-message error';
+                            msg.style.display = 'block';
+                        }
+                    } finally {
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                        }
                     }
                 });
             }
@@ -1566,8 +1625,9 @@
                             `;
                         } else if (previewContainer) {
                             previewContainer.innerHTML = '';
-                    }
-                });
+                        }
+                    });
+                }
             }
             
             // Edit Product Form Handler - BACKEND ONLY
