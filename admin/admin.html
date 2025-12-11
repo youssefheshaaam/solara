@@ -686,6 +686,238 @@
                     <div class="form-message" id="add-product-message"></div>
                 </form>
             </div>
+
+            <!-- Edit Product Section -->
+            <div class="content-section" id="edit-product-section">
+                <div class="section-header">
+                    <h2>Edit Product</h2>
+                    <button class="btn btn-secondary" onclick="window.switchSection && window.switchSection('products')">
+                        <i class="fas fa-arrow-left"></i> Back to Products
+                    </button>
+                </div>
+                <form id="edit-product-form" class="product-form">
+                    <input type="hidden" id="edit-product-id" name="id">
+                    
+                    <div class="form-sections">
+                        <!-- Basic Information -->
+                        <section class="form-section">
+                            <h2>Basic Information</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-name">Product Name *</label>
+                                <input type="text" id="edit-product-name" name="name" placeholder="Enter product name" required>
+                                <span class="error-message" id="edit-name-error"></span>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-category">Category *</label>
+                                    <select id="edit-product-category" name="category" required>
+                                        <option value="">Select category</option>
+                                        <option value="men">Men's Collection</option>
+                                        <option value="women">Women's Collection</option>
+                                        <option value="kids">Kids' Collection</option>
+                                        <option value="featured">Featured Products</option>
+                                    </select>
+                                    <span class="error-message" id="edit-category-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-brand">Brand</label>
+                                    <input type="text" id="edit-product-brand" name="brand" placeholder="Enter brand name">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-description">Product Description</label>
+                                <textarea id="edit-product-description" name="description" rows="4" placeholder="Describe the product features, materials, and style..."></textarea>
+                            </div>
+                        </section>
+                        
+                        <!-- Pricing & Inventory -->
+                        <section class="form-section">
+                            <h2>Pricing & Inventory</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-price">Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="edit-product-price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                                    </div>
+                                    <span class="error-message" id="edit-price-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-compare-price">Compare at Price</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="edit-product-compare-price" name="comparePrice" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <small class="form-help">Show customers the original price (optional)</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-sku">SKU</label>
+                                    <input type="text" id="edit-product-sku" name="sku" placeholder="Product SKU">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-stock">Stock Quantity</label>
+                                    <input type="number" id="edit-product-stock" name="stock" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-track-inventory" name="trackInventory">
+                                    <span class="checkmark"></span>
+                                    Track inventory for this product
+                                </label>
+                            </div>
+                        </section>
+                        
+                        <!-- Product Images -->
+                        <section class="form-section">
+                            <h2>Product Images</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-image">Main Image URL *</label>
+                                <input type="url" id="edit-product-image" name="image" placeholder="images/products/example.jpg" required>
+                                <span class="error-message" id="edit-image-error"></span>
+                                <small class="form-help">Enter the path to the main product image</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-gallery">Additional Images</label>
+                                <textarea id="edit-product-gallery" name="gallery" rows="3" placeholder="Enter additional image URLs, one per line"></textarea>
+                                <small class="form-help">Add multiple image URLs for a product gallery</small>
+                            </div>
+                            
+                            <div class="image-preview" id="edit-image-preview">
+                                <!-- Image preview will be shown here -->
+                            </div>
+                        </section>
+                        
+                        <!-- Product Details -->
+                        <section class="form-section">
+                            <h2>Product Details</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-size">Available Sizes</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="XS">
+                                            <span class="checkmark"></span>
+                                            XS
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="S">
+                                            <span class="checkmark"></span>
+                                            S
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="M">
+                                            <span class="checkmark"></span>
+                                            M
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="L">
+                                            <span class="checkmark"></span>
+                                            L
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="XL">
+                                            <span class="checkmark"></span>
+                                            XL
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="XXL">
+                                            <span class="checkmark"></span>
+                                            XXL
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-colors">Available Colors</label>
+                                    <div class="color-inputs">
+                                        <input type="text" name="colors" placeholder="Blue" class="color-input">
+                                        <input type="text" name="colors" placeholder="Red" class="color-input">
+                                        <input type="text" name="colors" placeholder="Black" class="color-input">
+                                        <input type="text" name="colors" placeholder="White" class="color-input">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-material">Material</label>
+                                    <input type="text" id="edit-product-material" name="material" placeholder="e.g., 100% Cotton">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-care">Care Instructions</label>
+                                    <input type="text" id="edit-product-care" name="care" placeholder="e.g., Machine wash cold">
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- SEO & Marketing -->
+                        <section class="form-section">
+                            <h2>SEO & Marketing</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-tags">Tags</label>
+                                <input type="text" id="edit-product-tags" name="tags" placeholder="casual, summer, cotton (comma separated)">
+                                <small class="form-help">Add tags to help customers find this product</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-meta-title">Meta Title</label>
+                                <input type="text" id="edit-product-meta-title" name="metaTitle" placeholder="SEO title for search engines">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-meta-description">Meta Description</label>
+                                <textarea id="edit-product-meta-description" name="metaDescription" rows="2" placeholder="SEO description for search engines"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-featured-product" name="featured">
+                                    <span class="checkmark"></span>
+                                    Mark as featured product
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-product-status" name="status">
+                                    <span class="checkmark"></span>
+                                    Product is active and visible to customers
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.switchSection && window.switchSection('products')">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Update Product
+                        </button>
+                    </div>
+                    
+                    <div class="form-message" id="edit-product-message"></div>
+                </form>
+            </div>
         </main>
     </div>
 
@@ -838,7 +1070,7 @@
         // Switch between sections - make it globally accessible
         window.switchSection = function(sectionName) {
             // Hide all content sections
-            const sections = ['products', 'orders', 'users', 'add-product'];
+            const sections = ['products', 'orders', 'users', 'add-product', 'edit-product'];
             sections.forEach(section => {
                 const el = document.getElementById(section + '-section');
                 if (el) el.classList.remove('active');
@@ -878,6 +1110,14 @@
                     addProductSection.classList.add('active');
                 }
                 // Hide tab buttons area when in add product mode
+                if (tabsEl) tabsEl.style.display = 'none';
+            } else if (sectionName === 'edit-product') {
+                // Show edit product section
+                const editProductSection = document.getElementById('edit-product-section');
+                if (editProductSection) {
+                    editProductSection.classList.add('active');
+                }
+                // Hide tab buttons area when in edit product mode
                 if (tabsEl) tabsEl.style.display = 'none';
             }
         }
@@ -1333,14 +1573,243 @@
                 });
             }
             
+            // Edit Product Form Handler - BACKEND ONLY
+            const editProductForm = document.getElementById('edit-product-form');
+            if (editProductForm) {
+                editProductForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const messageEl = document.getElementById('edit-product-message');
+                    const productId = document.getElementById('edit-product-id').value;
+                    
+                    if (!productId) {
+                        if (messageEl) {
+                            messageEl.textContent = 'Product ID is missing';
+                            messageEl.className = 'form-message error';
+                            messageEl.style.display = 'block';
+                        }
+                        return;
+                    }
+                    
+                    // Disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating Product...';
+                    }
+                    
+                    // Clear previous messages
+                    if (messageEl) {
+                        messageEl.textContent = '';
+                        messageEl.className = 'form-message';
+                        messageEl.style.display = 'none';
+                    }
+                    
+                    try {
+                        // BACKEND ONLY - NO FALLBACKS
+                        if (typeof ProductsAPI === 'undefined') {
+                            throw new Error('Backend API not available');
+                        }
+                        
+                        // Collect form data
+                        const formData = new FormData(e.target);
+                        const productData = {
+                            name: formData.get('name'),
+                            category: formData.get('category'),
+                            brand: formData.get('brand') || 'SOLARA',
+                            description: formData.get('description') || '',
+                            price: parseFloat(formData.get('price')),
+                            comparePrice: formData.get('comparePrice') ? parseFloat(formData.get('comparePrice')) : null,
+                            sku: formData.get('sku') || '',
+                            stock: parseInt(formData.get('stock')) || 0,
+                            image: formData.get('image'),
+                            material: formData.get('material') || '',
+                            care: formData.get('care') || '',
+                            tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()).filter(t => t) : [],
+                            metaTitle: formData.get('metaTitle') || '',
+                            metaDescription: formData.get('metaDescription') || '',
+                            featured: formData.get('featured') === 'on',
+                            status: formData.get('status') === 'on' ? 'active' : 'inactive',
+                            sizes: Array.from(document.querySelectorAll('#edit-product-section input[name="sizes"]:checked')).map(cb => cb.value),
+                            colors: Array.from(document.querySelectorAll('#edit-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '')
+                        };
+                        
+                        // Validate required fields
+                        if (!productData.name || !productData.category || !productData.price || !productData.image) {
+                            throw new Error('Please fill in all required fields');
+                        }
+                        
+                        // Call backend API to update
+                        const response = await ProductsAPI.update(productId, productData);
+                        
+                        if (!response.success) {
+                            throw new Error(response.error || 'Failed to update product');
+                        }
+                        
+                        // Show success message
+                        if (messageEl) {
+                            messageEl.textContent = 'Product updated successfully!';
+                            messageEl.className = 'form-message success';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification('Product updated successfully', 'success');
+                        }
+                        
+                        // Reload data from backend
+                        await loadDashboardData();
+                        
+                        // Switch to products section after a short delay
+                        setTimeout(() => {
+                            if (typeof window.switchSection === 'function') {
+                                window.switchSection('products');
+                            }
+                            if (messageEl) {
+                                messageEl.style.display = 'none';
+                            }
+                        }, 1500);
+                        
+                    } catch (error) {
+                        console.error('Error updating product:', error);
+                        const errorMsg = error.message || 'Failed to update product. Please try again.';
+                        
+                        if (messageEl) {
+                            messageEl.textContent = errorMsg;
+                            messageEl.className = 'form-message error';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(errorMsg, 'error');
+                        }
+                    } finally {
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+                        }
+                    }
+                });
+                
+                // Image preview functionality for edit form
+                const editImageInput = document.getElementById('edit-product-image');
+                if (editImageInput) {
+                    editImageInput.addEventListener('input', updateEditImagePreview);
+                }
+            }
+            
             eventListenersSetup = true;
             console.log('Event listeners setup complete');
         }
-        }
 
-        function editProduct(productId) {
-            localStorage.setItem('editingProductId', productId);
-            window.location.href = `edit-product.html?id=${productId}`;
+        async function editProduct(productId) {
+            try {
+                // Fetch product from backend
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                const response = await ProductsAPI.getById(productId);
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to load product');
+                }
+                
+                const product = response.data;
+                if (!product) {
+                    throw new Error('Product not found');
+                }
+                
+                // Populate edit form
+                populateEditForm(product);
+                
+                // Switch to edit section
+                if (typeof window.switchSection === 'function') {
+                    window.switchSection('edit-product');
+                }
+            } catch (error) {
+                console.error('Error loading product for edit:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to load product: ' + error.message, 'error');
+                } else {
+                    alert('Failed to load product: ' + error.message);
+                }
+            }
+        }
+        
+        function populateEditForm(product) {
+            // Basic Information
+            document.getElementById('edit-product-id').value = product._id || product.id;
+            document.getElementById('edit-product-name').value = product.name || '';
+            document.getElementById('edit-product-category').value = product.category || '';
+            document.getElementById('edit-product-brand').value = product.brand || '';
+            document.getElementById('edit-product-description').value = product.description || '';
+            
+            // Pricing & Inventory
+            document.getElementById('edit-product-price').value = product.price || '';
+            document.getElementById('edit-product-compare-price').value = product.comparePrice || '';
+            document.getElementById('edit-product-sku').value = product.sku || '';
+            document.getElementById('edit-product-stock').value = product.stock || 0;
+            document.getElementById('edit-track-inventory').checked = product.trackInventory || false;
+            
+            // Images
+            document.getElementById('edit-product-image').value = product.image || product.primaryImage || '';
+            if (product.gallery && Array.isArray(product.gallery)) {
+                document.getElementById('edit-product-gallery').value = product.gallery.join('\n');
+            } else if (typeof product.gallery === 'string') {
+                document.getElementById('edit-product-gallery').value = product.gallery;
+            }
+            
+            // Update image preview
+            updateEditImagePreview();
+            
+            // Sizes
+            if (product.sizes && Array.isArray(product.sizes)) {
+                product.sizes.forEach(size => {
+                    const checkbox = document.querySelector(`#edit-product-section input[name="sizes"][value="${size}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Colors
+            if (product.colors && Array.isArray(product.colors)) {
+                const colorInputs = document.querySelectorAll('#edit-product-section input[name="colors"]');
+                product.colors.forEach((color, index) => {
+                    if (colorInputs[index]) {
+                        colorInputs[index].value = color;
+                    }
+                });
+            }
+            
+            // Product Details
+            document.getElementById('edit-product-material').value = product.material || '';
+            document.getElementById('edit-product-care').value = product.care || '';
+            
+            // SEO & Marketing
+            if (product.tags && Array.isArray(product.tags)) {
+                document.getElementById('edit-product-tags').value = product.tags.join(', ');
+            } else if (typeof product.tags === 'string') {
+                document.getElementById('edit-product-tags').value = product.tags;
+            }
+            document.getElementById('edit-product-meta-title').value = product.metaTitle || '';
+            document.getElementById('edit-product-meta-description').value = product.metaDescription || '';
+            document.getElementById('edit-featured-product').checked = product.featured || false;
+            document.getElementById('edit-product-status').checked = product.status === 'active' || false;
+        }
+        
+        function updateEditImagePreview() {
+            const imageUrl = document.getElementById('edit-product-image').value;
+            const previewContainer = document.getElementById('edit-image-preview');
+            
+            if (!previewContainer) return;
+            
+            if (imageUrl) {
+                previewContainer.innerHTML = `
+                    <img src="../${imageUrl}" alt="Product preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" onerror="this.style.display='none'">
+                `;
+            } else {
+                previewContainer.innerHTML = '';
+            }
         }
 
         async function deleteProduct(productId) {
