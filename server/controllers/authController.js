@@ -33,6 +33,7 @@ exports.register = asyncHandler(async (req, res) => {
     // Set session
     req.session.userId = user._id;
     req.session.userRole = user.role;
+    req.session.user = user.toObject(); // Store user object for EJS templates
 
     // Set cookie
     res.cookie('token', token, {
@@ -41,14 +42,24 @@ exports.register = asyncHandler(async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
-    res.status(201).json({
-        success: true,
-        message: req.__('auth.registerSuccess') || 'Registration successful',
-        data: {
-            user,
-            token
-        }
-    });
+    // Remove password from user object
+    user.password = undefined;
+
+    // Check if it's a form submission (EJS) or API call (AJAX)
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        // Form submission - redirect
+        res.redirect('/');
+    } else {
+        // API call - return JSON
+        res.status(201).json({
+            success: true,
+            message: req.__('auth.registerSuccess') || 'Registration successful',
+            data: {
+                user,
+                token
+            }
+        });
+    }
 });
 
 // @desc    Login user
@@ -94,6 +105,7 @@ exports.login = asyncHandler(async (req, res) => {
     // Set session
     req.session.userId = user._id;
     req.session.userRole = user.role;
+    req.session.user = user.toObject(); // Store user object for EJS templates
 
     // Set cookie
     res.cookie('token', token, {
@@ -105,14 +117,25 @@ exports.login = asyncHandler(async (req, res) => {
     // Remove password from response
     user.password = undefined;
 
-    res.json({
-        success: true,
-        message: req.__('auth.loginSuccess') || 'Login successful',
-        data: {
-            user,
-            token
+    // Check if it's a form submission (EJS) or API call (AJAX)
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        // Form submission - redirect
+        if (user.role === 'admin') {
+            res.redirect('/admin');
+        } else {
+            res.redirect('/');
         }
-    });
+    } else {
+        // API call - return JSON
+        res.json({
+            success: true,
+            message: req.__('auth.loginSuccess') || 'Login successful',
+            data: {
+                user,
+                token
+            }
+        });
+    }
 });
 
 // @desc    Admin login
@@ -154,6 +177,7 @@ exports.adminLogin = asyncHandler(async (req, res) => {
     req.session.userId = user._id;
     req.session.userRole = user.role;
     req.session.isAdmin = true;
+    req.session.user = user.toObject(); // Store user object for EJS templates
 
     // Set cookie
     res.cookie('token', token, {
@@ -165,14 +189,21 @@ exports.adminLogin = asyncHandler(async (req, res) => {
     // Remove password from response
     user.password = undefined;
 
-    res.json({
-        success: true,
-        message: 'Admin login successful',
-        data: {
-            user,
-            token
-        }
-    });
+    // Check if it's a form submission (EJS) or API call (AJAX)
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        // Form submission - redirect
+        res.redirect('/admin');
+    } else {
+        // API call - return JSON
+        res.json({
+            success: true,
+            message: 'Admin login successful',
+            data: {
+                user,
+                token
+            }
+        });
+    }
 });
 
 // @desc    Logout user
@@ -190,10 +221,17 @@ exports.logout = asyncHandler(async (req, res) => {
     res.clearCookie('token');
     res.clearCookie('connect.sid');
 
-    res.json({
-        success: true,
-        message: req.__('auth.logoutSuccess') || 'Logged out successfully'
-    });
+    // Check if it's a form submission (EJS) or API call (AJAX)
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded')) {
+        // Form submission - redirect
+        res.redirect('/');
+    } else {
+        // API call - return JSON
+        res.json({
+            success: true,
+            message: req.__('auth.logoutSuccess') || 'Logged out successfully'
+        });
+    }
 });
 
 // @desc    Get current user

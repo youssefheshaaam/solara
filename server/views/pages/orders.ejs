@@ -1,0 +1,112 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'My Orders - SOLARA' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'orders' }) %>
+
+    <div class="orders-page" style="padding: 2rem 0 4rem; min-height: 80vh;">
+        <div class="container">
+            <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+                <h1>My Orders</h1>
+                <p>Track and manage your orders</p>
+            </div>
+            
+            <div class="order-filters" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="filter-btn active" data-status="">All Orders</button>
+                <button class="filter-btn" data-status="pending">Pending</button>
+                <button class="filter-btn" data-status="confirmed">Confirmed</button>
+                <button class="filter-btn" data-status="processing">Processing</button>
+                <button class="filter-btn" data-status="shipped">Shipped</button>
+                <button class="filter-btn" data-status="delivered">Delivered</button>
+                <button class="filter-btn" data-status="cancelled">Cancelled</button>
+            </div>
+            
+            <div id="orders-list">
+                <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+                    <% orders.forEach(order => { %>
+                        <div class="order-card" data-order-id="<%= order._id %>" data-status="<%= order.status %>">
+                            <div class="order-header">
+                                <div class="order-info">
+                                    <h3>Order #<%= order.orderNumber %></h3>
+                                    <p class="order-date">Placed on <%= new Date(order.createdAt).toLocaleDateString() %></p>
+                                </div>
+                                <div class="order-status">
+                                    <span class="status-badge status-<%= order.status %>">
+                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-items">
+                                <% if (order.items && order.items.length > 0) { %>
+                                    <% order.items.forEach(item => { %>
+                                        <div class="order-item">
+                                            <img src="<%= item.product ? item.product.imageUrl : '/images/placeholder.jpg' %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.jpg';">
+                                            <div class="item-details">
+                                                <h4><%= item.product ? item.product.name : 'Product' %></h4>
+                                                <p>Size: <%= item.size || 'M' %> | Qty: <%= item.quantity %></p>
+                                            </div>
+                                            <div class="item-price">EGP <%= (item.price * item.quantity).toFixed(2) %></div>
+                                        </div>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                            
+                            <div class="order-footer">
+                                <div class="order-total">
+                                    <strong>Total: EGP <%= order.total.toFixed(2) %></strong>
+                                </div>
+                                <div class="order-actions">
+                                    <a href="/order/<%= order._id %>" class="btn btn-outline">View Details</a>
+                                    <% if (order.status === 'pending' || order.status === 'confirmed') { %>
+                                        <button class="btn btn-outline" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-state" style="text-align: center; padding: 4rem 2rem;">
+                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>No orders yet</h3>
+                        <p>Start shopping to see your orders here</p>
+                        <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Start Shopping</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    // Order filtering with AJAX
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const status = this.dataset.status;
+            filterOrders(status);
+        });
+    });
+    
+    function filterOrders(status) {
+        const orders = document.querySelectorAll('.order-card');
+        orders.forEach(order => {
+            if (!status || order.dataset.status === status) {
+                order.style.display = 'block';
+            } else {
+                order.style.display = 'none';
+            }
+        });
+    }
+    
+    function cancelOrder(orderId) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            if (typeof OrdersAPI !== 'undefined') {
+                OrdersAPI.cancel(orderId).then(() => {
+                    location.reload();
+                });
+            }
+        }
+    }
+</script>
+

@@ -7,6 +7,7 @@
 
 This is a full-stack e-commerce web application featuring:
 - MVC Architecture with Express.js
+- EJS Server-Side Rendering
 - MongoDB database with Mongoose ODM
 - JWT + Session-based Authentication
 - RESTful API with AJAX/Fetch
@@ -36,6 +37,9 @@ This is a full-stack e-commerce web application featuring:
 ### Core Framework:
 - express@4.18.2          - Web framework for Node.js
 - mongoose@8.0.3          - MongoDB object modeling
+
+### Templating:
+- ejs@3.1.10              - Embedded JavaScript templating engine (Server-Side Rendering)
 
 ### Authentication & Security:
 - bcryptjs@2.4.3          - Password hashing
@@ -168,23 +172,48 @@ server/
 │   ├── productController.js
 │   ├── userController.js
 │   ├── orderController.js
-│   └── cartController.js
+│   ├── cartController.js
+│   └── frontendController.js  # EJS page rendering
 ├── middleware/            # Custom middleware
 │   ├── auth.js           # Authentication middleware
 │   ├── errorHandler.js   # Error handling
 │   ├── upload.js         # File upload (Multer)
-│   └── validation.js     # Request validation
+│   ├── validation.js     # Request validation
+│   └── optionalAuth.js   # Optional authentication for EJS pages
 ├── models/                # Mongoose schemas
 │   ├── User.js
 │   ├── Product.js
 │   ├── Order.js
 │   └── Cart.js
-├── routes/                # API routes
+├── routes/                # API routes + Frontend routes
 │   ├── auth.js
 │   ├── products.js
 │   ├── users.js
 │   ├── orders.js
-│   └── cart.js
+│   ├── cart.js
+│   └── frontend.js       # EJS page routes
+├── views/                 # EJS templates (Server-Side Rendering)
+│   ├── pages/            # Main page templates
+│   │   ├── index.ejs
+│   │   ├── men.ejs
+│   │   ├── women.ejs
+│   │   ├── product.ejs
+│   │   ├── cart.ejs
+│   │   ├── checkout.ejs
+│   │   ├── orders.ejs
+│   │   ├── profile.ejs
+│   │   ├── wishlist.ejs
+│   │   └── search.ejs
+│   ├── partials/         # Reusable components
+│   │   ├── head.ejs
+│   │   ├── nav.ejs
+│   │   └── footer.ejs
+│   ├── auth/             # Authentication pages
+│   │   ├── login.ejs
+│   │   └── register.ejs
+│   ├── admin/            # Admin dashboard
+│   │   └── dashboard.ejs
+│   └── 404.ejs           # Error page
 ├── locales/               # i18n translations
 │   ├── en.json
 │   └── ar.json

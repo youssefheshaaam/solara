@@ -1,0 +1,126 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'Register - SOLARA' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'register' }) %>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join our fashion community and start shopping</p>
+            </div>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message" style="display: block; margin-bottom: 1rem; padding: 1rem; background: #fee; color: #c33; border-radius: 8px;">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <form class="auth-form" id="register-form" action="/api/auth/register" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" name="firstName" placeholder="First name" required>
+                        </div>
+                        <span class="error-message" id="firstName-error"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" name="lastName" placeholder="Last name" required>
+                        </div>
+                        <span class="error-message" id="lastName-error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                    </div>
+                    <span class="error-message" id="phone-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        <button type="button" class="password-toggle" id="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                        <button type="button" class="password-toggle" id="confirm-password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" id="confirmPassword-error"></span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+                
+                <div class="form-message" id="register-message"></div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/login">Sign in here</a></p>
+            </div>
+        </div>
+    </main>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    // Handle form submission with AJAX
+    document.getElementById('register-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        if (data.password !== data.confirmPassword) {
+            document.getElementById('register-message').textContent = 'Passwords do not match';
+            return;
+        }
+        
+        try {
+            if (typeof AuthAPI !== 'undefined') {
+                const response = await AuthAPI.register(data);
+                if (response.success) {
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('register-message').textContent = response.error || 'Registration failed';
+                }
+            } else {
+                // Fallback to form submission
+                this.submit();
+            }
+        } catch (error) {
+            document.getElementById('register-message').textContent = error.message || 'Registration failed';
+        }
+    });
+</script>
+

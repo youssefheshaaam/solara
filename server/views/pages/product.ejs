@@ -1,0 +1,211 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : (typeof product !== 'undefined' ? product.name + ' - SOLARA' : 'Product - SOLARA') }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'product' }) %>
+
+    <div class="product-detail-page">
+        <div class="product-detail-container" id="product-content">
+            <% if (typeof product !== 'undefined' && product) { %>
+                <!-- Product Gallery -->
+                <div class="product-gallery">
+                    <div class="main-image" id="main-image">
+                        <img src="<%= product.imageUrl %>" alt="<%= product.name %>" id="main-product-image" onerror="this.src='/images/placeholder.jpg';">
+                    </div>
+                    <div class="thumbnail-gallery">
+                        <% if (typeof product.images !== 'undefined' && product.images.length > 0) { %>
+                            <% product.images.forEach((img, index) => { %>
+                                <div class="thumbnail <%= index === 0 ? 'active' : '' %>" onclick="changeImage('<%= img.url.replace(/'/g, "\\'") %>', this)">
+                                    <img src="<%= img.url %>" alt="<%= img.alt || product.name %>" onerror="this.src='/images/placeholder.jpg';">
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="thumbnail active" onclick="changeImage('<%= product.imageUrl.replace(/'/g, "\\'") %>', this)">
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg';">
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Product Info -->
+                <div class="product-info">
+                    <nav class="product-breadcrumb">
+                        <a href="/">Home</a>
+                        <i class="fas fa-chevron-right"></i>
+                        <a href="/<%= product.category %>"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></a>
+                        <i class="fas fa-chevron-right"></i>
+                        <span><%= product.name %></span>
+                    </nav>
+                    
+                    <div class="product-brand"><%= product.brand || 'SOLARA' %></div>
+                    <h1 class="product-title"><%= product.name %></h1>
+                    
+                    <div class="product-rating">
+                        <div class="stars">
+                            <% const rating = product.ratings?.average || 4.5; %>
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <i class="fas fa-star<%= i < Math.floor(rating) ? '' : (i < rating ? '-half-alt' : '') %>"></i>
+                            <% } %>
+                        </div>
+                        <span class="rating-count"><%= rating.toFixed(1) %> (<%= product.ratings?.count || 0 %> reviews)</span>
+                    </div>
+                    
+                    <div class="product-price-section">
+                        <span class="current-price">EGP <%= product.price.toFixed(2) %></span>
+                        <% if (product.comparePrice) { %>
+                            <span class="original-price">EGP <%= product.comparePrice.toFixed(2) %></span>
+                            <% const discount = Math.round((1 - product.price / product.comparePrice) * 100); %>
+                            <span class="discount-badge"><%= discount %>% OFF</span>
+                        <% } %>
+                    </div>
+                    
+                    <p class="product-description"><%= product.description || 'A premium quality product from SOLARA collection.' %></p>
+                    
+                    <div class="product-options">
+                        <!-- Size Selection -->
+                        <div class="option-group">
+                            <label class="option-label">Size: <span id="selected-size"><%= (product.sizes && product.sizes[0]) || 'M' %></span></label>
+                            <div class="size-options">
+                                <% const sizes = product.sizes || ['S', 'M', 'L', 'XL']; %>
+                                <% sizes.forEach(size => { %>
+                                    <button class="size-btn" onclick="selectSize('<%= size %>', this)"><%= size %></button>
+                                <% }); %>
+                            </div>
+                        </div>
+                        
+                        <!-- Color Selection -->
+                        <% if (product.colors && product.colors.length > 0) { %>
+                        <div class="option-group">
+                            <label class="option-label">Color: <span id="selected-color"><%= product.colors[0] %></span></label>
+                            <div class="color-options">
+                                <% product.colors.forEach(color => { %>
+                                    <button class="color-btn" onclick="selectColor('<%= color %>', this)" title="<%= color %>"></button>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Quantity -->
+                    <div class="quantity-selector">
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="updateQuantity(-1)">−</button>
+                            <input type="number" class="qty-input" id="qty-input" value="1" min="1" max="<%= product.stock || 10 %>" onchange="setQuantity(this.value)">
+                            <button class="qty-btn" onclick="updateQuantity(1)">+</button>
+                        </div>
+                        <span class="stock-status <%= product.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
+                            <%= product.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+                        </span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="product-actions">
+                        <button class="btn btn-primary btn-add-to-cart" onclick="addProductToCart('<%= product._id %>')" <%= product.stock <= 0 ? 'disabled' : '' %>>
+                            <i class="fas fa-shopping-cart"></i>
+                            <%= product.stock > 0 ? 'Add to Cart' : 'Out of Stock' %>
+                        </button>
+                        <button class="btn-wishlist" onclick="toggleProductWishlist('<%= product._id %>', this)">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <h2>Product not found</h2>
+                    <a href="/" class="btn btn-primary">Back to Home</a>
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Related Products -->
+        <% if (typeof relatedProducts !== 'undefined' && relatedProducts.length > 0) { %>
+        <section class="related-products" style="padding: 4rem 0; background: var(--bg-light);">
+            <div class="container">
+                <h2 class="section-title">You May Also Like</h2>
+                <div class="products-grid">
+                    <% relatedProducts.forEach(product => { %>
+                        <div class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image">
+                                <% if (product.comparePrice) { %>
+                                    <div class="sale-badge">SALE</div>
+                                <% } %>
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none';">
+                            </div>
+                            <div class="product-card-content">
+                                <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
+                                <h3><a href="/product/<%= product._id %>"><%= product.name %></a></h3>
+                                <p class="price">EGP <%= product.price.toFixed(2) %></p>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        </section>
+        <% } %>
+    </div>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    // Product page specific JavaScript
+    let selectedSize = '<%= typeof product !== 'undefined' && product.sizes ? product.sizes[0] : 'M' %>';
+    let selectedColor = '<%= typeof product !== 'undefined' && product.colors ? product.colors[0] : '' %>';
+    let quantity = 1;
+    
+    function changeImage(src, thumbnail) {
+        document.getElementById('main-product-image').src = src;
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+    
+    function selectSize(size, btn) {
+        selectedSize = size;
+        document.getElementById('selected-size').textContent = size;
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    
+    function selectColor(color, btn) {
+        selectedColor = color;
+        document.getElementById('selected-color').textContent = color;
+        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    
+    function updateQuantity(change) {
+        const input = document.getElementById('qty-input');
+        const newValue = parseInt(input.value) + change;
+        const max = parseInt(input.max);
+        if (newValue >= 1 && newValue <= max) {
+            input.value = newValue;
+            quantity = newValue;
+        }
+    }
+    
+    function setQuantity(value) {
+        const max = parseInt(document.getElementById('qty-input').max);
+        quantity = Math.max(1, Math.min(max, parseInt(value) || 1));
+        document.getElementById('qty-input').value = quantity;
+    }
+    
+    function addProductToCart(productId) {
+        if (typeof addToCart === 'function') {
+            addToCart(productId, quantity, selectedSize, selectedColor);
+        } else {
+            console.error('addToCart function not available');
+        }
+    }
+    
+    function toggleProductWishlist(productId, btn) {
+        if (typeof toggleWishlist === 'function') {
+            toggleWishlist(productId, btn);
+        } else {
+            console.error('toggleWishlist function not available');
+        }
+    }
+</script>
+

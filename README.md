@@ -28,7 +28,7 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 | **Authentication** | JWT (JSON Web Tokens), bcrypt |
 | **Sessions** | express-session with MongoDB store |
 | **File Upload** | Multer |
-| **Validation** | Joi |
+| **Validation** | express-validator |
 | **Localization** | i18n |
 
 ### MVC Architecture

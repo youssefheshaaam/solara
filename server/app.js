@@ -27,6 +27,7 @@ const config = {
 const errorHandler = require('./middleware/errorHandler');
 
 // Import routes
+const frontendRoutes = require('./routes/frontend');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const productRoutes = require('./routes/products');
@@ -35,6 +36,10 @@ const cartRoutes = require('./routes/cart');
 
 // Initialize Express app
 const app = express();
+
+// Configure EJS view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Connect to MongoDB
 connectDB();
@@ -95,6 +100,14 @@ app.use(session({
     }
 }));
 
+// Static files - serve BEFORE other middleware to ensure CSS/JS load correctly
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, '../'), {
+    maxAge: config.NODE_ENV === 'production' ? '1d' : '0', // Cache in production
+    etag: true,
+    lastModified: true
+}));
+
 // Initialize i18n middleware
 app.use(i18n.init);
 
@@ -108,16 +121,24 @@ app.use((req, res, next) => {
     next();
 });
 
-// Static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use(express.static(path.join(__dirname, '../')));
+// Favicon handler
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, '../favicon.ico'), (err) => {
+        if (err) {
+            res.status(204).end(); // No content if favicon doesn't exist
+        }
+    });
+});
 
-// API Routes
+// API Routes - mount BEFORE frontend routes to avoid catch-all conflicts
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
+
+// Frontend routes (EJS pages) - mount after API routes
+app.use('/', frontendRoutes);
 
 // Localization endpoint
 app.get('/api/locales/:lang', (req, res) => {
@@ -151,13 +172,6 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         environment: config.NODE_ENV
     });
-});
-
-// Serve frontend for non-API routes
-app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../index.html'));
-    }
 });
 
 // 404 handler for API routes

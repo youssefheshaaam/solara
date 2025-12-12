@@ -1,0 +1,89 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'Login - SOLARA' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'login' }) %>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to your account to continue shopping</p>
+            </div>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message" style="display: block; margin-bottom: 1rem; padding: 1rem; background: #fee; color: #c33; border-radius: 8px;">
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <form class="auth-form" id="login-form" action="/api/auth/login" method="POST">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" id="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" name="rememberMe">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </button>
+                
+                <div class="form-message" id="login-message"></div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="/register">Create one here</a></p>
+            </div>
+        </div>
+    </main>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    // Handle form submission with AJAX
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        try {
+            if (typeof AuthAPI !== 'undefined') {
+                const response = await AuthAPI.login(data.email, data.password);
+                if (response.success) {
+                    window.location.href = '/';
+                } else {
+                    document.getElementById('login-message').textContent = response.error || 'Login failed';
+                }
+            } else {
+                // Fallback to form submission
+                this.submit();
+            }
+        } catch (error) {
+            document.getElementById('login-message').textContent = error.message || 'Login failed';
+        }
+    });
+</script>
+

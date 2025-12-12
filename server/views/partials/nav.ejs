@@ -1,0 +1,63 @@
+    <!-- Navigation Header -->
+    <header class="main-header" id="main-header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">Home</a></li>
+                <li><a href="/men" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'men' ? 'active' : '' %>">Men</a></li>
+                <li><a href="/women" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'women' ? 'active' : '' %>">Women</a></li>
+                <li><a href="/contact" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'contact' ? 'active' : '' %>">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="/cart" class="nav-icon" id="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="/wishlist" class="nav-icon" id="wishlist-link">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <% if (typeof user === 'undefined' || !user) { %>
+                    <a href="/login" class="nav-icon" id="login-link">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <% } else { %>
+                    <a href="/profile" class="nav-icon" id="profile-link">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <a href="#" class="nav-icon" id="logout-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                    <% if (user && user.role === 'admin') { %>
+                    <a href="/admin" class="nav-icon" id="admin-link">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <% } %>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Menu Overlay for Mobile -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+

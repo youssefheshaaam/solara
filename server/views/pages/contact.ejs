@@ -1,0 +1,123 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'Contact Us - SOLARA' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'contact' }) %>
+
+    <main class="contact-container">
+        <div class="container">
+            <div class="contact-header">
+                <h1>Contact Us</h1>
+                <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>Visit Our Store</h3>
+                            <p>123 Zamalek Street<br>Cairo, Egypt 11511<br>Egypt</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>Call Us</h3>
+                            <p>+20 (2) 1234-5678<br>Mon-Fri: 9AM-6PM EET</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>Email Us</h3>
+                            <p>info@solara.com<br>support@solara.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-details">
+                            <h3>Store Hours</h3>
+                            <p>Monday - Friday: 9AM - 8PM<br>Saturday: 10AM - 6PM<br>Sunday: 12PM - 5PM</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-section">
+                    <div class="form-card">
+                        <h2>Send us a Message</h2>
+                        <form class="contact-form" id="contact-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <select id="subject" name="subject" required>
+                                    <option value="">Select a subject</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="order">Order Support</option>
+                                    <option value="return">Returns & Exchanges</option>
+                                    <option value="shipping">Shipping Information</option>
+                                    <option value="product">Product Question</option>
+                                    <option value="complaint">Complaint</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="6" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-full">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    // Contact form handling - keep AJAX for form submission
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (typeof setupContactForm === 'function') {
+            setupContactForm();
+        } else {
+            alert('Thank you for your message! We will get back to you soon.');
+            this.reset();
+        }
+    });
+</script>
+

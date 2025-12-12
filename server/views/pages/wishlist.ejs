@@ -1,0 +1,59 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'My Wishlist - SOLARA' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'wishlist' }) %>
+
+    <div class="wishlist-page" style="padding: 2rem 0 4rem; min-height: 80vh;">
+        <div class="container">
+            <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+                <h1>My Wishlist</h1>
+                <p>Your favorite products</p>
+            </div>
+            
+            <div class="products-grid" id="wishlist-grid">
+                <% if (typeof wishlist !== 'undefined' && wishlist.length > 0) { %>
+                    <% wishlist.forEach(product => { %>
+                        <div class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image">
+                                <% if (product.comparePrice) { %>
+                                    <div class="sale-badge">SALE</div>
+                                <% } %>
+                                <button class="wishlist-btn active" onclick="toggleWishlist('<%= product._id %>', this)">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none';">
+                            </div>
+                            <div class="product-card-content">
+                                <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
+                                <h3><a href="/product/<%= product._id %>"><%= product.name %></a></h3>
+                                <p class="price">EGP <%= product.price.toFixed(2) %></p>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
+                        <i class="fas fa-heart" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>Your wishlist is empty</h3>
+                        <p>Add products to your wishlist to save them for later</p>
+                        <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Start Shopping</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+<%- include('../partials/footer.ejs') %>
+
+<script>
+    function toggleWishlist(productId, btn) {
+        if (typeof toggleWishlistItem === 'function') {
+            toggleWishlistItem(productId, btn);
+        }
+    }
+</script>
+

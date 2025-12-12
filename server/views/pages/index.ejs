@@ -1,0 +1,274 @@
+<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'SOLARA - Modern Minimal Luxury' }) %>
+
+<%- include('../partials/nav.ejs', { currentPage: 'home' }) %>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg-container">
+            <img src="/images/hero-main.jpg" alt="Modern Fashion Hero" class="hero-bg-image" onerror="this.style.display='none'">
+            <div class="hero-overlay">
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="hero-tagline display-heading">DISCOVER</div>
+                        <div class="hero-tagline-sub display-heading">YOUR STYLE</div>
+                        <p>Curated essentials that define contemporary style. Where minimal meets luxury, and every piece tells a story.</p>
+                        <a href="#featured" class="btn btn-outline-light btn-lg">SHOP COLLECTION</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Journey Link -->
+        <div class="hero-journey">
+            <a href="#gender-section">Explore Collections <i class="fas fa-chevron-down"></i></a>
+        </div>
+    </section>
+
+    <!-- Gender Split Section -->
+    <section class="gender-section" id="gender-section">
+        <div class="gender-side" onclick="window.location.href='/men'">
+            <img src="/images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.style.background='#1C1C1C'">
+            <div class="gender-overlay">
+                <h2 class="gender-label display-heading">MEN</h2>
+                <p class="gender-description">Discover essential pieces that embody confidence and refinement — crafted for the modern man.</p>
+                <a href="/men" class="btn btn-outline-light gender-btn">Explore Collection</a>
+            </div>
+        </div>
+        <div class="gender-side" onclick="window.location.href='/women'">
+            <img src="/images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.style.background='#EADBC8'">
+            <div class="gender-overlay">
+                <h2 class="gender-label display-heading">WOMEN</h2>
+                <p class="gender-description">Discover captivating styles that embody grace, strength and allure — crafted for the modern woman.</p>
+                <a href="/women" class="btn btn-outline-light gender-btn">Explore Collection</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Collections Section -->
+    <section class="featured-collections">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Collections</h2>
+                <p>Discover our most popular styles</p>
+            </div>
+            <div class="collections-grid">
+                <div class="collection-card">
+                    <div class="collection-image">
+                        <img src="/images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
+                        <div class="collection-overlay">
+                            <a href="/men" class="btn btn-outline-light">Shop Men</a>
+                        </div>
+                    </div>
+                    <div class="collection-content">
+                        <h3>Men's Collection</h3>
+                        <p>Essential pieces for the modern man</p>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <div class="collection-image">
+                        <img src="/images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
+                        <div class="collection-overlay">
+                            <a href="/women" class="btn btn-outline-light">Shop Women</a>
+                        </div>
+                    </div>
+                    <div class="collection-content">
+                        <h3>Women's Collection</h3>
+                        <p>Timeless elegance meets contemporary style</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Story Section -->
+    <section class="brand-story">
+        <div class="container">
+            <div class="brand-content">
+                <div class="brand-text">
+                    <h2>Our Story</h2>
+                    <p>SOLARA was born from a simple belief: that great style should be accessible, sustainable, and effortless. We curate pieces that transcend trends, focusing on quality, comfort, and timeless design.</p>
+                    <p>Every item in our collection is carefully selected to represent the perfect balance between minimalism and luxury, creating a wardrobe that works for every occasion.</p>
+                    <a href="/contact" class="btn btn-primary">Learn More</a>
+                </div>
+                <div class="brand-image">
+                    <img src="/images/products/1W2A4118_2.jpg" alt="Brand Story" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section class="products-section">
+        <div class="container">
+            <h2 class="section-title">New Arrivals</h2>
+            <p class="text-center" style="margin-bottom: 2rem; color: #666;">Fresh styles just added to our collection</p>
+            <div class="products-grid" id="new-arrivals-grid">
+                <% if (typeof newArrivals !== 'undefined' && newArrivals.length > 0) { %>
+                    <% newArrivals.slice(0, 8).forEach(product => { %>
+                        <div class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image">
+                                <% if (product.comparePrice) { %>
+                                    <div class="sale-badge">SALE</div>
+                                <% } %>
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="image-placeholder" style="display:none;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            </div>
+                            <div class="product-card-content">
+                                <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
+                                <h3><%= product.name %></h3>
+                                <p class="price">EGP <%= product.price.toFixed(2) %></p>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center">No new arrivals at the moment. Check back soon!</p>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sale Banner Section -->
+    <section class="sale-banner">
+        <div class="sale-gif-container">
+            <img src="/images/Sale.gif" alt="Sale Animation" class="sale-gif" onerror="this.style.display='none'">
+            <div class="sale-overlay">
+                <div class="sale-text">
+                    <h2 class="display-heading">MASSIVE SAVINGS</h2>
+                    <p>Up to 30% off on selected items</p>
+                    <a href="#featured" class="btn btn-outline-light">SHOP SALE</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section id="featured" class="products-section">
+        <div class="container">
+            <h2 class="section-title">Curated Essentials</h2>
+            <div class="filter-controls">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="men">Men</button>
+                <button class="filter-btn" data-category="women">Women</button>
+            </div>
+            <div class="products-grid" id="products-grid">
+                <% if (typeof featuredProducts !== 'undefined' && featuredProducts.length > 0) { %>
+                    <% featuredProducts.forEach(product => { %>
+                        <div class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image">
+                                <% if (product.comparePrice) { %>
+                                    <div class="sale-badge">SALE</div>
+                                <% } %>
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="image-placeholder" style="display:none;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            </div>
+                            <div class="product-card-content">
+                                <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
+                                <h3><%= product.name %></h3>
+                                <p class="price">EGP <%= product.price.toFixed(2) %></p>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center">No featured products at the moment.</p>
+                <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Collections</h2>
+            <div class="categories-grid">
+                <div class="category-card" onclick="window.location.href='/men'">
+                    <img src="/images/products/1W2A0099-Edit_5.jpg" alt="Men's Fashion" onerror="this.style.background='#f5f5f5'">
+                    <div class="category-overlay">
+                        <h3>Men's Collection</h3>
+                        <p>Trendy and comfortable clothing</p>
+                        <a href="/men" class="btn btn-outline-light">Shop Men</a>
+                    </div>
+                </div>
+                <div class="category-card" onclick="window.location.href='/women'">
+                    <img src="/images/products/1W2A3908HQ_4.jpg" alt="Women's Fashion" onerror="this.style.background='#f5f5f5'">
+                    <div class="category-overlay">
+                        <h3>Women's Collection</h3>
+                        <p>Elegant and stylish outfits</p>
+                        <a href="/women" class="btn btn-outline-light">Shop Women</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Sellers Section -->
+    <section class="products-section" style="background-color: var(--bg-light);">
+        <div class="container">
+            <h2 class="section-title">BEST SELLERS</h2>
+            <div class="products-grid" id="best-sellers-grid">
+                <% if (typeof bestSellers !== 'undefined' && bestSellers.length > 0) { %>
+                    <% bestSellers.slice(0, 8).forEach(product => { %>
+                        <div class="product-card" data-product-id="<%= product._id %>">
+                            <div class="product-image">
+                                <% if (product.comparePrice) { %>
+                                    <div class="sale-badge">SALE</div>
+                                <% } %>
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div class="image-placeholder" style="display:none;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            </div>
+                            <div class="product-card-content">
+                                <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
+                                <h3><%= product.name %></h3>
+                                <p class="price">EGP <%= product.price.toFixed(2) %></p>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center">No best sellers at the moment.</p>
+                <% } %>
+            </div>
+            <div class="text-center" style="margin-top: 2rem;">
+                <a href="#featured" class="btn btn-outline">View All</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter for the latest fashion trends and exclusive offers</p>
+                <form class="newsletter-form" id="newsletter-form">
+                    <input type="email" placeholder="Enter your email" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+<%- include('../partials/footer.ejs') %>
+

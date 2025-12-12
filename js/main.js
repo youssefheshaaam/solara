@@ -11,12 +11,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     await initializeApp();
     setupEventListeners();
     
-    // Don't load products on search page - it handles its own loading
-    const isSearchPage = window.location.pathname.includes('search.html');
-    if (!isSearchPage) {
-        await loadProducts();
-        await loadBestSellers();
-        await loadNewArrivals();
+    // Don't load products on pages that are server-rendered (EJS)
+    // Home page, men, women, search pages get data from server
+    const isEjsPage = window.location.pathname === '/' || 
+                       window.location.pathname === '/men' || 
+                       window.location.pathname === '/women' ||
+                       window.location.pathname.startsWith('/search') ||
+                       window.location.pathname.startsWith('/product/');
+    
+    // Only load products via AJAX for pages that don't have server-rendered data
+    if (!isEjsPage) {
+        const isSearchPage = window.location.pathname.includes('search.html');
+        if (!isSearchPage) {
+            await loadProducts();
+            await loadBestSellers();
+            await loadNewArrivals();
+        }
     }
     
     updateCartCount();
@@ -179,30 +189,30 @@ function createUniversalNavigation() {
                     
                     <div class="user-actions">
                         <span class="welcome-message hidden" id="welcome-message" style="display: none; padding: 0.5rem 1rem; color: var(--text-primary); font-weight: 500; white-space: nowrap;"></span>
-                        <a href="${pagesPrefix}cart.html" class="nav-icon" id="cart-link">
+                        <a href="/cart" class="nav-icon" id="cart-link">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="cart-count" id="cart-count">0</span>
                         </a>
-                        <a href="${pagesPrefix}wishlist.html" class="nav-icon" id="wishlist-link">
+                        <a href="/wishlist" class="nav-icon" id="wishlist-link">
                             <i class="fas fa-heart"></i>
                             <span class="wishlist-count" id="wishlist-count">0</span>
                         </a>
-                        <a href="${loginLink}" class="nav-icon" id="login-link">
+                        <a href="/login" class="nav-icon" id="login-link">
                             <i class="fas fa-user"></i>
                             Login
                         </a>
-                        <a href="${pagesPrefix}profile.html" class="nav-icon hidden" id="profile-link" title="My Profile">
+                        <a href="/profile" class="nav-icon hidden" id="profile-link" title="My Profile">
                             <i class="fas fa-user-circle"></i>
                             <span class="nav-label">Profile</span>
                         </a>
-                        <a href="${pagesPrefix}orders.html" class="nav-icon hidden" id="orders-link" title="My Orders">
+                        <a href="/orders" class="nav-icon hidden" id="orders-link" title="My Orders">
                             <i class="fas fa-box"></i>
                         </a>
                         <button class="nav-icon logout-btn hidden" id="logout-btn" title="Logout">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="nav-label">Logout</span>
                         </button>
-                        <a href="${adminPrefix}admin.html" class="nav-icon subtle" id="admin-link" title="Admin">
+                        <a href="/admin" class="nav-icon subtle" id="admin-link" title="Admin">
                             <i class="fas fa-cog"></i>
                         </a>
                     </div>
@@ -721,8 +731,8 @@ function setupProductCardEvents() {
             const productId = card.dataset.productId;
             if (productId) {
                 // Navigate to product detail page
-                const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-                window.location.href = `${basePath}product.html?id=${productId}`;
+                // Use EJS route for product page
+                window.location.href = `/product/${productId}`;
             }
         });
         
@@ -1132,8 +1142,8 @@ async function performSearch(query) {
     }
     
     // Always navigate to search results page
-    const searchPath = window.location.pathname.includes('/pages/') ? 'search.html' : 'pages/search.html';
-    window.location.href = `${searchPath}?q=${encodeURIComponent(query)}`;
+    // Use EJS route for search
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
 }
 
 function displaySearchResults(products, query = '') {
@@ -1293,7 +1303,7 @@ function setupLoginForm() {
                 if (result.success) {
                     showNotification('Login successful! Welcome back!', 'success');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = '/';
                     }, 1000);
                 } else {
                     if (generalError) { 
@@ -1419,7 +1429,7 @@ function setupRegistrationForm() {
                 if (result.success) {
                     showNotification('Registration successful! Welcome to SOLARA!', 'success');
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = '/login';
                     }, 1500);
                 } else {
                     if (generalError) { 
@@ -1731,16 +1741,14 @@ function setupEventListeners() {
             e.preventDefault();
             const isSubPage = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
             if (currentUser || (typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn())) {
-                if (isSubPage) {
-                    window.location.href = 'profile.html';
-                } else {
-                    window.location.href = 'pages/profile.html';
-                }
+                // Use EJS route for profile
+                window.location.href = '/profile';
             } else {
                 if (isSubPage) {
-                    window.location.href = '../login.html';
+                    // Use EJS route for login
+                    window.location.href = '/login';
                 } else {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login';
                 }
             }
         });
@@ -1754,8 +1762,8 @@ function setupEventListeners() {
         if (!href || href === '#') {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const basePath = window.location.pathname.includes('/pages/') ? '' : 'pages/';
-                window.location.href = basePath + 'cart.html';
+                // Use EJS route for cart
+                window.location.href = '/cart';
             });
         }
     });
@@ -2325,35 +2333,39 @@ function filterBySize(sizes) {
 // ===== PAGE-SPECIFIC INITIALIZATION =====
 
 // Category pages initialization
-if (window.location.pathname.includes('men.html')) {
+// Men and Women pages - products are server-rendered, but keep AJAX for Load More
+if (window.location.pathname === '/men' || window.location.pathname.includes('men.html')) {
     document.addEventListener('DOMContentLoaded', () => {
-        loadCategoryProducts('men');
-        setupCategoryFilters();
-        setupSorting();
-        setupPriceFilter();
+        // Products are already loaded server-side, but setup AJAX for Load More
+        if (typeof setupCategoryFilters === 'function') setupCategoryFilters();
+        if (typeof setupSorting === 'function') setupSorting();
+        if (typeof setupPriceFilter === 'function') setupPriceFilter();
+        // Only load more products if needed (AJAX)
+        if (typeof loadCategoryProducts === 'function' && !window.location.pathname.startsWith('/men')) {
+            loadCategoryProducts('men');
+        }
     });
 }
 
-if (window.location.pathname.includes('women.html')) {
+if (window.location.pathname === '/women' || window.location.pathname.includes('women.html')) {
     document.addEventListener('DOMContentLoaded', () => {
-        loadCategoryProducts('women');
-        setupCategoryFilters();
-        setupSorting();
-        setupPriceFilter();
-        setupSizeFilter();
+        // Products are already loaded server-side, but setup AJAX for Load More
+        if (typeof setupCategoryFilters === 'function') setupCategoryFilters();
+        if (typeof setupSorting === 'function') setupSorting();
+        if (typeof setupPriceFilter === 'function') setupPriceFilter();
+        if (typeof setupSizeFilter === 'function') setupSizeFilter();
+        // Only load more products if needed (AJAX)
+        if (typeof loadCategoryProducts === 'function' && !window.location.pathname.startsWith('/women')) {
+            loadCategoryProducts('women');
+        }
     });
 }
 
 
-// Cart page initialization
-if (window.location.pathname.includes('cart.html')) {
+// Cart page initialization - cart items are server-rendered, but keep AJAX for updates
+if (window.location.pathname === '/cart' || window.location.pathname.includes('cart.html')) {
     document.addEventListener('DOMContentLoaded', async () => {
-        // Initialize data first
-        await initializeData();
-        
-        // Load cart items from API or localStorage
-        await loadCartItems();
-        
+        // Cart items are already loaded server-side, but setup AJAX for quantity updates
         // Setup checkout button
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
@@ -2363,8 +2375,13 @@ if (window.location.pathname.includes('cart.html')) {
                     showNotification('Your cart is empty', 'error');
                     return;
                 }
-                window.location.href = 'checkout.html';
+                // Use EJS route for checkout
+                window.location.href = '/checkout';
             });
+        }
+        // Only load cart items via AJAX if not on EJS route
+        if (!window.location.pathname.startsWith('/cart') && typeof loadCartItems === 'function') {
+            await loadCartItems();
         }
     });
 }
@@ -2379,11 +2396,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Orders page initialization
-if (window.location.pathname.includes('orders.html')) {
+// Orders page initialization - orders are server-rendered, but keep AJAX for filters
+if (window.location.pathname === '/orders' || window.location.pathname.includes('orders.html')) {
     document.addEventListener('DOMContentLoaded', () => {
-        loadUserOrders();
-        setupOrderFilters();
+        // Orders are already loaded server-side, but setup AJAX for filtering
+        if (typeof setupOrderFilters === 'function') setupOrderFilters();
+        // Only load orders via AJAX if not on EJS route
+        if (!window.location.pathname.startsWith('/orders') && typeof loadUserOrders === 'function') {
+            loadUserOrders();
+        }
     });
 }
 
@@ -2616,7 +2637,8 @@ async function handlePlaceOrder(e) {
             
             // Redirect to order confirmation
             setTimeout(() => {
-                window.location.href = getAssetPath('pages/orders.html');
+                // Use EJS route for orders
+                window.location.href = '/orders';
             }, 1500);
         }
         
@@ -2638,17 +2660,23 @@ if (window.location.pathname.includes('contact.html')) {
     });
 }
 
-// Login page initialization
-if (window.location.pathname.includes('login.html')) {
+// Login page initialization - EJS page handles form submission
+if (window.location.pathname === '/login' || window.location.pathname.includes('login.html')) {
     document.addEventListener('DOMContentLoaded', () => {
-        setupLoginForm();
+        // EJS page has its own form handler, but keep setup for backward compatibility
+        if (typeof setupLoginForm === 'function') {
+            setupLoginForm();
+        }
     });
 }
 
-// Register page initialization
-if (window.location.pathname.includes('register.html')) {
+// Register page initialization - EJS page handles form submission
+if (window.location.pathname === '/register' || window.location.pathname.includes('register.html')) {
     document.addEventListener('DOMContentLoaded', () => {
-        setupRegisterForm();
+        // EJS page has its own form handler, but keep setup for backward compatibility
+        if (typeof setupRegisterForm === 'function') {
+            setupRegisterForm();
+        }
     });
 }
 
@@ -2725,7 +2753,8 @@ async function loadUserProfile() {
     
     if (!user) {
         const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
-        window.location.href = basePath + 'login.html';
+        // Use EJS route for login
+        window.location.href = '/login';
         return;
     }
     
@@ -2906,7 +2935,8 @@ function setupFloatingButton() {
     
     // Add click event to go to cart
     floatingBtn.addEventListener('click', function() {
-        window.location.href = getAssetPath('pages/cart.html');
+        // Use EJS route for cart
+        window.location.href = '/cart';
     });
     
     // Show/hide based on scroll position
