@@ -7,10 +7,12 @@ Admin@123
 SOLARA is a modern, full-stack e-commerce web application built with Node.js, Express, and MongoDB. It features a sleek, minimal luxury aesthetic inspired by contemporary fashion brands. The platform delivers a complete shopping experience with user authentication, product management, shopping cart, and comprehensive administrative features.
 
 **Live Features:**
+- EJS Server-Side Rendering (SSR) with hybrid AJAX for dynamic updates
 - Real-time data synchronization with MongoDB
-- Secure JWT-based authentication
-- Session management with server-side storage
+- Secure JWT + Session-based authentication
+- Server-side session management with MongoDB storage
 - RESTful API architecture
+- Localization (English/Arabic) with RTL support
 - Responsive, mobile-first design
 
 ---
@@ -23,13 +25,14 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 |-------|------------|
 | **Frontend** | HTML5, CSS3, Vanilla JavaScript (ES6+) |
 | **Backend** | Node.js, Express.js |
+| **Templating** | EJS (Embedded JavaScript) - Server-Side Rendering |
 | **Database** | MongoDB Atlas (Cloud) |
 | **ODM** | Mongoose |
-| **Authentication** | JWT (JSON Web Tokens), bcrypt |
+| **Authentication** | JWT (JSON Web Tokens) + Sessions, bcrypt |
 | **Sessions** | express-session with MongoDB store |
 | **File Upload** | Multer |
 | **Validation** | express-validator |
-| **Localization** | i18n |
+| **Localization** | i18n (English/Arabic with RTL support) |
 
 ### MVC Architecture
 
@@ -63,28 +66,14 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 ```
 /SOLARA
 │
-├── index.html                    # Home page
-├── login.html                    # User login
-├── register.html                 # User registration
 ├── start-server.bat              # Quick server start (Windows)
 ├── README.md                     # This file
 ├── requirements.txt              # Project requirements documentation
+├── PROJECT_EXPLANATION.md        # Detailed project explanation
 ├── .gitignore                    # Git ignore rules
 │
-├── /pages                        # Customer pages
-│   ├── men.html                  # Men's products
-│   ├── women.html                # Women's products
-│   ├── cart.html                 # Shopping cart
-│   ├── checkout.html             # Checkout process
-│   ├── wishlist.html             # User wishlist
-│   ├── profile.html              # User profile
-│   ├── orders.html               # Order history
-│   └── contact.html              # Contact & FAQ
-│
-├── /admin                        # Admin pages
-│   ├── admin.html                # Admin dashboard
-│   ├── add-product.html          # Add new product
-│   └── edit-product.html         # Edit product
+├── /admin                        # Admin pages (static HTML)
+│   └── admin.html                # Admin dashboard (served directly)
 │
 ├── /css                          # Stylesheets
 │   ├── style.css                 # Main styles
@@ -95,9 +84,7 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 │   ├── api.js                    # API service (AJAX/Fetch)
 │   ├── data.js                   # Data management & caching
 │   ├── main.js                   # Main application logic
-│   ├── admin.js                  # Admin functionality
-│   ├── validation.js             # Form validation
-│   └── db.js                     # Legacy IndexedDB (fallback)
+│   └── validation.js             # Form validation
 │
 ├── /images                       # Static assets
 │   └── /products                 # Product images
@@ -107,7 +94,6 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
     ├── package.json              # Node dependencies
     │
     ├── /config
-    │   ├── config.js             # Environment configuration
     │   └── db.js                 # MongoDB connection
     │
     ├── /models                   # Mongoose schemas
@@ -121,30 +107,56 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
     │   ├── userController.js     # User management
     │   ├── productController.js  # Product CRUD
     │   ├── orderController.js    # Order management
-    │   └── cartController.js     # Cart operations
+    │   ├── cartController.js     # Cart operations
+    │   └── frontendController.js # EJS page rendering
     │
-    ├── /routes                   # API routes
+    ├── /routes                   # API routes + Frontend routes
     │   ├── auth.js               # /api/auth/*
     │   ├── users.js              # /api/users/*
     │   ├── products.js           # /api/products/*
     │   ├── orders.js             # /api/orders/*
-    │   └── cart.js               # /api/cart/*
+    │   ├── cart.js               # /api/cart/*
+    │   └── frontend.js           # EJS page routes (/, /men, /women, etc.)
     │
     ├── /middleware               # Express middleware
-    │   ├── auth.js               # JWT authentication
+    │   ├── auth.js               # JWT + Session authentication
+    │   ├── optionalAuth.js       # Optional auth for EJS pages
     │   ├── errorHandler.js       # Error handling
     │   ├── upload.js             # File upload (Multer)
-    │   └── validation.js         # Request validation (Joi)
+    │   └── validation.js         # Request validation (express-validator)
     │
-    ├── /locales                  # Translation files
-    │   ├── en.json               # English
-    │   └── ar.json               # Arabic
+    ├── /views                    # EJS templates (Server-Side Rendering)
+    │   ├── /pages                # Main page templates
+    │   │   ├── index.ejs         # Home page (/)
+    │   │   ├── men.ejs           # Men's products (/men)
+    │   │   ├── women.ejs         # Women's products (/women)
+    │   │   ├── product.ejs       # Product detail (/product/:id)
+    │   │   ├── cart.ejs          # Shopping cart (/cart)
+    │   │   ├── checkout.ejs     # Checkout (/checkout)
+    │   │   ├── orders.ejs       # Order history (/orders)
+    │   │   ├── profile.ejs      # User profile (/profile)
+    │   │   ├── wishlist.ejs     # Wishlist (/wishlist)
+    │   │   ├── search.ejs       # Search results (/search)
+    │   │   └── contact.ejs      # Contact page (/contact)
+    │   ├── /partials             # Reusable components
+    │   │   ├── head.ejs          # HTML head (meta, styles)
+    │   │   ├── nav.ejs           # Navigation bar
+    │   │   └── footer.ejs        # Footer
+    │   ├── /auth                 # Authentication pages
+    │   │   ├── login.ejs         # Login page (/login)
+    │   │   └── register.ejs      # Registration page (/register)
+    │   └── 404.ejs               # 404 error page
+    │
+    ├── /locales                  # i18n translation files
+    │   ├── en.json               # English translations
+    │   └── ar.json               # Arabic translations
     │
     ├── /seeds                    # Database seeding
     │   └── seed.js               # Populate initial data
     │
     └── /uploads                  # Uploaded files
-        └── /products             # Product images
+        ├── /products             # Product images
+        └── /avatars              # User profile pictures
 ```
 
 ---
@@ -153,9 +165,9 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
 
 ### Prerequisites
 
-- **Node.js** (v14 or higher) - [Download](https://nodejs.org/)
-- **MongoDB Atlas** account (free tier) - [Sign up](https://www.mongodb.com/atlas)
-- Modern web browser (Chrome, Firefox, Edge, Safari)
+- **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
+- **MongoDB** (v6 or higher) - Local installation or MongoDB Atlas (cloud) - [Sign up](https://www.mongodb.com/atlas)
+- Modern web browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
 
 ### Installation
 
@@ -199,6 +211,30 @@ SOLARA is a modern, full-stack e-commerce web application built with Node.js, Ex
    ```
    http://localhost:5000
    ```
+
+### Routing Structure
+
+The application uses EJS server-side rendering with the following routes:
+
+**Public Routes:**
+- `/` - Home page
+- `/men` - Men's products
+- `/women` - Women's products
+- `/product/:id` - Product detail page
+- `/search` - Search results
+- `/login` - Login page
+- `/register` - Registration page
+- `/contact` - Contact page
+
+**Protected Routes (require authentication):**
+- `/cart` - Shopping cart
+- `/checkout` - Checkout process
+- `/orders` - Order history
+- `/profile` - User profile
+- `/wishlist` - User wishlist
+
+**Admin Routes:**
+- `/admin` - Admin dashboard (serves `admin/admin.html` directly)
 
 ### Default Admin Credentials
 - **Email:** admin@solara.com
