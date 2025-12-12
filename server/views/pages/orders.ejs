@@ -1,15 +1,278 @@
 <%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'My Orders - SOLARA' }) %>
 
+<style>
+    .orders-page {
+        min-height: 100vh;
+        background: #f8f9fa;
+        padding: 2rem 0 4rem;
+    }
+    
+    .orders-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .page-header p {
+        color: var(--text-secondary);
+    }
+    
+    /* Filter Tabs */
+    .order-filters {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 0.625rem 1.25rem;
+        border: none;
+        background: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn:hover { background: #f5f5f5; }
+    .filter-btn.active { background: var(--accent-color); color: white; }
+    
+    /* Order Card */
+    .order-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .order-number {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+    
+    .order-date {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+    
+    .status-badge {
+        padding: 0.375rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    
+    .status-pending { background: #fff3e0; color: #e65100; }
+    .status-confirmed { background: #e1f5fe; color: #0277bd; }
+    .status-processing { background: #e3f2fd; color: #1565c0; }
+    .status-shipped { background: #e8f5e9; color: #2e7d32; }
+    .status-delivered { background: #c8e6c9; color: #1b5e20; }
+    .status-cancelled { background: #ffebee; color: #c62828; }
+    .status-refunded { background: #f3e5f5; color: #7b1fa2; }
+    
+    .order-body {
+        padding: 1.5rem;
+    }
+    
+    /* Order Items */
+    .order-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .order-item {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .item-image {
+        width: 70px;
+        height: 80px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f5f5f5;
+        flex-shrink: 0;
+    }
+    
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .item-details {
+        flex: 1;
+    }
+    
+    .item-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .item-meta {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .item-price {
+        font-weight: 600;
+        color: var(--accent-color);
+        white-space: nowrap;
+    }
+    
+    /* Order Footer */
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .order-total {
+        font-size: 1.1rem;
+    }
+    
+    .order-total span {
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+    
+    .order-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .order-actions .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Shipping Info */
+    .shipping-info {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .shipping-info h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .shipping-info p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+    
+    /* Empty State */
+    .empty-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    
+    .empty-orders i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-orders h2 {
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-orders p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Loading */
+    .loading {
+        text-align: center;
+        padding: 3rem;
+    }
+    
+    .loading i {
+        font-size: 2rem;
+        color: var(--accent-color);
+    }
+    
+    @media (max-width: 600px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .order-item {
+            flex-wrap: wrap;
+        }
+        
+        .item-price {
+            width: 100%;
+            text-align: left;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+
 <%- include('../partials/nav.ejs', { currentPage: 'orders' }) %>
 
-    <div class="orders-page" style="padding: 2rem 0 4rem; min-height: 80vh;">
-        <div class="container">
-            <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
-                <h1>My Orders</h1>
+    <!-- Orders Page -->
+    <main class="orders-page">
+        <div class="orders-container">
+            <div class="page-header">
+                <h1><i class="fas fa-box"></i> My Orders</h1>
                 <p>Track and manage your orders</p>
             </div>
             
-            <div class="order-filters" style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+            <!-- Filter Tabs -->
+            <div class="order-filters">
                 <button class="filter-btn active" data-status="">All Orders</button>
                 <button class="filter-btn" data-status="pending">Pending</button>
                 <button class="filter-btn" data-status="confirmed">Confirmed</button>
@@ -17,96 +280,232 @@
                 <button class="filter-btn" data-status="shipped">Shipped</button>
                 <button class="filter-btn" data-status="delivered">Delivered</button>
                 <button class="filter-btn" data-status="cancelled">Cancelled</button>
+                <button class="filter-btn" data-status="refunded">Refunded</button>
             </div>
             
+            <!-- Orders List -->
             <div id="orders-list">
                 <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
                     <% orders.forEach(order => { %>
                         <div class="order-card" data-order-id="<%= order._id %>" data-status="<%= order.status %>">
                             <div class="order-header">
-                                <div class="order-info">
-                                    <h3>Order #<%= order.orderNumber %></h3>
-                                    <p class="order-date">Placed on <%= new Date(order.createdAt).toLocaleDateString() %></p>
+                                <div>
+                                    <div class="order-number">Order #<%= order.orderNumber || order._id %></div>
+                                    <div class="order-date">Placed on <%= new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></div>
                                 </div>
-                                <div class="order-status">
-                                    <span class="status-badge status-<%= order.status %>">
-                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
-                                    </span>
-                                </div>
+                                <span class="status-badge status-<%= order.status %>" title="Order Status: <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>">
+                                    <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                </span>
                             </div>
                             
-                            <div class="order-items">
-                                <% if (order.items && order.items.length > 0) { %>
-                                    <% order.items.forEach(item => { %>
-                                        <div class="order-item">
-                                            <img src="<%= item.product ? item.product.imageUrl : '/images/placeholder.jpg' %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.jpg';">
-                                            <div class="item-details">
-                                                <h4><%= item.product ? item.product.name : 'Product' %></h4>
-                                                <p>Size: <%= item.size || 'M' %> | Qty: <%= item.quantity %></p>
-                                            </div>
-                                            <div class="item-price">EGP <%= (item.price * item.quantity).toFixed(2) %></div>
-                                        </div>
-                                    <% }); %>
+                            <div class="order-body">
+                                <% if (order.shippingAddress) { %>
+                                <div class="shipping-info">
+                                    <h4><i class="fas fa-truck"></i> Shipping to</h4>
+                                    <p><%= order.shippingAddress.firstName || '' %> <%= order.shippingAddress.lastName || '' %></p>
+                                    <p><%= order.shippingAddress.street || '' %>, <%= order.shippingAddress.city || '' %></p>
+                                    <p><%= order.shippingAddress.phone || '' %></p>
+                                </div>
                                 <% } %>
-                            </div>
-                            
-                            <div class="order-footer">
-                                <div class="order-total">
-                                    <strong>Total: EGP <%= order.total.toFixed(2) %></strong>
-                                </div>
-                                <div class="order-actions">
-                                    <a href="/order/<%= order._id %>" class="btn btn-outline">View Details</a>
-                                    <% if (order.status === 'pending' || order.status === 'confirmed') { %>
-                                        <button class="btn btn-outline" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
+                                
+                                <div class="order-items">
+                                    <% if (order.items && order.items.length > 0) { %>
+                                        <% order.items.forEach(item => { %>
+                                            <div class="order-item">
+                                                <div class="item-image">
+                                                    <% 
+                                                    let itemImageUrl = '/images/placeholder.jpg';
+                                                    if (item.product && item.product.image) {
+                                                        itemImageUrl = item.product.image.startsWith('http') ? item.product.image : '/uploads/' + item.product.image;
+                                                    } else if (item.image) {
+                                                        itemImageUrl = item.image.startsWith('http') ? item.image : '/uploads/' + item.image;
+                                                    }
+                                                    %>
+                                                    <img src="<%= itemImageUrl %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.jpg';">
+                                                </div>
+                                                <div class="item-details">
+                                                    <div class="item-name"><%= item.product ? item.product.name : 'Product' %></div>
+                                                    <div class="item-meta">
+                                                        Qty: <%= item.quantity %>
+                                                        <%= item.size ? ' • Size: ' + item.size : '' %>
+                                                        <%= item.color ? ' • Color: ' + item.color : '' %>
+                                                    </div>
+                                                </div>
+                                                <div class="item-price">EGP <%= ((item.price || 0) * (item.quantity || 1)).toFixed(2) %></div>
+                                            </div>
+                                        <% }); %>
                                     <% } %>
+                                </div>
+                                
+                                <div class="order-footer">
+                                    <div class="order-total">
+                                        Total: <span>EGP <%= (order.total || 0).toFixed(2) %></span>
+                                    </div>
+                                    <div class="order-actions">
+                                        <% if (order.status === 'pending' || order.status === 'confirmed') { %>
+                                            <button class="btn btn-outline" onclick="cancelOrder('<%= order._id %>')">
+                                                <i class="fas fa-times"></i> Cancel
+                                            </button>
+                                        <% } %>
+                                        <% if (order.status === 'delivered') { %>
+                                            <button class="btn btn-outline" onclick="reorder('<%= order._id %>')">
+                                                <i class="fas fa-redo"></i> Reorder
+                                            </button>
+                                        <% } %>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <div class="empty-state" style="text-align: center; padding: 4rem 2rem;">
-                        <i class="fas fa-box-open" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
-                        <h3>No orders yet</h3>
-                        <p>Start shopping to see your orders here</p>
-                        <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Start Shopping</a>
+                    <div class="empty-orders">
+                        <i class="fas fa-box-open"></i>
+                        <h2>No orders yet</h2>
+                        <p>When you place orders, they will appear here.</p>
+                        <a href="/" class="btn btn-primary">Start Shopping</a>
                     </div>
                 <% } %>
             </div>
         </div>
-    </div>
+    </main>
 
 <%- include('../partials/footer.ejs') %>
 
 <script>
-    // Order filtering with AJAX
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            const status = this.dataset.status;
-            filterOrders(status);
-        });
+    let allOrders = [];
+    let currentFilter = '';
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+        <% if (typeof orders !== 'undefined' && orders.length > 0) { %>
+            allOrders = <%- JSON.stringify(orders) %>;
+        <% } else { %>
+            await loadUserOrders();
+        <% } %>
+        setupFilters();
     });
     
-    function filterOrders(status) {
-        const orders = document.querySelectorAll('.order-card');
-        orders.forEach(order => {
-            if (!status || order.dataset.status === status) {
-                order.style.display = 'block';
+    async function loadUserOrders() {
+        const container = document.getElementById('orders-list');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading orders...</p></div>';
+        
+        try {
+            if (typeof OrdersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                const response = await OrdersAPI.getMyOrders();
+                if (response.success && response.data && Array.isArray(response.data)) {
+                    allOrders = response.data;
+                    renderOrders();
+                    return;
+                }
+            }
+            
+            // Fallback: show empty state
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <i class="fas fa-box-open"></i>
+                    <h2>No orders yet</h2>
+                    <p>When you place orders, they will appear here.</p>
+                    <a href="/" class="btn btn-primary">Start Shopping</a>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h2>Error loading orders</h2>
+                    <p>Please try refreshing the page.</p>
+                </div>
+            `;
+        }
+    }
+    
+    function renderOrders() {
+        const container = document.getElementById('orders-list');
+        
+        let filtered = allOrders;
+        if (currentFilter) {
+            filtered = filtered.filter(o => o.status === currentFilter);
+        }
+        
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <i class="fas fa-box-open"></i>
+                    <h2>${currentFilter ? 'No ' + currentFilter + ' orders' : 'No orders yet'}</h2>
+                    <p>When you place orders, they will appear here.</p>
+                    <a href="/" class="btn btn-primary">Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+        
+        // Re-render with filtered orders (this will be handled by AJAX if needed)
+        // For now, just filter the existing DOM elements
+        document.querySelectorAll('.order-card').forEach(card => {
+            if (!currentFilter || card.dataset.status === currentFilter) {
+                card.style.display = 'block';
             } else {
-                order.style.display = 'none';
+                card.style.display = 'none';
             }
         });
     }
     
-    function cancelOrder(orderId) {
-        if (confirm('Are you sure you want to cancel this order?')) {
+    function setupFilters() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.status;
+                renderOrders();
+            });
+        });
+    }
+    
+    async function cancelOrder(orderId) {
+        if (!confirm('Are you sure you want to cancel this order?')) return;
+        
+        try {
             if (typeof OrdersAPI !== 'undefined') {
-                OrdersAPI.cancel(orderId).then(() => {
-                    location.reload();
-                });
+                await OrdersAPI.cancel(orderId);
+                if (typeof showNotification !== 'undefined') {
+                    showNotification('Order cancelled', 'info');
+                }
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            if (typeof showNotification !== 'undefined') {
+                showNotification('Error cancelling order', 'error');
+            } else {
+                alert('Error cancelling order');
             }
         }
     }
+    
+    async function reorder(orderId) {
+        const order = allOrders.find(o => (o._id || o.id) === orderId);
+        if (!order || !order.items) return;
+        
+        // Add items back to cart
+        for (const item of order.items) {
+            try {
+                if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                    await CartAPI.add(item.product || item.productId, item.quantity, item.size, item.color);
+                } else {
+                    if (typeof showNotification !== 'undefined') {
+                        showNotification('Please login to reorder', 'info');
+                    }
+                    return;
+                }
+            } catch (e) {
+                console.error('Error adding to cart:', e);
+            }
+        }
+        
+        if (typeof updateCartCount !== 'undefined') updateCartCount();
+        if (typeof showNotification !== 'undefined') {
+            showNotification('Items added to cart!', 'success');
+        }
+        setTimeout(() => window.location.href = '/cart', 1000);
+    }
 </script>
-

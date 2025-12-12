@@ -114,7 +114,20 @@ async function initializeApp() {
 }
 
 function initializeUniversalNavigation() {
-    // Check if navigation already exists
+    // Skip dynamic nav creation for EJS pages (they already have nav from server)
+    // EJS pages have nav rendered server-side, so we don't need to replace it
+    const isEJSPage = !window.location.pathname.includes('.html') && 
+                      (window.location.pathname !== '/' || document.querySelector('.main-header nav.navbar'));
+    
+    if (isEJSPage) {
+        // Just setup dropdown and event listeners, don't replace nav
+        setTimeout(() => {
+            setupMyAccountDropdown();
+        }, 0);
+        return;
+    }
+    
+    // For old HTML pages (if any still exist), create dynamic nav
     const existingNav = document.querySelector('.main-header');
     const navHTML = createUniversalNavigation();
     if (existingNav) {
@@ -175,10 +188,10 @@ function createUniversalNavigation() {
                 </div>
                 
                 <ul class="nav-menu">
-                    <li><a href="${homeLink}" class="nav-link">Home</a></li>
-                    <li><a href="${pagesPrefix}men.html" class="nav-link">Men</a></li>
-                    <li><a href="${pagesPrefix}women.html" class="nav-link">Women</a></li>
-                    <li><a href="${pagesPrefix}contact.html" class="nav-link">Contact</a></li>
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/men" class="nav-link">Men</a></li>
+                    <li><a href="/women" class="nav-link">Women</a></li>
+                    <li><a href="/contact" class="nav-link">Contact</a></li>
                 </ul>
                 
                 <div class="nav-actions">
