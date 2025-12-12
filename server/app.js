@@ -117,7 +117,12 @@ app.use((req, res, next) => {
     if (lang && ['en', 'ar'].includes(lang)) {
         req.setLocale(lang);
         res.cookie('lang', lang, { maxAge: 365 * 24 * 60 * 60 * 1000 }); // 1 year
+    } else {
+        req.setLocale('en'); // Default to English
     }
+    // Make locale available to all EJS templates
+    res.locals.locale = req.getLocale();
+    res.locals.__ = req.__; // Make translation function available
     next();
 });
 
@@ -158,11 +163,20 @@ app.get('/api/locales/:lang', (req, res) => {
 app.post('/api/set-language', (req, res) => {
     const { lang } = req.body;
     if (!['en', 'ar'].includes(lang)) {
-        return res.status(400).json({ error: 'Invalid language' });
+        return res.status(400).json({ success: false, error: 'Invalid language' });
     }
-    res.cookie('lang', lang, { maxAge: 365 * 24 * 60 * 60 * 1000 });
-    req.setLocale(lang);
-    res.json({ success: true, message: `Language set to ${lang}` });
+    try {
+        req.setLocale(lang);
+        res.cookie('lang', lang, { 
+            maxAge: 365 * 24 * 60 * 60 * 1000,
+            httpOnly: false, // Allow client-side access
+            sameSite: 'lax'
+        });
+        res.json({ success: true, message: `Language set to ${lang}`, lang: lang });
+    } catch (error) {
+        console.error('Error setting language:', error);
+        res.status(500).json({ success: false, error: 'Failed to set language' });
+    }
 });
 
 // Health check endpoint

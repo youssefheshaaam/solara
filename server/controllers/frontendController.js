@@ -315,17 +315,24 @@ exports.getProfile = asyncHandler(async (req, res) => {
 // @route   GET /wishlist
 // @access  Private
 exports.getWishlist = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).populate('wishlist', 'name price image images status');
+    const user = await User.findById(req.user._id).populate({
+        path: 'wishlist',
+        select: 'name price image images status category comparePrice',
+        match: { status: 'active' } // Only get active products
+    });
     
-    const wishlistItems = user.wishlist.filter(item => item.status === 'active');
+    // Filter out null products (in case some were deleted)
+    const wishlistItems = (user.wishlist || []).filter(item => item && item.status === 'active');
 
     res.render('pages/wishlist', {
         title: 'My Wishlist - SOLARA',
         currentPage: 'wishlist',
         wishlist: wishlistItems.map(item => ({
             ...item.toObject(),
-            imageUrl: getImageUrl(item.image || (item.images && item.images[0]?.url))
-        }))
+            imageUrl: getImageUrl(item.image || (item.images && item.images[0]?.url)),
+            category: item.category || 'fashion'
+        })),
+        user: req.user
     });
 });
 
@@ -415,32 +422,12 @@ exports.getAdmin = asyncHandler(async (req, res) => {
         return res.redirect('/login?error=Admin access required');
     }
 
-    // Fetch dashboard data
-    const Product = require('../models/Product');
-    const Order = require('../models/Order');
-    const User = require('../models/User');
-
-    const [productsCount, ordersCount, usersCount, allOrders] = await Promise.all([
-        Product.countDocuments(),
-        Order.countDocuments(),
-        User.countDocuments({ role: 'customer' }),
-        Order.find().sort({ createdAt: -1 }).limit(10)
-    ]);
-
-    // Calculate revenue
-    const revenue = await Order.aggregate([
-        { $match: { status: { $in: ['delivered', 'shipped'] } } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
-    ]);
-    const totalRevenue = revenue.length > 0 ? revenue[0].total : 0;
-
-    res.render('admin/dashboard', {
-        title: 'Admin Dashboard - SOLARA',
-        dashboardData: {
-            productsCount,
-            ordersCount,
-            usersCount,
-            revenue: totalRevenue
+    // Serve the old admin.html file directly (not as EJS template)
+    const path = require('path');
+    const adminHtmlPath = path.resolve(__dirname, '../../admin/admin.html');
+    res.sendFile(adminHtmlPath, {
+        headers: {
+            'Content-Type': 'text/html; charset=utf-8'
         }
     });
 });

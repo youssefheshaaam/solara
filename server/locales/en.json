@@ -1,4 +1,18 @@
 {
+  "nav": {
+    "home": "Home",
+    "men": "Men",
+    "women": "Women",
+    "contact": "Contact",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "login": "Login",
+    "profile": "Profile",
+    "logout": "Logout",
+    "admin": "Admin",
+    "searchPlaceholder": "Search products...",
+    "language": "Language"
+  },
   "auth": {
     "registerSuccess": "Registration successful! Welcome to SOLARA.",
     "loginSuccess": "Login successful! Welcome back.",

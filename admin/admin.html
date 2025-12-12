@@ -1,0 +1,2403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SOLARA</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/forms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fa; min-height: 100vh; }
+        
+        /* Main Content */
+        .admin-main {
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 { font-size: 1.75rem; color: #1a1a2e; }
+        .page-header p { color: #666; margin-top: 0.25rem; }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.products { background: #e8f4fd; color: #2196f3; }
+        .stat-icon.orders { background: #fff4e5; color: #ff9800; }
+        .stat-icon.revenue { background: #e8f5e9; color: #4caf50; }
+        .stat-icon.customers { background: #fce4ec; color: #e91e63; }
+        
+        .stat-info h3 { font-size: 1.75rem; color: #1a1a2e; }
+        .stat-info p { color: #666; font-size: 0.9rem; }
+        
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover { background: #f5f5f5; }
+        .tab-btn.active { background: var(--accent-color); color: white; }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .content-section.active { display: block; }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 { font-size: 1.25rem; }
+        
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .products-table th,
+        .products-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .products-table th {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .status-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-active { background: #e8f5e9; color: #4caf50; }
+        .status-inactive { background: #ffebee; color: #f44336; }
+        .status-pending { background: #fff3e0; color: #ff9800; }
+        .status-confirmed { background: #e1f5fe; color: #0277bd; }
+        .status-processing { background: #e3f2fd; color: #2196f3; }
+        .status-shipped { background: #e8f5e9; color: #4caf50; }
+        .status-delivered { background: #c8e6c9; color: #1b5e20; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        .status-refunded { background: #f3e5f5; color: #7b1fa2; }
+        
+        .action-btns { display: flex; gap: 0.5rem; }
+        .action-btns button {
+            padding: 0.5rem;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #666;
+        }
+        .action-btns button:hover { background: #e0e0e0; }
+        .action-btns button.delete:hover { background: #ffebee; color: #f44336; }
+        
+        /* Orders List */
+        .orders-list { display: flex; flex-direction: column; gap: 1rem; }
+        
+        .order-card {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            align-items: center;
+        }
+        
+        @media (max-width: 900px) {
+            .order-card { grid-template-columns: 1fr 1fr; }
+        }
+        
+        .order-card h4 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .order-card p { font-size: 0.85rem; color: #666; margin: 0; }
+        
+        /* Login Container */
+        .admin-login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-card h1 { text-align: center; margin-bottom: 0.5rem; color: #1a1a2e; }
+        .login-card > p { text-align: center; color: #666; margin-bottom: 2rem; }
+        
+        /* Fix form input text colors */
+        .login-card input,
+        .login-card select,
+        .login-card textarea {
+            color: #1a1a2e !important;
+            background-color: white !important;
+        }
+        
+        .login-card input::placeholder {
+            color: #999 !important;
+        }
+        
+        .login-card label {
+            color: #1a1a2e !important;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* Form message styles */
+        .form-message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+        
+        .form-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .form-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        /* Fix all form inputs text color throughout admin - CRITICAL */
+        input,
+        select,
+        textarea {
+            color: #1a1a2e !important;
+            background-color: white !important;
+        }
+        
+        input::placeholder,
+        textarea::placeholder {
+            color: #999 !important;
+        }
+        
+        label {
+            color: #1a1a2e !important;
+        }
+        
+        /* Ensure form groups have visible text */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            color: #1a1a2e !important;
+            background-color: white !important;
+        }
+        
+        .form-group label {
+            color: #1a1a2e !important;
+        }
+        
+        /* Fix specific admin inputs */
+        #admin-email,
+        #admin-password,
+        #product-search,
+        #category-filter,
+        #order-status-filter,
+        #user-search,
+        #user-role-filter,
+        #user-status-filter {
+            color: #1a1a2e !important;
+            background-color: white !important;
+        }
+        
+        /* Fix all text in admin sections */
+        .admin-main,
+        .content-section,
+        .login-card {
+            color: #1a1a2e;
+        }
+        
+        .admin-main p,
+        .content-section p,
+        .login-card p {
+            color: #666;
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="admin-login-container" id="admin-login-container">
+        <div class="login-card">
+            <h1><i class="fas fa-sun" style="color: var(--accent-color);"></i> SOLARA</h1>
+            <p>Admin Dashboard Login</p>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" placeholder="admin@solara.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Password</label>
+                    <input type="password" id="admin-password" placeholder="••••••••" required>
+                </div>
+                <div class="form-message" id="admin-login-message"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard hidden" id="admin-dashboard">
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome back, Admin</p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <button class="btn btn-outline" onclick="window.switchSection && window.switchSection('products')">
+                        <i class="fas fa-box"></i> Products
+                    </button>
+                    <button class="btn btn-outline" onclick="window.switchSection && window.switchSection('orders')">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </button>
+                    <button class="btn btn-outline" onclick="window.switchSection && window.switchSection('users')">
+                        <i class="fas fa-users"></i> Users
+                    </button>
+                    <button class="btn btn-primary" onclick="window.switchSection && window.switchSection('add-product')">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                    <button class="btn btn-secondary" id="admin-logout-btn" style="background: #ff6b6b; color: white;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon products"><i class="fas fa-box"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-products">0</h3>
+                        <p>Products</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orders"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-orders">0</h3>
+                        <p>Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon revenue"><i class="fas fa-coins"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-revenue">0 EGP</h3>
+                        <p>Revenue</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon customers"><i class="fas fa-users"></i></div>
+                    <div class="stat-info">
+                        <h3 id="stat-customers">0</h3>
+                        <p>Customers</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="products">Products</button>
+                <button class="tab-btn" data-tab="orders">Orders</button>
+                <button class="tab-btn" data-tab="users">Users</button>
+            </div>
+
+            <!-- Products Section -->
+            <div class="content-section active" id="products-section">
+                <div class="section-header">
+                    <h2>All Products</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" id="product-search" placeholder="Search products..." style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <select id="category-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="">All Categories</option>
+                            <option value="men">Men</option>
+                            <option value="women">Women</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div class="content-section" id="orders-section">
+                <div class="section-header">
+                    <h2>All Orders</h2>
+                    <select id="order-status-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="orders-list" id="orders-list">
+                    <p style="text-align: center; color: #666; padding: 2rem;">Loading orders...</p>
+                </div>
+            </div>
+
+            <!-- Status Update Modal -->
+            <div id="status-update-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+                <div style="background: white; border-radius: 16px; padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0; font-size: 1.5rem;">Update Order Status</h2>
+                        <button onclick="closeStatusModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: #666; margin-bottom: 0.5rem;">Current Status:</p>
+                        <span id="current-status-display" class="status-badge" style="font-size: 1rem; padding: 0.5rem 1rem;"></span>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="status-select" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Select New Status:</label>
+                        <select id="status-select" style="width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                            <option value="">-- Select Status --</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeStatusModal()" style="padding: 0.75rem 1.5rem; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 500;">Cancel</button>
+                        <button onclick="confirmStatusUpdate()" style="padding: 0.75rem 1.5rem; border: none; background: var(--accent-color, #1a1a2e); color: white; border-radius: 8px; cursor: pointer; font-weight: 500;">Update Status</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Section -->
+            <div class="content-section" id="users-section">
+                <div class="section-header">
+                    <h2>All Users</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <input type="text" id="user-search" placeholder="Search users..." style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <select id="user-role-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="">All Roles</option>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <select id="user-status-filter" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px;">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Product Section -->
+            <div class="content-section" id="add-product-section">
+                <div class="section-header">
+                    <h2>Add New Product</h2>
+                </div>
+                <form id="add-product-form" class="product-form" enctype="multipart/form-data">
+                    <div class="form-sections">
+                        <!-- Basic Information -->
+                        <section class="form-section">
+                            <h2>Basic Information</h2>
+                            
+                            <div class="form-group">
+                                <label for="product-name">Product Name *</label>
+                                <input type="text" id="product-name" name="name" placeholder="Enter product name" required>
+                                <span class="error-message" id="name-error"></span>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-category">Category *</label>
+                                    <select id="product-category" name="category" required>
+                                        <option value="">Select category</option>
+                                        <option value="men">Men's Collection</option>
+                                        <option value="women">Women's Collection</option>
+                                    </select>
+                                    <span class="error-message" id="category-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-brand">Brand</label>
+                                    <input type="text" id="product-brand" name="brand" placeholder="Enter brand name">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-description">Product Description</label>
+                                <textarea id="product-description" name="description" rows="4" placeholder="Describe the product features, materials, and style..."></textarea>
+                            </div>
+                        </section>
+                        
+                        <!-- Pricing & Inventory -->
+                        <section class="form-section">
+                            <h2>Pricing & Inventory</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-price">Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="product-price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                                    </div>
+                                    <span class="error-message" id="price-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-compare-price">Compare at Price</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="product-compare-price" name="comparePrice" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <small class="form-help">Show customers the original price (optional)</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-sku">SKU</label>
+                                    <input type="text" id="product-sku" name="sku" placeholder="Product SKU">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-stock">Stock Quantity</label>
+                                    <input type="number" id="product-stock" name="stock" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="track-inventory" name="trackInventory">
+                                    <span class="checkmark"></span>
+                                    Track inventory for this product
+                                </label>
+                            </div>
+                        </section>
+                        
+                        <!-- Product Images -->
+                        <section class="form-section">
+                            <h2>Product Images</h2>
+                            
+                            <div class="form-group">
+                                <label for="product-image">Main Image *</label>
+                                <input type="file" id="product-image" name="images" accept="image/*" required>
+                                <span class="error-message" id="image-error"></span>
+                                <small class="form-help">Upload the main product image (Max 5MB, JPEG, PNG, GIF, WebP)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-gallery">Additional Images (Optional)</label>
+                                <input type="file" id="product-gallery" name="images" accept="image/*" multiple>
+                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
+                            </div>
+                            
+                            <div class="image-preview" id="image-preview">
+                                <!-- Image preview will be shown here -->
+                            </div>
+                        </section>
+                        
+                        <!-- Product Details -->
+                        <section class="form-section">
+                            <h2>Product Details</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-size">Available Sizes</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="S">
+                                            <span class="checkmark"></span>
+                                            S
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="M">
+                                            <span class="checkmark"></span>
+                                            M
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="L">
+                                            <span class="checkmark"></span>
+                                            L
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="XL">
+                                            <span class="checkmark"></span>
+                                            XL
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-colors">Available Colors</label>
+                                    <div class="color-inputs">
+                                        <input type="text" name="colors" placeholder="Blue" class="color-input">
+                                        <input type="text" name="colors" placeholder="Red" class="color-input">
+                                        <input type="text" name="colors" placeholder="Black" class="color-input">
+                                        <input type="text" name="colors" placeholder="White" class="color-input">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-material">Material</label>
+                                    <input type="text" id="product-material" name="material" placeholder="e.g., 100% Cotton">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="product-care">Care Instructions</label>
+                                    <input type="text" id="product-care" name="care" placeholder="e.g., Machine wash cold">
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- SEO & Marketing -->
+                        <section class="form-section">
+                            <h2>SEO & Marketing</h2>
+                            
+                            <div class="form-group">
+                                <label for="product-tags">Tags</label>
+                                <input type="text" id="product-tags" name="tags" placeholder="casual, summer, cotton (comma separated)">
+                                <small class="form-help">Add tags to help customers find this product</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-meta-title">Meta Title</label>
+                                <input type="text" id="product-meta-title" name="metaTitle" placeholder="SEO title for search engines">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-meta-description">Meta Description</label>
+                                <textarea id="product-meta-description" name="metaDescription" rows="2" placeholder="SEO description for search engines"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="featured-product" name="featured">
+                                    <span class="checkmark"></span>
+                                    Mark as featured product
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="product-status" name="status" checked>
+                                    <span class="checkmark"></span>
+                                    Product is active and visible to customers
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.switchSection && window.switchSection('products')">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Product
+                        </button>
+                    </div>
+                    
+                    <div class="form-message" id="add-product-message"></div>
+                </form>
+            </div>
+
+            <!-- Edit Product Section -->
+            <div class="content-section" id="edit-product-section">
+                <div class="section-header">
+                    <h2>Edit Product</h2>
+                    <button class="btn btn-secondary" onclick="window.switchSection && window.switchSection('products')">
+                        <i class="fas fa-arrow-left"></i> Back to Products
+                    </button>
+                </div>
+                <form id="edit-product-form" class="product-form" enctype="multipart/form-data">
+                    <input type="hidden" id="edit-product-id" name="id">
+                    
+                    <div class="form-sections">
+                        <!-- Basic Information -->
+                        <section class="form-section">
+                            <h2>Basic Information</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-name">Product Name *</label>
+                                <input type="text" id="edit-product-name" name="name" placeholder="Enter product name" required>
+                                <span class="error-message" id="edit-name-error"></span>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-category">Category *</label>
+                                    <select id="edit-product-category" name="category" required>
+                                        <option value="">Select category</option>
+                                        <option value="men">Men's Collection</option>
+                                        <option value="women">Women's Collection</option>
+                                    </select>
+                                    <span class="error-message" id="edit-category-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-brand">Brand</label>
+                                    <input type="text" id="edit-product-brand" name="brand" placeholder="Enter brand name">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-description">Product Description</label>
+                                <textarea id="edit-product-description" name="description" rows="4" placeholder="Describe the product features, materials, and style..."></textarea>
+                            </div>
+                        </section>
+                        
+                        <!-- Pricing & Inventory -->
+                        <section class="form-section">
+                            <h2>Pricing & Inventory</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-price">Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="edit-product-price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                                    </div>
+                                    <span class="error-message" id="edit-price-error"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-compare-price">Compare at Price</label>
+                                    <div class="input-group">
+                                        <span class="input-prefix">EGP</span>
+                                        <input type="number" id="edit-product-compare-price" name="comparePrice" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <small class="form-help">Show customers the original price (optional)</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-sku">SKU</label>
+                                    <input type="text" id="edit-product-sku" name="sku" placeholder="Product SKU">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-stock">Stock Quantity</label>
+                                    <input type="number" id="edit-product-stock" name="stock" min="0" placeholder="0">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-track-inventory" name="trackInventory">
+                                    <span class="checkmark"></span>
+                                    Track inventory for this product
+                                </label>
+                            </div>
+                        </section>
+                        
+                        <!-- Product Images -->
+                        <section class="form-section">
+                            <h2>Product Images</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-image">Current Main Image</label>
+                                <div id="edit-current-image" style="margin-bottom: 1rem;">
+                                    <!-- Current image will be shown here -->
+                                </div>
+                                <label for="edit-product-image-upload">Upload New Main Image (Optional)</label>
+                                <input type="file" id="edit-product-image-upload" name="images" accept="image/*">
+                                <span class="error-message" id="edit-image-error"></span>
+                                <small class="form-help">Leave empty to keep current image, or upload a new one (Max 5MB)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-gallery">Additional Images (Optional)</label>
+                                <input type="file" id="edit-product-gallery" name="images" accept="image/*" multiple>
+                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
+                            </div>
+                            
+                            <div class="image-preview" id="edit-image-preview">
+                                <!-- Image preview will be shown here -->
+                            </div>
+                        </section>
+                        
+                        <!-- Product Details -->
+                        <section class="form-section">
+                            <h2>Product Details</h2>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-size">Available Sizes</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="S">
+                                            <span class="checkmark"></span>
+                                            S
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="M">
+                                            <span class="checkmark"></span>
+                                            M
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="L">
+                                            <span class="checkmark"></span>
+                                            L
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="sizes" value="XL">
+                                            <span class="checkmark"></span>
+                                            XL
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-colors">Available Colors</label>
+                                    <div class="color-inputs">
+                                        <input type="text" name="colors" placeholder="Blue" class="color-input">
+                                        <input type="text" name="colors" placeholder="Red" class="color-input">
+                                        <input type="text" name="colors" placeholder="Black" class="color-input">
+                                        <input type="text" name="colors" placeholder="White" class="color-input">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="edit-product-material">Material</label>
+                                    <input type="text" id="edit-product-material" name="material" placeholder="e.g., 100% Cotton">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="edit-product-care">Care Instructions</label>
+                                    <input type="text" id="edit-product-care" name="care" placeholder="e.g., Machine wash cold">
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- SEO & Marketing -->
+                        <section class="form-section">
+                            <h2>SEO & Marketing</h2>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-tags">Tags</label>
+                                <input type="text" id="edit-product-tags" name="tags" placeholder="casual, summer, cotton (comma separated)">
+                                <small class="form-help">Add tags to help customers find this product</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-meta-title">Meta Title</label>
+                                <input type="text" id="edit-product-meta-title" name="metaTitle" placeholder="SEO title for search engines">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="edit-product-meta-description">Meta Description</label>
+                                <textarea id="edit-product-meta-description" name="metaDescription" rows="2" placeholder="SEO description for search engines"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-featured-product" name="featured">
+                                    <span class="checkmark"></span>
+                                    Mark as featured product
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="edit-product-status" name="status">
+                                    <span class="checkmark"></span>
+                                    Product is active and visible to customers
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.switchSection && window.switchSection('products')">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Update Product
+                        </button>
+                    </div>
+                    
+                    <div class="form-message" id="edit-product-message"></div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/api.js"></script>
+    <script src="../js/data.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let isAdminLoggedIn = false;
+        let allProducts = [];
+        let allOrders = [];
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('DOM Content Loaded');
+            await initializeData();
+            // Set up login form listener immediately (needed for login screen)
+            setupEventListeners();
+            checkAdminAuth();
+        });
+
+        function checkAdminAuth() {
+            const adminAuthed = localStorage.getItem('solaraAdminAuthed');
+            const currentUser = AuthAPI?.getCurrentUser() || JSON.parse(localStorage.getItem('currentUser') || '{}');
+            
+            if (adminAuthed === 'true' || currentUser.role === 'admin') {
+                isAdminLoggedIn = true;
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('admin-login-container').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        function showDashboard() {
+            document.getElementById('admin-login-container').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            
+            // Ensure utility functions are available
+            if (typeof formatPrice === 'undefined' && typeof window.formatPrice === 'function') {
+                window.formatPrice = window.formatPrice;
+            }
+            if (typeof showNotification === 'undefined' && typeof window.showNotification === 'function') {
+                window.showNotification = window.showNotification;
+            }
+            
+            // Setup dashboard event listeners after dashboard is shown and elements are ready
+            setTimeout(() => {
+                setupDashboardEventListeners();
+            }, 200);
+            
+            // Show dashboard view (products section)
+            setTimeout(() => {
+                if (typeof window.switchSection === 'function') {
+                    window.switchSection('dashboard');
+                } else {
+                    console.error('switchSection not available yet');
+                    // Fallback: manually show products section
+                    const productsSection = document.getElementById('products-section');
+                    if (productsSection) {
+                        productsSection.classList.add('active');
+                    }
+                }
+            }, 100);
+            
+            loadDashboardData();
+        }
+
+        async function loadDashboardData() {
+            // Load products from backend API ONLY
+            try {
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                // Admin should see ALL products (including inactive)
+                // Request with high limit to get all products in one call
+                // Backend will return all products if admin is authenticated (token in header)
+                // Use limit 1000 which should pass validation (max is 10000, but server might need restart)
+                const response = await ProductsAPI.getAll({ limit: 1000 });
+                
+                if (response.success) {
+                    allProducts = response.data || [];
+                } else {
+                    throw new Error(response.error || 'Failed to load products');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                console.error('Error details:', error);
+                // Try with smaller limit as fallback
+                try {
+                    const fallbackResponse = await ProductsAPI.getAll({ limit: 100 });
+                    if (fallbackResponse.success) {
+                        allProducts = fallbackResponse.data || [];
+                        console.log('Loaded products with fallback limit:', allProducts.length);
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                    allProducts = [];
+                    if (typeof showNotification === 'function') {
+                        showNotification('Failed to load products: ' + error.message, 'error');
+                    }
+                }
+            }
+            
+            // Load orders from backend API ONLY
+            try {
+                if (typeof OrdersAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                const response = await OrdersAPI.getAll();
+                if (response.success) {
+                    allOrders = response.data || [];
+                } else {
+                    throw new Error(response.error || 'Failed to load orders');
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                allOrders = [];
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to load orders: ' + error.message, 'error');
+                }
+            }
+            
+            // Load users from backend API ONLY
+            try {
+                if (typeof UsersAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                const response = await UsersAPI.getAll();
+                if (response.success) {
+                    allUsers = response.data || [];
+                } else {
+                    throw new Error(response.error || 'Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                allUsers = [];
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to load users: ' + error.message, 'error');
+                }
+            }
+            
+            // Update stats
+            const productsEl = document.getElementById('stat-products');
+            const ordersEl = document.getElementById('stat-orders');
+            const revenueEl = document.getElementById('stat-revenue');
+            const customersEl = document.getElementById('stat-customers');
+            
+            if (productsEl) productsEl.textContent = allProducts.length;
+            if (ordersEl) ordersEl.textContent = allOrders.length;
+            
+            const revenue = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            if (revenueEl) revenueEl.textContent = typeof formatPrice === 'function' ? formatPrice(revenue) : revenue + ' EGP';
+            
+            // Use actual user count from MongoDB, not order-based count
+            if (customersEl) customersEl.textContent = allUsers.length;
+            
+            renderProducts();
+            renderOrders();
+            renderUsers();
+        }
+
+        // Switch between sections - make it globally accessible
+        window.switchSection = function(sectionName) {
+            // Hide all content sections
+            const sections = ['products', 'orders', 'users', 'add-product', 'edit-product'];
+            sections.forEach(section => {
+                const el = document.getElementById(section + '-section');
+                if (el) el.classList.remove('active');
+            });
+            
+            // Handle special cases
+            const tabsEl = document.querySelector('.admin-tabs');
+            
+            if (sectionName === 'dashboard') {
+                // Show products section as default view
+                const productsSection = document.getElementById('products-section');
+                if (productsSection) {
+                    productsSection.classList.add('active');
+                }
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === 'products');
+                });
+                // Show tabs
+                if (tabsEl) tabsEl.style.display = 'flex';
+            } else if (sectionName === 'products' || sectionName === 'orders' || sectionName === 'users') {
+                // Show the requested section
+                const targetSection = document.getElementById(sectionName + '-section');
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === sectionName);
+                });
+                // Show tabs
+                if (tabsEl) tabsEl.style.display = 'flex';
+            } else if (sectionName === 'add-product') {
+                // Show add product section
+                const addProductSection = document.getElementById('add-product-section');
+                if (addProductSection) {
+                    addProductSection.classList.add('active');
+                }
+                // Hide tab buttons area when in add product mode
+                if (tabsEl) tabsEl.style.display = 'none';
+            } else if (sectionName === 'edit-product') {
+                // Show edit product section
+                const editProductSection = document.getElementById('edit-product-section');
+                if (editProductSection) {
+                    editProductSection.classList.add('active');
+                }
+                // Hide tab buttons area when in edit product mode
+                if (tabsEl) tabsEl.style.display = 'none';
+            }
+        }
+
+        function renderProducts(filter = '') {
+            const tbody = document.getElementById('products-tbody');
+            if (!tbody) return;
+            
+            const categoryFilter = document.getElementById('category-filter');
+            const productSearch = document.getElementById('product-search');
+            const category = categoryFilter ? categoryFilter.value : '';
+            const search = productSearch ? productSearch.value.toLowerCase() : '';
+            
+            let filtered = allProducts || [];
+            if (category) filtered = filtered.filter(p => p.category === category);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No products found</td></tr>';
+                return;
+            }
+            
+            // Helper function to get proper image URL (handles both local and server-uploaded images)
+            function getAdminImageUrl(imagePath) {
+                if (!imagePath) return '../images/placeholder.jpg';
+                // If it's already a full URL, use it
+                if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+                    return imagePath;
+                }
+                // If it's a server upload path (starts with /uploads), use full URL
+                if (imagePath.startsWith('/uploads/')) {
+                    return `http://localhost:5000${imagePath}`;
+                }
+                // Otherwise, treat as relative path from admin directory
+                return `../${imagePath}`;
+            }
+            
+            tbody.innerHTML = filtered.map(product => {
+                const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                const imageUrl = getAdminImageUrl(imagePath);
+                const pid = product._id || product.id;
+                const price = typeof formatPrice === 'function' ? formatPrice(product.price) : (product.price + ' EGP');
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.src='../images/placeholder.jpg'">
+                                <span>${product.name}</span>
+                            </div>
+                        </td>
+                        <td style="text-transform: capitalize;">${product.category || 'N/A'}</td>
+                        <td>${price}</td>
+                        <td>${product.stock || 0}</td>
+                        <td><span class="status-badge status-${product.status || 'active'}">${product.status || 'active'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="editProduct('${pid}')" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteProduct('${pid}')" class="delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderOrders(statusFilter = '') {
+            const container = document.getElementById('orders-list');
+            if (!container) return;
+            
+            let filtered = allOrders || [];
+            if (statusFilter) filtered = filtered.filter(o => o.status === statusFilter);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No orders found</p>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(order => {
+                const orderNumber = order.orderNumber || order._id || order.id;
+                const date = new Date(order.createdAt || order.date).toLocaleDateString();
+                const customer = (order.shippingAddress?.firstName || '') + ' ' + (order.shippingAddress?.lastName || '');
+                const status = order.status || 'pending';
+                const total = typeof formatPrice === 'function' ? formatPrice(order.total || 0) : (order.total || 0) + ' EGP';
+                
+                return `
+                    <div class="order-card">
+                        <div>
+                            <h4>#${String(orderNumber).slice(-8).toUpperCase()}</h4>
+                            <p>${customer || 'Guest'}</p>
+                        </div>
+                        <div>
+                            <p style="font-weight: 600;">${total}</p>
+                            <p>${order.items?.length || 0} items</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-${status}" title="Order Status: ${status.charAt(0).toUpperCase() + status.slice(1)}">
+                                ${status.charAt(0).toUpperCase() + status.slice(1)}
+                            </span>
+                        </div>
+                        <div>
+                            <p>${date}</p>
+                        </div>
+                        <div class="action-btns">
+                            <button onclick="viewOrder('${order._id || order.id}')" title="View"><i class="fas fa-eye"></i></button>
+                            <button onclick="updateOrderStatus('${order._id || order.id}')" title="Update Status"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('users-tbody');
+            if (!tbody) return;
+            
+            const userSearch = document.getElementById('user-search');
+            const roleFilter = document.getElementById('user-role-filter');
+            const statusFilter = document.getElementById('user-status-filter');
+            
+            const search = userSearch ? userSearch.value.toLowerCase() : '';
+            const role = roleFilter ? roleFilter.value : '';
+            const status = statusFilter ? statusFilter.value : '';
+            
+            let filtered = allUsers || [];
+            
+            if (search) {
+                filtered = filtered.filter(u => {
+                    const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+                    const email = (u.email || '').toLowerCase();
+                    return name.includes(search) || email.includes(search);
+                });
+            }
+            
+            if (role) {
+                filtered = filtered.filter(u => u.role === role);
+            }
+            
+            if (status === 'active') {
+                filtered = filtered.filter(u => u.isActive !== false);
+            } else if (status === 'inactive') {
+                filtered = filtered.filter(u => u.isActive === false);
+            }
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(user => {
+                const userId = user._id || user.id;
+                const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'N/A';
+                const email = user.email || 'N/A';
+                const role = user.role || 'user';
+                const isActive = user.isActive !== false;
+                const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${isActive ? '#4caf50' : '#f44336'}; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                                    ${name.charAt(0).toUpperCase()}
+                                </div>
+                                <span>${name}</span>
+                            </div>
+                        </td>
+                        <td>${email}</td>
+                        <td style="text-transform: capitalize;">${role}</td>
+                        <td>
+                            <span class="status-badge status-${isActive ? 'active' : 'inactive'}">
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>${joinedDate}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="viewUser('${userId}')" title="View"><i class="fas fa-eye"></i></button>
+                                <button onclick="toggleUserStatus('${userId}')" title="${isActive ? 'Deactivate' : 'Activate'}">
+                                    <i class="fas fa-${isActive ? 'ban' : 'check'}"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        let eventListenersSetup = false;
+        
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Login form - always set up (exists in login screen)
+            const loginForm = document.getElementById('admin-login-form');
+            if (!loginForm) {
+                console.warn('Login form not found');
+            } else {
+                // Remove old listener if exists
+                const newForm = loginForm.cloneNode(true);
+                loginForm.parentNode.replaceChild(newForm, loginForm);
+                
+                document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('admin-email').value;
+                    const password = document.getElementById('admin-password').value;
+                    const msg = document.getElementById('admin-login-message');
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    
+                    // Clear previous messages
+                    if (msg) {
+                        msg.textContent = '';
+                        msg.className = 'form-message';
+                        msg.style.display = 'none';
+                    }
+                    
+                    // Disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                    }
+                    
+                    try {
+                        // API ONLY - NO FALLBACKS
+                        if (typeof AuthAPI === 'undefined') {
+                            throw new Error('Backend API not available. Please ensure the server is running.');
+                        }
+                        
+                        const response = await AuthAPI.adminLogin(email, password);
+                        
+                        if (!response.success) {
+                            throw new Error(response.error || 'Invalid credentials');
+                        }
+                        
+                        // Success - set auth state
+                        localStorage.setItem('solaraAdminAuthed', 'true');
+                        isAdminLoggedIn = true;
+                        
+                        // Show success message briefly
+                        if (msg) {
+                            msg.textContent = 'Login successful! Redirecting...';
+                            msg.className = 'form-message success';
+                            msg.style.display = 'block';
+                        }
+                        
+                        // Show dashboard
+                        setTimeout(() => {
+                            showDashboard();
+                        }, 500);
+                        
+                    } catch (error) {
+                        console.error('Admin login error:', error);
+                        const errorMsg = error.message || 'Login failed. Please check your credentials and try again.';
+                        
+                        if (msg) {
+                            msg.textContent = errorMsg;
+                            msg.className = 'form-message error';
+                            msg.style.display = 'block';
+                        }
+                    } finally {
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                        }
+                    }
+                });
+            }
+        }
+        
+        function setupDashboardEventListeners() {
+            console.log('Setting up dashboard event listeners...');
+            
+            // Check if dashboard elements exist
+            const adminDashboard = document.getElementById('admin-dashboard');
+            if (!adminDashboard || adminDashboard.classList.contains('hidden')) {
+                console.warn('Dashboard not visible, skipping dashboard event listeners');
+                return;
+            }
+            
+            // Logout
+            const logoutBtn = document.getElementById('admin-logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    localStorage.removeItem('solaraAdminAuthed');
+                    localStorage.removeItem('isAdmin');
+                    if (typeof AuthAPI !== 'undefined') AuthAPI.logout();
+                    showLogin();
+                });
+            } else {
+                console.warn('Logout button not found');
+            }
+            
+            // Tabs - use event delegation
+            const adminTabs = document.querySelector('.admin-tabs');
+            if (adminTabs) {
+                adminTabs.addEventListener('click', function(e) {
+                    const tabBtn = e.target.closest('.tab-btn');
+                    if (tabBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const tabName = tabBtn.dataset.tab;
+                        console.log('Tab button clicked:', tabName);
+                        
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        tabBtn.classList.add('active');
+                        
+                        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                        const targetSection = document.getElementById(tabName + '-section');
+                        if (targetSection) {
+                            targetSection.classList.add('active');
+                        } else {
+                            console.error('Section not found:', tabName + '-section');
+                        }
+                    }
+                });
+                console.log('Tab buttons event delegation set up');
+            } else {
+                console.warn('Admin tabs not found');
+            }
+            
+            
+            eventListenersSetup = true;
+            console.log('Dashboard event listeners setup complete');
+            
+            // Show tabs when not in add-product mode
+            const tabsEl = document.querySelector('.admin-tabs');
+            if (tabsEl) {
+                // Restore tabs display when switching away from add-product
+                const observer = new MutationObserver(() => {
+                    const addProductSection = document.getElementById('add-product-section');
+                    if (addProductSection && !addProductSection.classList.contains('active')) {
+                        tabsEl.style.display = 'flex';
+                    }
+                });
+                observer.observe(document.getElementById('add-product-section'), {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+            }
+            
+            // Search & filter
+            const productSearch = document.getElementById('product-search');
+            const categoryFilter = document.getElementById('category-filter');
+            const orderStatusFilter = document.getElementById('order-status-filter');
+            
+            if (productSearch) {
+                productSearch.addEventListener('input', () => renderProducts());
+            }
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', () => renderProducts());
+            }
+            if (orderStatusFilter) {
+                orderStatusFilter.addEventListener('change', (e) => renderOrders(e.target.value));
+            }
+            
+            // User search & filters
+            const userSearch = document.getElementById('user-search');
+            const userRoleFilter = document.getElementById('user-role-filter');
+            const userStatusFilter = document.getElementById('user-status-filter');
+            
+            if (userSearch) {
+                userSearch.addEventListener('input', () => renderUsers());
+            }
+            if (userRoleFilter) {
+                userRoleFilter.addEventListener('change', () => renderUsers());
+            }
+            if (userStatusFilter) {
+                userStatusFilter.addEventListener('change', () => renderUsers());
+            }
+            
+            // Add Product Form Handler - BACKEND ONLY
+            const addProductForm = document.getElementById('add-product-form');
+            if (addProductForm) {
+                addProductForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const messageEl = document.getElementById('add-product-message');
+                    
+                    // Disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Product...';
+                    }
+                    
+                    // Clear previous messages
+                    if (messageEl) {
+                        messageEl.textContent = '';
+                        messageEl.className = 'form-message';
+                        messageEl.style.display = 'none';
+                    }
+                    
+                    try {
+                        // BACKEND ONLY - NO FALLBACKS
+                        if (typeof ProductsAPI === 'undefined') {
+                            throw new Error('Backend API not available');
+                        }
+                        
+                        // Collect form data as FormData for file upload
+                        const formData = new FormData(e.target);
+                        
+                        // Get file inputs
+                        const mainImageInput = document.getElementById('product-image');
+                        const galleryInput = document.getElementById('product-gallery');
+                        
+                        // Validate that main image is uploaded
+                        if (!mainImageInput.files || mainImageInput.files.length === 0) {
+                            throw new Error('Please upload a main product image');
+                        }
+                        
+                        // Add all form fields to FormData
+                        formData.append('name', formData.get('name') || '');
+                        formData.append('category', formData.get('category') || '');
+                        formData.append('brand', formData.get('brand') || 'SOLARA');
+                        formData.append('description', formData.get('description') || '');
+                        formData.append('price', formData.get('price') || '0');
+                        if (formData.get('comparePrice')) {
+                            formData.append('comparePrice', formData.get('comparePrice'));
+                        }
+                        if (formData.get('sku')) {
+                            formData.append('sku', formData.get('sku'));
+                        }
+                        formData.append('stock', formData.get('stock') || '0');
+                        formData.append('material', formData.get('material') || '');
+                        formData.append('care', formData.get('care') || '');
+                        if (formData.get('tags')) {
+                            formData.append('tags', formData.get('tags'));
+                        }
+                        if (formData.get('metaTitle')) {
+                            formData.append('metaTitle', formData.get('metaTitle'));
+                        }
+                        if (formData.get('metaDescription')) {
+                            formData.append('metaDescription', formData.get('metaDescription'));
+                        }
+                        formData.append('featured', formData.get('featured') === 'on' ? 'true' : 'false');
+                        formData.append('status', formData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        // Add sizes
+                        const selectedSizes = Array.from(document.querySelectorAll('#add-product-section input[name="sizes"]:checked')).map(cb => cb.value);
+                        selectedSizes.forEach(size => {
+                            formData.append('sizes', size);
+                        });
+                        
+                        // Add colors
+                        const colorInputs = Array.from(document.querySelectorAll('#add-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '');
+                        colorInputs.forEach(color => {
+                            formData.append('colors', color);
+                        });
+                        
+                        // Validate required fields (mainImageInput already declared above)
+                        if (!formData.get('name') || !formData.get('category') || !formData.get('price')) {
+                            throw new Error('Please fill in all required fields');
+                        }
+                        if (!mainImageInput || !mainImageInput.files || mainImageInput.files.length === 0) {
+                            throw new Error('Please upload a main product image');
+                        }
+                        
+                        // Call backend API with FormData
+                        const response = await ProductsAPI.createWithFiles(formData);
+                        
+                        if (!response.success) {
+                            throw new Error(response.error || 'Failed to create product');
+                        }
+                        
+                        // Success - refresh from backend
+                        e.target.reset();
+                        const previewContainer = document.getElementById('image-preview');
+                        if (previewContainer) {
+                            previewContainer.innerHTML = '';
+                        }
+                        
+                        // Show success message
+                        if (messageEl) {
+                            messageEl.textContent = 'Product created successfully!';
+                            messageEl.className = 'form-message success';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification('Product created successfully', 'success');
+                        }
+                        
+                        // Reload data from backend
+                        await loadDashboardData();
+                        
+                        // Switch to products section after a short delay
+                        setTimeout(() => {
+                            if (typeof window.switchSection === 'function') {
+                                window.switchSection('products');
+                            }
+                            if (messageEl) {
+                                messageEl.style.display = 'none';
+                            }
+                        }, 1500);
+                        
+                    } catch (error) {
+                        console.error('Error creating product:', error);
+                        const errorMsg = error.message || 'Failed to create product. Please try again.';
+                        
+                        if (messageEl) {
+                            messageEl.textContent = errorMsg;
+                            messageEl.className = 'form-message error';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(errorMsg, 'error');
+                        }
+                    } finally {
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Product';
+                        }
+                    }
+                });
+                
+                // Image preview functionality
+                const imageInput = document.getElementById('product-image');
+                if (imageInput) {
+                    imageInput.addEventListener('input', () => {
+                        const imageUrl = imageInput.value.trim();
+                        const previewContainer = document.getElementById('image-preview');
+                        if (previewContainer && imageUrl) {
+                            previewContainer.innerHTML = `
+                                <div style="margin-top: 1rem;">
+                                    <img src="../${imageUrl}" alt="Product Preview" 
+                                         style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <p style="display: none; color: #f44336; margin-top: 0.5rem;">Image not found</p>
+                                </div>
+                            `;
+                        } else if (previewContainer) {
+                            previewContainer.innerHTML = '';
+                        }
+                    });
+                }
+            }
+            
+            // Edit Product Form Handler - BACKEND ONLY
+            const editProductForm = document.getElementById('edit-product-form');
+            if (editProductForm) {
+                editProductForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const messageEl = document.getElementById('edit-product-message');
+                    const productId = document.getElementById('edit-product-id').value;
+                    
+                    if (!productId) {
+                        if (messageEl) {
+                            messageEl.textContent = 'Product ID is missing';
+                            messageEl.className = 'form-message error';
+                            messageEl.style.display = 'block';
+                        }
+                        return;
+                    }
+                    
+                    // Disable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating Product...';
+                    }
+                    
+                    // Clear previous messages
+                    if (messageEl) {
+                        messageEl.textContent = '';
+                        messageEl.className = 'form-message';
+                        messageEl.style.display = 'none';
+                    }
+                    
+                    try {
+                        // BACKEND ONLY - NO FALLBACKS
+                        if (typeof ProductsAPI === 'undefined') {
+                            throw new Error('Backend API not available');
+                        }
+                        
+                        // Collect form data as FormData for file upload
+                        const originalFormData = new FormData(e.target);
+                        
+                        // Clear and rebuild FormData to only include fields with values
+                        const formData = new FormData();
+                        
+                        // Required fields
+                        const name = originalFormData.get('name');
+                        const category = originalFormData.get('category');
+                        const price = originalFormData.get('price');
+                        
+                        if (name && name.trim()) formData.append('name', name.trim());
+                        if (category && category.trim()) formData.append('category', category.trim());
+                        if (price && price.trim()) formData.append('price', price.trim());
+                        
+                        // Optional fields - only add if they have values
+                        const brand = originalFormData.get('brand');
+                        if (brand && brand.trim()) formData.append('brand', brand.trim());
+                        
+                        const description = originalFormData.get('description');
+                        if (description && description.trim()) formData.append('description', description.trim());
+                        
+                        const comparePrice = originalFormData.get('comparePrice');
+                        if (comparePrice && comparePrice.trim()) {
+                            formData.append('comparePrice', comparePrice.trim());
+                        }
+                        
+                        const sku = originalFormData.get('sku');
+                        if (sku && sku.trim()) {
+                            formData.append('sku', sku.trim());
+                        }
+                        
+                        const stock = originalFormData.get('stock');
+                        if (stock && stock.trim()) formData.append('stock', stock.trim());
+                        
+                        const material = originalFormData.get('material');
+                        if (material && material.trim()) formData.append('material', material.trim());
+                        
+                        const care = originalFormData.get('care');
+                        if (care && care.trim()) formData.append('care', care.trim());
+                        
+                        const tags = originalFormData.get('tags');
+                        if (tags && tags.trim()) {
+                            formData.append('tags', tags.trim());
+                        }
+                        
+                        const metaTitle = originalFormData.get('metaTitle');
+                        if (metaTitle && metaTitle.trim()) {
+                            formData.append('metaTitle', metaTitle.trim());
+                        }
+                        
+                        const metaDescription = originalFormData.get('metaDescription');
+                        if (metaDescription && metaDescription.trim()) {
+                            formData.append('metaDescription', metaDescription.trim());
+                        }
+                        
+                        formData.append('featured', originalFormData.get('featured') === 'on' ? 'true' : 'false');
+                        formData.append('status', originalFormData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        // Add file inputs
+                        const mainImageInput = document.getElementById('edit-product-image-upload');
+                        if (mainImageInput && mainImageInput.files && mainImageInput.files.length > 0) {
+                            formData.append('images', mainImageInput.files[0]);
+                        }
+                        
+                        const galleryInput = document.getElementById('edit-product-gallery');
+                        if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                            Array.from(galleryInput.files).forEach(file => {
+                                formData.append('images', file);
+                            });
+                        }
+                        
+                        // Add sizes
+                        const selectedSizes = Array.from(document.querySelectorAll('#edit-product-section input[name="sizes"]:checked')).map(cb => cb.value);
+                        selectedSizes.forEach(size => {
+                            formData.append('sizes', size);
+                        });
+                        
+                        // Add colors
+                        const colorInputs = Array.from(document.querySelectorAll('#edit-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '');
+                        colorInputs.forEach(color => {
+                            formData.append('colors', color);
+                        });
+                        
+                        // Validate required fields (image is optional for updates - can keep existing)
+                        if (!name || !category || !price) {
+                            throw new Error('Please fill in all required fields');
+                        }
+                        
+                        // Call backend API to update with FormData
+                        const response = await ProductsAPI.updateWithFiles(productId, formData);
+                        
+                        if (!response.success) {
+                            throw new Error(response.error || 'Failed to update product');
+                        }
+                        
+                        // Show success message
+                        if (messageEl) {
+                            messageEl.textContent = 'Product updated successfully!';
+                            messageEl.className = 'form-message success';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification('Product updated successfully', 'success');
+                        }
+                        
+                        // Reload the product data and refresh the edit form
+                        if (response.data) {
+                            populateEditForm(response.data);
+                        } else {
+                            // If response doesn't include data, fetch it
+                            const productResponse = await ProductsAPI.getById(productId);
+                            if (productResponse.success && productResponse.data) {
+                                populateEditForm(productResponse.data);
+                            }
+                        }
+                        
+                        // Reload data from backend
+                        await loadDashboardData();
+                        
+                        // Switch to products section after a short delay
+                        setTimeout(() => {
+                            if (typeof window.switchSection === 'function') {
+                                window.switchSection('products');
+                            }
+                            if (messageEl) {
+                                messageEl.style.display = 'none';
+                            }
+                        }, 1500);
+                        
+                    } catch (error) {
+                        console.error('Error updating product:', error);
+                        const errorMsg = error.message || 'Failed to update product. Please try again.';
+                        
+                        if (messageEl) {
+                            messageEl.textContent = errorMsg;
+                            messageEl.className = 'form-message error';
+                            messageEl.style.display = 'block';
+                        }
+                        
+                        if (typeof showNotification === 'function') {
+                            showNotification(errorMsg, 'error');
+                        }
+                    } finally {
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Product';
+                        }
+                    }
+                });
+                
+                // Image preview functionality for edit form (handled in DOMContentLoaded above)
+            }
+            
+            eventListenersSetup = true;
+            console.log('Event listeners setup complete');
+        }
+
+        async function editProduct(productId) {
+            try {
+                // Fetch product from backend
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                const response = await ProductsAPI.getById(productId);
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to load product');
+                }
+                
+                const product = response.data;
+                if (!product) {
+                    throw new Error('Product not found');
+                }
+                
+                // Populate edit form
+                populateEditForm(product);
+                
+                // Switch to edit section
+                if (typeof window.switchSection === 'function') {
+                    window.switchSection('edit-product');
+                }
+            } catch (error) {
+                console.error('Error loading product for edit:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to load product: ' + error.message, 'error');
+                } else {
+                    alert('Failed to load product: ' + error.message);
+                }
+            }
+        }
+        
+        function populateEditForm(product) {
+            // Basic Information
+            document.getElementById('edit-product-id').value = product._id || product.id;
+            document.getElementById('edit-product-name').value = product.name || '';
+            document.getElementById('edit-product-category').value = product.category || '';
+            document.getElementById('edit-product-brand').value = product.brand || '';
+            document.getElementById('edit-product-description').value = product.description || '';
+            
+            // Pricing & Inventory
+            document.getElementById('edit-product-price').value = product.price || '';
+            document.getElementById('edit-product-compare-price').value = product.comparePrice || '';
+            document.getElementById('edit-product-sku').value = product.sku || '';
+            document.getElementById('edit-product-stock').value = product.stock || 0;
+            document.getElementById('edit-track-inventory').checked = product.trackInventory || false;
+            
+            // Images - Show current image
+            const currentImageDiv = document.getElementById('edit-current-image');
+            // Try to find primary image first, then first image, then legacy image field
+            let imageUrl = null;
+            if (product.images && product.images.length > 0) {
+                const primaryImage = product.images.find(img => img.isPrimary);
+                imageUrl = primaryImage ? primaryImage.url : product.images[0].url;
+            } else if (product.image) {
+                imageUrl = product.image;
+            }
+            
+            if (imageUrl && currentImageDiv) {
+                // Ensure the URL starts with /uploads
+                let fullImageUrl = imageUrl;
+                if (!imageUrl.startsWith('http')) {
+                    // If it doesn't start with /, add it
+                    if (!imageUrl.startsWith('/')) {
+                        imageUrl = '/' + imageUrl;
+                    }
+                    fullImageUrl = `http://localhost:5000${imageUrl}`;
+                }
+                
+                console.log('Loading product image:', fullImageUrl);
+                
+                currentImageDiv.innerHTML = `
+                    <img src="${fullImageUrl}" alt="${product.name}" 
+                         style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" 
+                         onerror="console.error('Failed to load image:', '${fullImageUrl}'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <p style="display: none; color: #f44336; margin-top: 0.5rem;">Failed to load image: ${fullImageUrl}</p>
+                `;
+            } else if (currentImageDiv) {
+                currentImageDiv.innerHTML = '<p style="color: var(--text-secondary);">No image uploaded</p>';
+            }
+            
+            // Clear file inputs (user can upload new ones if needed)
+            const imageUploadInput = document.getElementById('edit-product-image-upload');
+            const galleryInput = document.getElementById('edit-product-gallery');
+            if (imageUploadInput) imageUploadInput.value = '';
+            if (galleryInput) galleryInput.value = '';
+            
+            // Sizes
+            if (product.sizes && Array.isArray(product.sizes)) {
+                product.sizes.forEach(size => {
+                    const checkbox = document.querySelector(`#edit-product-section input[name="sizes"][value="${size}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Colors
+            if (product.colors && Array.isArray(product.colors)) {
+                const colorInputs = document.querySelectorAll('#edit-product-section input[name="colors"]');
+                product.colors.forEach((color, index) => {
+                    if (colorInputs[index]) {
+                        colorInputs[index].value = color;
+                    }
+                });
+            }
+            
+            // Product Details
+            document.getElementById('edit-product-material').value = product.material || '';
+            document.getElementById('edit-product-care').value = product.care || '';
+            
+            // SEO & Marketing
+            if (product.tags && Array.isArray(product.tags)) {
+                document.getElementById('edit-product-tags').value = product.tags.join(', ');
+            } else if (typeof product.tags === 'string') {
+                document.getElementById('edit-product-tags').value = product.tags;
+            }
+            document.getElementById('edit-product-meta-title').value = product.metaTitle || '';
+            document.getElementById('edit-product-meta-description').value = product.metaDescription || '';
+            document.getElementById('edit-featured-product').checked = product.featured || false;
+            document.getElementById('edit-product-status').checked = product.status === 'active' || false;
+        }
+        
+        function updateEditImagePreview() {
+            // Handle file input preview for edit form
+            const fileInput = document.getElementById('edit-product-image-upload');
+            const galleryInput = document.getElementById('edit-product-gallery');
+            const previewContainer = document.getElementById('edit-image-preview');
+            const currentImageDiv = document.getElementById('edit-current-image');
+            
+            if (!previewContainer) return;
+            
+            let previewHTML = '<p style="color: var(--text-secondary); margin-bottom: 0.5rem;">New image preview:</p>';
+            
+            // Preview main image if selected
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHTML += `<img src="${e.target.result}" alt="New Main Image Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin: 0.5rem; display: block;">`;
+                    previewContainer.innerHTML = previewHTML;
+                    
+                    // Also update the current image div to show preview
+                    if (currentImageDiv) {
+                        currentImageDiv.innerHTML = `
+                            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Current (will be replaced):</p>
+                            ${currentImageDiv.innerHTML}
+                            <p style="color: var(--accent-color); margin-top: 0.5rem; font-weight: 500;">New image selected:</p>
+                            <img src="${e.target.result}" alt="New Image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin-top: 0.5rem;">
+                        `;
+                    }
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                previewContainer.innerHTML = '';
+            }
+            
+            // Preview gallery images if selected
+            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                Array.from(galleryInput.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem; display: inline-block;">`;
+                        previewContainer.innerHTML = previewHTML;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        // Setup file input previews
+        document.addEventListener('DOMContentLoaded', function() {
+            const addImageInput = document.getElementById('product-image');
+            const addGalleryInput = document.getElementById('product-gallery');
+            const editImageInput = document.getElementById('edit-product-image-upload');
+            const editGalleryInput = document.getElementById('edit-product-gallery');
+            
+            if (addImageInput) {
+                addImageInput.addEventListener('change', function() {
+                    updateAddImagePreview();
+                });
+            }
+            
+            if (addGalleryInput) {
+                addGalleryInput.addEventListener('change', function() {
+                    updateAddImagePreview();
+                });
+            }
+            
+            if (editImageInput) {
+                editImageInput.addEventListener('change', function() {
+                    updateEditImagePreview();
+                });
+            }
+            
+            if (editGalleryInput) {
+                editGalleryInput.addEventListener('change', function() {
+                    updateEditImagePreview();
+                });
+            }
+        });
+        
+        function updateAddImagePreview() {
+            const fileInput = document.getElementById('product-image');
+            const galleryInput = document.getElementById('product-gallery');
+            const previewContainer = document.getElementById('image-preview');
+            
+            if (!previewContainer) return;
+            
+            let previewHTML = '';
+            
+            // Preview main image if selected
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHTML += `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                    previewContainer.innerHTML = previewHTML;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            
+            // Preview gallery images if selected
+            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                Array.from(galleryInput.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                        previewContainer.innerHTML = previewHTML;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            try {
+                // BACKEND ONLY - NO FALLBACKS
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                const response = await ProductsAPI.delete(productId);
+                
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to delete product');
+                }
+                
+                // Reload products from backend
+                await loadDashboardData();
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Product deleted successfully', 'success');
+                } else {
+                    alert('Product deleted');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification(error.message || 'Failed to delete product', 'error');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        function viewOrder(orderId) {
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (!order) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Order not found', 'error');
+                } else {
+                    alert('Order not found');
+                }
+                return;
+            }
+            
+            const items = (order.items || []).map(i => `${i.name || 'Item'} x${i.quantity}`).join('\n');
+            const total = typeof formatPrice === 'function' ? formatPrice(order.total || 0) : (order.total || 0) + ' EGP';
+            alert(`Order Details:\n\nOrder: #${order.orderNumber || orderId}\nCustomer: ${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}\nEmail: ${order.shippingAddress?.email || 'N/A'}\nPhone: ${order.shippingAddress?.phone || 'N/A'}\nAddress: ${order.shippingAddress?.street || ''}, ${order.shippingAddress?.city || ''}\n\nItems:\n${items || 'No items'}\n\nTotal: ${total}\nStatus: ${order.status || 'pending'}\nPayment: ${order.paymentMethod || 'N/A'}`);
+        }
+
+        function viewUser(userId) {
+            const user = allUsers.find(u => (u._id || u.id) === userId);
+            if (!user) {
+                if (typeof showNotification === 'function') {
+                    showNotification('User not found', 'error');
+                } else {
+                    alert('User not found');
+                }
+                return;
+            }
+            
+            const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'N/A';
+            const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A';
+            const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never';
+            
+            alert(`User Details:\n\nName: ${name}\nEmail: ${user.email || 'N/A'}\nRole: ${user.role || 'user'}\nStatus: ${user.isActive !== false ? 'Active' : 'Inactive'}\nJoined: ${joinedDate}\nLast Login: ${lastLogin}\nPhone: ${user.phone || 'N/A'}`);
+        }
+
+        async function toggleUserStatus(userId) {
+            const user = allUsers.find(u => (u._id || u.id) === userId);
+            if (!user) {
+                if (typeof showNotification === 'function') {
+                    showNotification('User not found', 'error');
+                }
+                return;
+            }
+            
+            const newStatus = user.isActive === false;
+            const action = newStatus ? 'activate' : 'deactivate';
+            
+            if (!confirm(`Are you sure you want to ${action} this user?`)) {
+                return;
+            }
+            
+            try {
+                // BACKEND ONLY - NO FALLBACKS
+                if (typeof UsersAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                if (typeof UsersAPI.updateByAdmin === 'undefined') {
+                    throw new Error('Admin update method not available');
+                }
+                
+                const response = await UsersAPI.updateByAdmin(userId, { isActive: newStatus });
+                
+                if (!response.success) {
+                    throw new Error(response.error || `Failed to ${action} user`);
+                }
+                
+                // Reload users from backend
+                await loadDashboardData();
+                
+                if (typeof showNotification === 'function') {
+                    showNotification(`User ${action}d successfully`, 'success');
+                } else {
+                    alert(`User ${action}d`);
+                }
+            } catch (error) {
+                console.error('Error toggling user status:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification(error.message || `Failed to ${action} user`, 'error');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        let currentOrderIdForStatusUpdate = null;
+        
+        function updateOrderStatus(orderId) {
+            // Find the order to get current status
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (!order) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Order not found', 'error');
+                } else {
+                    alert('Order not found');
+                }
+                return;
+            }
+            
+            const currentStatus = order.status || 'pending';
+            currentOrderIdForStatusUpdate = orderId;
+            
+            // All valid statuses (admins can change to any status)
+            const allStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
+            
+            // Filter out current status and prevent changing cancelled/refunded orders
+            let validStatuses = allStatuses.filter(s => s !== currentStatus);
+            
+            if (currentStatus === 'cancelled' || currentStatus === 'refunded') {
+                if (typeof showNotification === 'function') {
+                    showNotification(`Order is ${currentStatus} and cannot be changed`, 'error');
+                } else {
+                    alert(`Order is ${currentStatus} and cannot be changed`);
+                }
+                return;
+            }
+            
+            // Show modal
+            const modal = document.getElementById('status-update-modal');
+            const currentStatusDisplay = document.getElementById('current-status-display');
+            const statusSelect = document.getElementById('status-select');
+            
+            // Update current status display
+            currentStatusDisplay.textContent = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+            currentStatusDisplay.className = `status-badge status-${currentStatus}`;
+            
+            // Populate dropdown
+            statusSelect.innerHTML = '<option value="">-- Select Status --</option>';
+            validStatuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusSelect.appendChild(option);
+            });
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+        
+        function closeStatusModal() {
+            const modal = document.getElementById('status-update-modal');
+            modal.style.display = 'none';
+            currentOrderIdForStatusUpdate = null;
+            document.getElementById('status-select').value = '';
+        }
+        
+        async function confirmStatusUpdate() {
+            if (!currentOrderIdForStatusUpdate) {
+                closeStatusModal();
+                return;
+            }
+            
+            const statusSelect = document.getElementById('status-select');
+            const newStatus = statusSelect.value;
+            
+            if (!newStatus) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Please select a status', 'error');
+                } else {
+                    alert('Please select a status');
+                }
+                return;
+            }
+            
+            try {
+                // BACKEND ONLY - NO FALLBACKS
+                if (typeof OrdersAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                console.log('Updating order status:', currentOrderIdForStatusUpdate, 'to', newStatus);
+                const response = await OrdersAPI.updateStatus(currentOrderIdForStatusUpdate, newStatus.toLowerCase());
+                console.log('Update status response:', response);
+                
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to update order status');
+                }
+                
+                // Close modal
+                closeStatusModal();
+                
+                // Reload orders from backend
+                await loadDashboardData();
+                
+                if (typeof showNotification === 'function') {
+                    showNotification(`Order status updated to ${newStatus}`, 'success');
+                } else {
+                    alert(`Order status updated to ${newStatus}`);
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                const errorMsg = error.message || 'Failed to update order status';
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMsg, 'error');
+                } else {
+                    alert('Error: ' + errorMsg);
+                }
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('status-update-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeStatusModal();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Credentials Banner -->
+    <div class="credentials-banner" id="credentials-banner" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        <button onclick="document.getElementById('credentials-banner').classList.toggle('open')" style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-key"></i>
+        </button>
+        <div style="display: none; position: absolute; bottom: 55px; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); min-width: 260px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 15px; font-weight: 600;">🔐 Admin Credentials</div>
+            <div style="padding: 12px 15px; cursor: pointer;" onclick="document.getElementById('admin-email').value='admin@solara.com'; document.getElementById('admin-password').value='Admin@123';">
+                <strong style="font-size: 0.8rem; color: #333;">ADMIN</strong><br>
+                <span style="font-size: 0.9rem;">admin@solara.com</span><br>
+                <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #667eea;">Admin@123</code>
+                <small style="display: block; color: #667eea; margin-top: 4px;">Click to fill</small>
+            </div>
+        </div>
+    </div>
+    <style>
+        .credentials-banner.open > div:last-child { display: block !important; }
+        .credentials-banner.open > button { background: #dc3545 !important; }
+    </style>
+</body>
+</html>

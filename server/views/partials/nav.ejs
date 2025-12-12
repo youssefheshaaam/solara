@@ -9,44 +9,59 @@
             </div>
             
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>">Home</a></li>
-                <li><a href="/men" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'men' ? 'active' : '' %>">Men</a></li>
-                <li><a href="/women" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'women' ? 'active' : '' %>">Women</a></li>
-                <li><a href="/contact" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'contact' ? 'active' : '' %>">Contact</a></li>
+                <li><a href="/" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>"><%= typeof __ !== 'undefined' ? __("nav.home") : 'Home' %></a></li>
+                <li><a href="/men" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'men' ? 'active' : '' %>"><%= typeof __ !== 'undefined' ? __("nav.men") : 'Men' %></a></li>
+                <li><a href="/women" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'women' ? 'active' : '' %>"><%= typeof __ !== 'undefined' ? __("nav.women") : 'Women' %></a></li>
+                <li><a href="/contact" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'contact' ? 'active' : '' %>"><%= typeof __ !== 'undefined' ? __("nav.contact") : 'Contact' %></a></li>
             </ul>
             
             <div class="nav-actions">
                 <div class="search-box">
-                    <input type="text" placeholder="Search products..." id="search-input">
+                    <input type="text" placeholder="<%= typeof __ !== 'undefined' ? __("nav.searchPlaceholder") : 'Search products...' %>" id="search-input">
                     <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
                 </div>
                 
+                <!-- Language Selector -->
+                <div class="language-selector" style="position: relative; margin-right: 1rem;">
+                    <button class="nav-icon" id="language-btn" style="background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-primary);" title="<%= typeof __ !== 'undefined' ? __("nav.language") : 'Language' %>">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang" style="font-size: 0.75rem; margin-left: 0.25rem;"><%= typeof locale !== 'undefined' ? locale.toUpperCase() : 'EN' %></span>
+                    </button>
+                    <div class="language-dropdown" id="language-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px; margin-top: 0.5rem;">
+                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'en' ? 'active' : '' %>" data-lang="en" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid #eee;">
+                            <span style="margin-right: 0.5rem;">🇬🇧</span> English
+                        </a>
+                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'ar' ? 'active' : '' %>" data-lang="ar" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none;">
+                            <span style="margin-right: 0.5rem;">🇸🇦</span> العربية
+                        </a>
+                    </div>
+                </div>
+                
                 <div class="user-actions">
-                    <a href="/cart" class="nav-icon" id="cart-link">
+                    <a href="/cart" class="nav-icon" id="cart-link" title="<%= typeof __ !== 'undefined' ? __("nav.cart") : 'Cart' %>">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-count" id="cart-count">0</span>
                     </a>
-                    <a href="/wishlist" class="nav-icon" id="wishlist-link">
+                    <a href="/wishlist" class="nav-icon" id="wishlist-link" title="<%= typeof __ !== 'undefined' ? __("nav.wishlist") : 'Wishlist' %>">
                         <i class="fas fa-heart"></i>
                         <span class="wishlist-count" id="wishlist-count">0</span>
                     </a>
                     <% if (typeof user === 'undefined' || !user) { %>
-                    <a href="/login" class="nav-icon" id="login-link">
+                    <a href="/login" class="nav-icon" id="login-link" title="<%= typeof __ !== 'undefined' ? __("nav.login") : 'Login' %>">
                         <i class="fas fa-user"></i>
                     </a>
                     <% } else { %>
-                    <a href="/profile" class="nav-icon" id="profile-link">
+                    <a href="/profile" class="nav-icon" id="profile-link" title="<%= typeof __ !== 'undefined' ? __("nav.profile") : 'Profile' %>">
                         <i class="fas fa-user-circle"></i>
                     </a>
-                    <a href="#" class="nav-icon" id="logout-link">
+                    <a href="#" class="nav-icon" id="logout-link" onclick="handleLogout(event); return false;" title="<%= typeof __ !== 'undefined' ? __("nav.logout") : 'Logout' %>">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
-                    <% if (user && user.role === 'admin') { %>
-                    <a href="/admin" class="nav-icon" id="admin-link">
+                    <% } %>
+                    <!-- Admin link - always visible -->
+                    <a href="/admin" class="nav-icon <%= typeof user !== 'undefined' && user && user.role === 'admin' ? '' : 'subtle' %>" id="admin-link" title="<%= typeof __ !== 'undefined' ? __("nav.admin") : 'Admin' %>">
                         <i class="fas fa-cog"></i>
                     </a>
-                    <% } %>
-                    <% } %>
                 </div>
             </div>
             
@@ -60,4 +75,142 @@
 
     <!-- Menu Overlay for Mobile -->
     <div class="menu-overlay" id="menu-overlay"></div>
+
+<style>
+    .language-selector {
+        position: relative;
+    }
+    
+    .language-dropdown {
+        animation: fadeIn 0.2s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .language-option:hover {
+        background: var(--bg-light);
+    }
+    
+    .language-option.active {
+        background: rgba(230, 126, 34, 0.1);
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+    
+    .nav-icon.subtle {
+        opacity: 0.5;
+    }
+    
+    .nav-icon.subtle:hover {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Language selector functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const langBtn = document.getElementById('language-btn');
+        const langDropdown = document.getElementById('language-dropdown');
+        const langOptions = document.querySelectorAll('.language-option');
+        
+        if (langBtn && langDropdown) {
+            // Toggle dropdown
+            langBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                langDropdown.style.display = langDropdown.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+                    langDropdown.style.display = 'none';
+                }
+            });
+            
+            // Handle language selection
+            langOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const lang = this.dataset.lang;
+                    
+                    // Update language via API
+                    fetch('/api/set-language', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({ lang: lang })
+                    })
+                    .then(response => {
+                        // Always reload, even if response is not ok
+                        const currentUrl = new URL(window.location);
+                        currentUrl.searchParams.set('lang', lang);
+                        window.location.href = currentUrl.toString();
+                    })
+                    .catch(error => {
+                        console.error('Error changing language:', error);
+                        // Fallback: reload with query parameter
+                        const currentUrl = new URL(window.location);
+                        currentUrl.searchParams.set('lang', lang);
+                        window.location.href = currentUrl.toString();
+                    });
+                });
+            });
+        }
+        
+        // Logout functionality
+        const logoutLink = document.getElementById('logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleLogout(e);
+            });
+        }
+    });
+    
+    // Logout handler function
+    async function handleLogout(e) {
+        if (e) e.preventDefault();
+        
+        try {
+            // Clear local storage first
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('cart');
+                localStorage.removeItem('wishlist');
+            }
+            
+            // Try to call logout API (may fail if not logged in, which is fine)
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Logout successful:', data.message);
+                }
+            } catch (apiError) {
+                // API call failed (user might not be logged in) - that's okay
+                console.log('Logout API call failed (user may not be logged in):', apiError);
+            }
+            
+            // Always redirect to home page
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Still redirect on error
+            window.location.href = '/';
+        }
+    }
+</script>
 

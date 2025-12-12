@@ -24,7 +24,8 @@ router.post('/admin/login', loginValidation, adminLogin);
 router.get('/check', optionalAuth, checkAuth);
 
 // Protected routes
-router.post('/logout', authenticate, logout);
+// Logout should work even without authentication (to clear any stale sessions)
+router.post('/logout', optionalAuth, logout);
 router.get('/me', authenticate, getMe);
 router.post('/refresh', authenticate, refreshToken);
 router.put('/change-password', authenticate, changePasswordValidation, changePassword);

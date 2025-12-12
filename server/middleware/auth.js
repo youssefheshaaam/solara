@@ -157,30 +157,33 @@ const optionalAuth = async (req, res, next) => {
     }
 };
 
-// Admin authorization middleware
+// Admin authorization middleware - must be used after authenticate
 const authorizeAdmin = (req, res, next) => {
+    // authenticate middleware should have already set req.user
     if (!req.user) {
+        // If no user, redirect to login (authenticate should have caught this, but just in case)
         if (req.path.startsWith('/api/')) {
             return res.status(401).json({
                 success: false,
                 error: 'Authentication required'
             });
         } else {
-            return res.redirect('/login?error=Authentication required');
+            return res.redirect('/login?error=Please login to access admin panel');
         }
     }
-
+    
     if (req.user.role !== 'admin') {
+        // User is logged in but not admin
         if (req.path.startsWith('/api/')) {
             return res.status(403).json({
                 success: false,
                 error: 'Access denied. Admin privileges required.'
             });
         } else {
-            return res.redirect('/?error=Access denied. Admin privileges required.');
+            return res.redirect('/login?error=Admin privileges required');
         }
     }
-
+    
     next();
 };
 

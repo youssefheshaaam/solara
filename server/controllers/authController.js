@@ -210,23 +210,26 @@ exports.adminLogin = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/logout
 // @access  Private
 exports.logout = asyncHandler(async (req, res) => {
-    // Destroy session
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Session destroy error:', err);
-        }
-    });
+    // Destroy session if it exists
+    if (req.session) {
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Session destroy error:', err);
+            }
+        });
+    }
 
     // Clear cookies
     res.clearCookie('token');
     res.clearCookie('connect.sid');
+    res.clearCookie('lang'); // Also clear language preference if needed
 
     // Check if it's a form submission (EJS) or API call (AJAX)
     if (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded')) {
         // Form submission - redirect
         res.redirect('/');
     } else {
-        // API call - return JSON
+        // API call - return JSON (always return success even if no session existed)
         res.json({
             success: true,
             message: req.__('auth.logoutSuccess') || 'Logged out successfully'

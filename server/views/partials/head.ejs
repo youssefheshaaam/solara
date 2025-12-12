@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= typeof locale !== 'undefined' && locale === 'ar' ? 'ar' : 'en' %>" dir="<%= typeof locale !== 'undefined' && locale === 'ar' ? 'rtl' : 'ltr' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +8,32 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <% if (typeof locale !== 'undefined' && locale === 'ar') { %>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <% } else { %>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Urbanist:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <% } %>
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/forms.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <% if (typeof locale !== 'undefined' && locale === 'ar') { %>
+    <style>
+        /* RTL Support for Arabic */
+        body {
+            direction: rtl;
+            text-align: right;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+        }
+        .navbar, .nav-menu, .nav-actions, .user-actions {
+            direction: ltr; /* Keep navigation LTR for consistency */
+        }
+        .language-selector {
+            direction: ltr;
+        }
+    </style>
+    <% } %>
     
     <!-- Scroll behavior -->
     <script>
