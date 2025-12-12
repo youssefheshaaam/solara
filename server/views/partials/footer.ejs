@@ -4,7 +4,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>SOLARA</h3>
-                    <p>Modern minimal luxury for the contemporary lifestyle.</p>
+                    <p><%= typeof __ !== 'undefined' ? __("footer.tagline") : 'Modern minimal luxury for the contemporary lifestyle.' %></p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -13,35 +13,64 @@
                     </div>
                 </div>
                 <div class="footer-section">
-                    <h4>Quick Links</h4>
+                    <h4><%= typeof __ !== 'undefined' ? __("footer.quickLinks") : 'Quick Links' %></h4>
                     <ul>
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/men">Men's Collection</a></li>
-                        <li><a href="/women">Women's Collection</a></li>
+                        <li><a href="/"><%= typeof __ !== 'undefined' ? __("nav.home") : 'Home' %></a></li>
+                        <li><a href="/men"><%= typeof __ !== 'undefined' ? __("footer.mensCollection") : "Men's Collection" %></a></li>
+                        <li><a href="/women"><%= typeof __ !== 'undefined' ? __("footer.womensCollection") : "Women's Collection" %></a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Customer Service</h4>
+                    <h4><%= typeof __ !== 'undefined' ? __("footer.customerService") : 'Customer Service' %></h4>
                     <ul>
-                        <li><a href="/contact">Contact Us</a></li>
-                        <li><a href="#">Shipping Info</a></li>
-                        <li><a href="#">Returns</a></li>
-                        <li><a href="#">Size Guide</a></li>
+                        <li><a href="/contact"><%= typeof __ !== 'undefined' ? __("footer.contactUs") : 'Contact Us' %></a></li>
+                        <li><a href="#"><%= typeof __ !== 'undefined' ? __("footer.shippingInfo") : 'Shipping Info' %></a></li>
+                        <li><a href="#"><%= typeof __ !== 'undefined' ? __("footer.returns") : 'Returns' %></a></li>
+                        <li><a href="#"><%= typeof __ !== 'undefined' ? __("footer.sizeGuide") : 'Size Guide' %></a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Account</h4>
+                    <h4><%= typeof __ !== 'undefined' ? __("footer.account") : 'Account' %></h4>
                     <ul>
-                        <li><a href="/login">Login</a></li>
-                        <li><a href="/register">Register</a></li>
-                        <li><a href="/profile">My Profile</a></li>
-                        <li><a href="/orders">My Orders</a></li>
+                        <li><a href="/login"><%= typeof __ !== 'undefined' ? __("footer.login") : 'Login' %></a></li>
+                        <li><a href="/register"><%= typeof __ !== 'undefined' ? __("footer.register") : 'Register' %></a></li>
+                        <li><a href="/profile"><%= typeof __ !== 'undefined' ? __("footer.myProfile") : 'My Profile' %></a></li>
+                        <li><a href="/orders"><%= typeof __ !== 'undefined' ? __("footer.myOrders") : 'My Orders' %></a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 SOLARA. All rights reserved.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <p>&copy; 2024 SOLARA. <%= typeof __ !== 'undefined' ? __("footer.allRightsReserved") : 'All rights reserved.' %></p>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        <!-- Language Switcher -->
+                        <div class="footer-language-switcher" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: var(--text-secondary); font-size: 0.9rem;">Language:</span>
+                            <button class="footer-lang-btn" data-lang="en" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s;">
+                                🇬🇧 English
+                            </button>
+                            <button class="footer-lang-btn" data-lang="ar" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px; font-size: 0.9rem; transition: all 0.2s;">
+                                🇸🇦 العربية
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
+            <style>
+                .footer-lang-btn:hover {
+                    background: var(--bg-light) !important;
+                }
+                .footer-lang-btn.active {
+                    background: var(--accent-color) !important;
+                    color: white !important;
+                    border-color: var(--accent-color) !important;
+                }
+                .footer-logout-btn:hover {
+                    background: #dc3545 !important;
+                    color: white !important;
+                }
+            </style>
         </div>
     </footer>
 
@@ -74,6 +103,67 @@
     </div>
 
     <script>
+        // Footer Language Switcher - runs when DOM is ready
+        function initFooterControls() {
+            // Footer Language Switcher
+            const langButtons = document.querySelectorAll('.footer-lang-btn');
+            langButtons.forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const lang = this.dataset.lang;
+                    console.log('Changing language to:', lang);
+                    
+                    try {
+                        await fetch('/api/set-language', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ lang: lang })
+                        });
+                    } catch (error) {
+                        console.error('Error changing language:', error);
+                    }
+                    
+                    // Reload with lang parameter
+                    const currentUrl = new URL(window.location);
+                    currentUrl.searchParams.set('lang', lang);
+                    window.location.href = currentUrl.toString();
+                });
+            });
+        }
+        
+        // Set active language button
+        function setActiveLanguage() {
+            const currentLang = document.documentElement.lang || 'en';
+            const langButtons = document.querySelectorAll('.footer-lang-btn');
+            langButtons.forEach(btn => {
+                if (btn.dataset.lang === currentLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                initFooterControls();
+                setActiveLanguage();
+            });
+        } else {
+            initFooterControls();
+            setActiveLanguage();
+        }
+        
+        // Also run after scripts load
+        setTimeout(function() {
+            initFooterControls();
+            setActiveLanguage();
+        }, 100);
+        
         function toggleCredsBanner() {
             document.getElementById('credentials-banner').classList.toggle('open');
         }

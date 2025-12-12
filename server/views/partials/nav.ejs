@@ -21,22 +21,6 @@
                     <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
                 </div>
                 
-                <!-- Language Selector -->
-                <div class="language-selector" style="position: relative; margin-right: 1rem;">
-                    <button class="nav-icon" id="language-btn" style="background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-primary);" title="<%= typeof __ !== 'undefined' ? __("nav.language") : 'Language' %>">
-                        <i class="fas fa-globe"></i>
-                        <span id="current-lang" style="font-size: 0.75rem; margin-left: 0.25rem;"><%= typeof locale !== 'undefined' ? locale.toUpperCase() : 'EN' %></span>
-                    </button>
-                    <div class="language-dropdown" id="language-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px; margin-top: 0.5rem;">
-                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'en' ? 'active' : '' %>" data-lang="en" onclick="changeLanguage('en', event); return false;" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid #eee;">
-                            <span style="margin-right: 0.5rem;">🇬🇧</span> English
-                        </a>
-                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'ar' ? 'active' : '' %>" data-lang="ar" onclick="changeLanguage('ar', event); return false;" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none;">
-                            <span style="margin-right: 0.5rem;">🇸🇦</span> العربية
-                        </a>
-                    </div>
-                </div>
-                
                 <div class="user-actions">
                     <a href="/cart" class="nav-icon" id="cart-link" title="<%= typeof __ !== 'undefined' ? __("nav.cart") : 'Cart' %>">
                         <i class="fas fa-shopping-cart"></i>
@@ -54,9 +38,9 @@
                     <a href="/profile" class="nav-icon" id="profile-link" title="<%= typeof __ !== 'undefined' ? __("nav.profile") : 'Profile' %>">
                         <i class="fas fa-user-circle"></i>
                     </a>
-                    <a href="#" class="nav-icon" id="logout-link" onclick="navLogout(event); return false;" title="<%= typeof __ !== 'undefined' ? __("nav.logout") : 'Logout' %>">
+                    <button class="nav-icon" id="nav-logout-btn" title="<%= typeof __ !== 'undefined' ? __("nav.logout") : 'Logout' %>" style="background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-primary);">
                         <i class="fas fa-sign-out-alt"></i>
-                    </a>
+                    </button>
                     <% } %>
                     <!-- Admin link - always visible -->
                     <a href="/admin" class="nav-icon <%= typeof user !== 'undefined' && user && user.role === 'admin' ? '' : 'subtle' %>" id="admin-link" title="<%= typeof __ !== 'undefined' ? __("nav.admin") : 'Admin' %>">
@@ -110,95 +94,44 @@
 </style>
 
 <script>
-    // Global functions for navigation - defined immediately
-    window.navLogout = async function(e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        console.log('Nav logout called');
-        
-        // Clear local storage
-        try {
-            localStorage.removeItem('token');
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('cart');
-            localStorage.removeItem('wishlist');
-        } catch (err) {
-            console.error('Error clearing localStorage:', err);
-        }
-        
-        // Call logout API
-        try {
-            const response = await fetch('/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            console.log('Logout API response:', response.status);
-        } catch (error) {
-            console.log('Logout API error (may not be logged in):', error);
-        }
-        
-        // Redirect to login
-        window.location.href = '/login';
-        return false;
-    };
-    
-    window.changeLanguage = async function(lang, e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        console.log('Changing language to:', lang);
-        
-        try {
-            await fetch('/api/set-language', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ lang: lang })
-            });
-        } catch (error) {
-            console.error('Error changing language:', error);
-        }
-        
-        // Always reload with lang parameter
-        const currentUrl = new URL(window.location);
-        currentUrl.searchParams.set('lang', lang);
-        window.location.href = currentUrl.toString();
-        return false;
-    };
-    
-    // Language dropdown toggle
-    function initLanguageDropdown() {
-        const langBtn = document.getElementById('language-btn');
-        const langDropdown = document.getElementById('language-dropdown');
-        
-        if (langBtn && langDropdown) {
-            langBtn.onclick = function(e) {
+    // Nav bar logout button - simple and direct
+    (function() {
+        const navLogoutBtn = document.getElementById('nav-logout-btn');
+        if (navLogoutBtn) {
+            navLogoutBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                const isVisible = langDropdown.style.display === 'block';
-                langDropdown.style.display = isVisible ? 'none' : 'block';
-            };
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (langBtn && langDropdown && !langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
-                    langDropdown.style.display = 'none';
+                
+                console.log('Nav logout clicked');
+                
+                // Clear local storage
+                try {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('wishlist');
+                    localStorage.removeItem('loggedInUser');
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('solaraAdminAuthed');
+                } catch (err) {
+                    console.error('Error clearing localStorage:', err);
                 }
+                
+                // Call logout API
+                try {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                } catch (error) {
+                    console.log('Logout API error (may not be logged in):', error);
+                }
+                
+                // Redirect to login
+                window.location.href = '/login';
             });
         }
-    }
-    
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLanguageDropdown);
-    } else {
-        initLanguageDropdown();
-    }
+    })();
 </script>
 

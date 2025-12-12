@@ -9,10 +9,10 @@
             <div class="hero-overlay">
                 <div class="container">
                     <div class="hero-content">
-                        <div class="hero-tagline display-heading">DISCOVER</div>
-                        <div class="hero-tagline-sub display-heading">YOUR STYLE</div>
-                        <p>Curated essentials that define contemporary style. Where minimal meets luxury, and every piece tells a story.</p>
-                        <a href="#featured" class="btn btn-outline-light btn-lg">SHOP COLLECTION</a>
+                        <div class="hero-tagline display-heading"><%= typeof __ !== 'undefined' ? __("home.discover") : 'DISCOVER' %></div>
+                        <div class="hero-tagline-sub display-heading"><%= typeof __ !== 'undefined' ? __("home.yourStyle") : 'YOUR STYLE' %></div>
+                        <p><%= typeof __ !== 'undefined' ? __("home.heroDescription") : 'Curated essentials that define contemporary style. Where minimal meets luxury, and every piece tells a story.' %></p>
+                        <a href="#featured" class="btn btn-outline-light btn-lg"><%= typeof __ !== 'undefined' ? __("home.shopCollection") : 'SHOP COLLECTION' %></a>
                     </div>
                 </div>
             </div>
@@ -20,7 +20,7 @@
         
         <!-- Journey Link -->
         <div class="hero-journey">
-            <a href="#gender-section">Explore Collections <i class="fas fa-chevron-down"></i></a>
+            <a href="#gender-section"><%= typeof __ !== 'undefined' ? __("home.exploreCollections") : 'Explore Collections' %> <i class="fas fa-chevron-down"></i></a>
         </div>
     </section>
 
@@ -29,17 +29,17 @@
         <div class="gender-side" onclick="window.location.href='/men'">
             <img src="/images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.style.background='#1C1C1C'">
             <div class="gender-overlay">
-                <h2 class="gender-label display-heading">MEN</h2>
-                <p class="gender-description">Discover essential pieces that embody confidence and refinement — crafted for the modern man.</p>
-                <a href="/men" class="btn btn-outline-light gender-btn">Explore Collection</a>
+                <h2 class="gender-label display-heading"><%= typeof __ !== 'undefined' ? __("home.men") : 'MEN' %></h2>
+                <p class="gender-description"><%= typeof __ !== 'undefined' ? __("home.menDescription") : 'Discover essential pieces that embody confidence and refinement — crafted for the modern man.' %></p>
+                <a href="/men" class="btn btn-outline-light gender-btn"><%= typeof __ !== 'undefined' ? __("home.exploreCollection") : 'Explore Collection' %></a>
             </div>
         </div>
         <div class="gender-side" onclick="window.location.href='/women'">
             <img src="/images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.style.background='#EADBC8'">
             <div class="gender-overlay">
-                <h2 class="gender-label display-heading">WOMEN</h2>
-                <p class="gender-description">Discover captivating styles that embody grace, strength and allure — crafted for the modern woman.</p>
-                <a href="/women" class="btn btn-outline-light gender-btn">Explore Collection</a>
+                <h2 class="gender-label display-heading"><%= typeof __ !== 'undefined' ? __("home.women") : 'WOMEN' %></h2>
+                <p class="gender-description"><%= typeof __ !== 'undefined' ? __("home.womenDescription") : 'Discover captivating styles that embody grace, strength and allure — crafted for the modern woman.' %></p>
+                <a href="/women" class="btn btn-outline-light gender-btn"><%= typeof __ !== 'undefined' ? __("home.exploreCollection") : 'Explore Collection' %></a>
             </div>
         </div>
     </section>
@@ -48,32 +48,32 @@
     <section class="featured-collections">
         <div class="container">
             <div class="section-header">
-                <h2>Featured Collections</h2>
-                <p>Discover our most popular styles</p>
+                <h2><%= typeof __ !== 'undefined' ? __("home.featuredCollections") : 'Featured Collections' %></h2>
+                <p><%= typeof __ !== 'undefined' ? __("home.discoverPopular") : 'Discover our most popular styles' %></p>
             </div>
             <div class="collections-grid">
                 <div class="collection-card">
                     <div class="collection-image">
                         <img src="/images/products/1W2A0097.jpg" alt="Men's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
                         <div class="collection-overlay">
-                            <a href="/men" class="btn btn-outline-light">Shop Men</a>
+                            <a href="/men" class="btn btn-outline-light"><%= typeof __ !== 'undefined' ? __("home.shopMen") : 'Shop Men' %></a>
                         </div>
                     </div>
                     <div class="collection-content">
-                        <h3>Men's Collection</h3>
-                        <p>Essential pieces for the modern man</p>
+                        <h3><%= typeof __ !== 'undefined' ? __("home.mensCollection") : "Men's Collection" %></h3>
+                        <p><%= typeof __ !== 'undefined' ? __("home.mensEssentials") : 'Essential pieces for the modern man' %></p>
                     </div>
                 </div>
                 <div class="collection-card">
                     <div class="collection-image">
                         <img src="/images/products/1R5A0057_1_2.jpg" alt="Women's Collection" onerror="this.parentElement.style.background='#f5f5f5'">
                         <div class="collection-overlay">
-                            <a href="/women" class="btn btn-outline-light">Shop Women</a>
+                            <a href="/women" class="btn btn-outline-light"><%= typeof __ !== 'undefined' ? __("home.shopWomen") : 'Shop Women' %></a>
                         </div>
                     </div>
                     <div class="collection-content">
-                        <h3>Women's Collection</h3>
-                        <p>Timeless elegance meets contemporary style</p>
+                        <h3><%= typeof __ !== 'undefined' ? __("home.womensCollection") : "Women's Collection" %></h3>
+                        <p><%= typeof __ !== 'undefined' ? __("home.womensElegance") : 'Timeless elegance meets contemporary style' %></p>
                     </div>
                 </div>
             </div>
@@ -85,10 +85,10 @@
         <div class="container">
             <div class="brand-content">
                 <div class="brand-text">
-                    <h2>Our Story</h2>
-                    <p>SOLARA was born from a simple belief: that great style should be accessible, sustainable, and effortless. We curate pieces that transcend trends, focusing on quality, comfort, and timeless design.</p>
-                    <p>Every item in our collection is carefully selected to represent the perfect balance between minimalism and luxury, creating a wardrobe that works for every occasion.</p>
-                    <a href="/contact" class="btn btn-primary">Learn More</a>
+                    <h2><%= typeof __ !== 'undefined' ? __("home.ourStory") : 'Our Story' %></h2>
+                    <p><%= typeof __ !== 'undefined' ? __("home.storyText1") : 'SOLARA was born from a simple belief: that great style should be accessible, sustainable, and effortless. We curate pieces that transcend trends, focusing on quality, comfort, and timeless design.' %></p>
+                    <p><%= typeof __ !== 'undefined' ? __("home.storyText2") : 'Every item in our collection is carefully selected to represent the perfect balance between minimalism and luxury, creating a wardrobe that works for every occasion.' %></p>
+                    <a href="/contact" class="btn btn-primary"><%= typeof __ !== 'undefined' ? __("home.learnMore") : 'Learn More' %></a>
                 </div>
                 <div class="brand-image">
                     <img src="/images/products/1W2A4118_2.jpg" alt="Brand Story" onerror="this.style.display='none'">

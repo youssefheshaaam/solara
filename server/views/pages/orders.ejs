@@ -267,20 +267,20 @@
     <main class="orders-page">
         <div class="orders-container">
             <div class="page-header">
-                <h1><i class="fas fa-box"></i> My Orders</h1>
-                <p>Track and manage your orders</p>
+                <h1><i class="fas fa-box"></i> <%= typeof __ !== 'undefined' ? __("orders.myOrders") : 'My Orders' %></h1>
+                <p><%= typeof __ !== 'undefined' ? __("orders.orderHistory") : 'Track and manage your orders' %></p>
             </div>
             
             <!-- Filter Tabs -->
             <div class="order-filters">
-                <button class="filter-btn active" data-status="">All Orders</button>
-                <button class="filter-btn" data-status="pending">Pending</button>
-                <button class="filter-btn" data-status="confirmed">Confirmed</button>
-                <button class="filter-btn" data-status="processing">Processing</button>
-                <button class="filter-btn" data-status="shipped">Shipped</button>
-                <button class="filter-btn" data-status="delivered">Delivered</button>
-                <button class="filter-btn" data-status="cancelled">Cancelled</button>
-                <button class="filter-btn" data-status="refunded">Refunded</button>
+                <button class="filter-btn active" data-status=""><%= typeof __ !== 'undefined' ? __("orders.allOrders") : 'All Orders' %></button>
+                <button class="filter-btn" data-status="pending"><%= typeof __ !== 'undefined' ? __("orders.pending") : 'Pending' %></button>
+                <button class="filter-btn" data-status="confirmed"><%= typeof __ !== 'undefined' ? __("orders.confirmed") : 'Confirmed' %></button>
+                <button class="filter-btn" data-status="processing"><%= typeof __ !== 'undefined' ? __("orders.processing") : 'Processing' %></button>
+                <button class="filter-btn" data-status="shipped"><%= typeof __ !== 'undefined' ? __("orders.shipped") : 'Shipped' %></button>
+                <button class="filter-btn" data-status="delivered"><%= typeof __ !== 'undefined' ? __("orders.delivered") : 'Delivered' %></button>
+                <button class="filter-btn" data-status="cancelled"><%= typeof __ !== 'undefined' ? __("orders.cancelled") : 'Cancelled' %></button>
+                <button class="filter-btn" data-status="refunded"><%= typeof __ !== 'undefined' ? __("orders.refunded") : 'Refunded' %></button>
             </div>
             
             <!-- Orders List -->
