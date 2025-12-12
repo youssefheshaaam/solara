@@ -85,5 +85,25 @@
             document.getElementById('login-message').textContent = error.message || 'Login failed';
         }
     });
+    
+    // Password toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordToggle = document.getElementById('password-toggle');
+        const passwordInput = document.getElementById('password');
+        
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle icon
+                const icon = passwordToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            });
+        }
+    });
 </script>
 

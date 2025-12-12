@@ -28,10 +28,10 @@
                         <span id="current-lang" style="font-size: 0.75rem; margin-left: 0.25rem;"><%= typeof locale !== 'undefined' ? locale.toUpperCase() : 'EN' %></span>
                     </button>
                     <div class="language-dropdown" id="language-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; min-width: 120px; margin-top: 0.5rem;">
-                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'en' ? 'active' : '' %>" data-lang="en" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid #eee;">
+                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'en' ? 'active' : '' %>" data-lang="en" onclick="changeLanguage('en', event); return false;" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid #eee;">
                             <span style="margin-right: 0.5rem;">🇬🇧</span> English
                         </a>
-                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'ar' ? 'active' : '' %>" data-lang="ar" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none;">
+                        <a href="#" class="language-option <%= typeof locale !== 'undefined' && locale === 'ar' ? 'active' : '' %>" data-lang="ar" onclick="changeLanguage('ar', event); return false;" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none;">
                             <span style="margin-right: 0.5rem;">🇸🇦</span> العربية
                         </a>
                     </div>
@@ -54,7 +54,7 @@
                     <a href="/profile" class="nav-icon" id="profile-link" title="<%= typeof __ !== 'undefined' ? __("nav.profile") : 'Profile' %>">
                         <i class="fas fa-user-circle"></i>
                     </a>
-                    <a href="#" class="nav-icon" id="logout-link" onclick="handleLogout(event); return false;" title="<%= typeof __ !== 'undefined' ? __("nav.logout") : 'Logout' %>">
+                    <a href="#" class="nav-icon" id="logout-link" onclick="navLogout(event); return false;" title="<%= typeof __ !== 'undefined' ? __("nav.logout") : 'Logout' %>">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                     <% } %>
@@ -110,107 +110,95 @@
 </style>
 
 <script>
-    // Language selector functionality
-    document.addEventListener('DOMContentLoaded', function() {
+    // Global functions for navigation - defined immediately
+    window.navLogout = async function(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        console.log('Nav logout called');
+        
+        // Clear local storage
+        try {
+            localStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('cart');
+            localStorage.removeItem('wishlist');
+        } catch (err) {
+            console.error('Error clearing localStorage:', err);
+        }
+        
+        // Call logout API
+        try {
+            const response = await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            console.log('Logout API response:', response.status);
+        } catch (error) {
+            console.log('Logout API error (may not be logged in):', error);
+        }
+        
+        // Redirect to login
+        window.location.href = '/login';
+        return false;
+    };
+    
+    window.changeLanguage = async function(lang, e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        console.log('Changing language to:', lang);
+        
+        try {
+            await fetch('/api/set-language', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ lang: lang })
+            });
+        } catch (error) {
+            console.error('Error changing language:', error);
+        }
+        
+        // Always reload with lang parameter
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('lang', lang);
+        window.location.href = currentUrl.toString();
+        return false;
+    };
+    
+    // Language dropdown toggle
+    function initLanguageDropdown() {
         const langBtn = document.getElementById('language-btn');
         const langDropdown = document.getElementById('language-dropdown');
-        const langOptions = document.querySelectorAll('.language-option');
         
         if (langBtn && langDropdown) {
-            // Toggle dropdown
-            langBtn.addEventListener('click', function(e) {
+            langBtn.onclick = function(e) {
+                e.preventDefault();
                 e.stopPropagation();
-                langDropdown.style.display = langDropdown.style.display === 'none' ? 'block' : 'none';
-            });
+                const isVisible = langDropdown.style.display === 'block';
+                langDropdown.style.display = isVisible ? 'none' : 'block';
+            };
             
             // Close dropdown when clicking outside
             document.addEventListener('click', function(e) {
-                if (!langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
+                if (langBtn && langDropdown && !langBtn.contains(e.target) && !langDropdown.contains(e.target)) {
                     langDropdown.style.display = 'none';
                 }
             });
-            
-            // Handle language selection
-            langOptions.forEach(option => {
-                option.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const lang = this.dataset.lang;
-                    
-                    // Update language via API
-                    fetch('/api/set-language', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'include',
-                        body: JSON.stringify({ lang: lang })
-                    })
-                    .then(response => {
-                        // Always reload, even if response is not ok
-                        const currentUrl = new URL(window.location);
-                        currentUrl.searchParams.set('lang', lang);
-                        window.location.href = currentUrl.toString();
-                    })
-                    .catch(error => {
-                        console.error('Error changing language:', error);
-                        // Fallback: reload with query parameter
-                        const currentUrl = new URL(window.location);
-                        currentUrl.searchParams.set('lang', lang);
-                        window.location.href = currentUrl.toString();
-                    });
-                });
-            });
         }
-        
-        // Logout functionality
-        const logoutLink = document.getElementById('logout-link');
-        if (logoutLink) {
-            logoutLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                handleLogout(e);
-            });
-        }
-    });
+    }
     
-    // Logout handler function
-    async function handleLogout(e) {
-        if (e) e.preventDefault();
-        
-        try {
-            // Clear local storage first
-            if (typeof localStorage !== 'undefined') {
-                localStorage.removeItem('token');
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('cart');
-                localStorage.removeItem('wishlist');
-            }
-            
-            // Try to call logout API (may fail if not logged in, which is fine)
-            try {
-                const response = await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Logout successful:', data.message);
-                }
-            } catch (apiError) {
-                // API call failed (user might not be logged in) - that's okay
-                console.log('Logout API call failed (user may not be logged in):', apiError);
-            }
-            
-            // Always redirect to login page
-            window.location.href = '/login';
-        } catch (error) {
-            console.error('Logout error:', error);
-            // Still redirect on error
-            window.location.href = '/login';
-        }
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLanguageDropdown);
+    } else {
+        initLanguageDropdown();
     }
 </script>
 

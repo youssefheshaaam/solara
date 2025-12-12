@@ -421,7 +421,7 @@
                                 <div class="cart-item-actions">
                                     <div class="quantity-control">
                                         <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', -1)">−</button>
-                                        <input type="number" class="qty-value" value="<%= item.quantity %>" min="1" max="<%= item.product.stock || 10 %>" onchange="updateCartQuantity('<%= item.product._id %>', 0, this.value)">
+                                        <input type="number" class="qty-value" data-product-id="<%= item.product._id %>" value="<%= item.quantity %>" min="1" max="<%= item.product.stock || 10 %>" onchange="updateCartQuantity('<%= item.product._id %>', 0, this.value)">
                                         <button class="qty-btn" onclick="updateCartQuantity('<%= item.product._id %>', 1)">+</button>
                                     </div>
                                     <button class="remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
@@ -490,10 +490,49 @@
 <%- include('../partials/footer.ejs') %>
 
 <script>
-    function updateCartQuantity(productId, change, value) {
-        if (typeof updateCartItem === 'function') {
-            const newQuantity = value ? parseInt(value) : (parseInt(document.querySelector(`[data-product-id="${productId}"] .qty-value`).value) + change);
-            updateCartItem(productId, newQuantity);
+    async function updateCartQuantity(productId, change, value) {
+        try {
+            let newQuantity;
+            if (value !== undefined && value !== null) {
+                newQuantity = parseInt(value);
+            } else {
+                const input = document.querySelector(`[data-product-id="${productId}"] .qty-value`);
+                if (input) {
+                    newQuantity = parseInt(input.value) + (change || 0);
+                } else {
+                    throw new Error('Quantity input not found');
+                }
+            }
+            
+            if (newQuantity < 1) {
+                newQuantity = 1;
+            }
+            
+            // Update via API if logged in
+            if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                const response = await CartAPI.update(productId, newQuantity);
+                if (response.success) {
+                    window.location.reload(); // Reload to update cart
+                } else {
+                    throw new Error(response.error || 'Failed to update quantity');
+                }
+            } else if (typeof updateCartItemQuantity === 'function') {
+                // Fallback to data.js function
+                await updateCartItemQuantity(productId, newQuantity);
+                window.location.reload();
+            } else {
+                // Fallback: update localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const item = cart.find(i => String(i.productId) === String(productId));
+                if (item) {
+                    item.quantity = newQuantity;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    window.location.reload();
+                }
+            }
+        } catch (error) {
+            console.error('Error updating cart quantity:', error);
+            alert('Failed to update quantity: ' + error.message);
         }
     }
     

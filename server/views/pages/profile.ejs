@@ -463,7 +463,14 @@
                     // Update avatar display
                     const avatar = document.getElementById('profile-avatar-display');
                     if (response.data && response.data.avatar) {
-                        const avatarUrl = response.data.avatar.startsWith('http') ? response.data.avatar : '/uploads/' + response.data.avatar;
+                        let avatarUrl = response.data.avatar;
+                        if (!avatarUrl.startsWith('http')) {
+                            if (avatarUrl.startsWith('/uploads/')) {
+                                avatarUrl = 'http://localhost:5000' + avatarUrl;
+                            } else {
+                                avatarUrl = 'http://localhost:5000/uploads/' + avatarUrl;
+                            }
+                        }
                         avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">`;
                     }
                     
