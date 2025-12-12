@@ -497,16 +497,54 @@
         }
     }
     
-    function removeFromCart(productId) {
-        if (typeof removeCartItem === 'function') {
-            removeCartItem(productId);
+    async function removeFromCart(productId) {
+        try {
+            if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                const response = await CartAPI.remove(productId);
+                if (response.success) {
+                    window.location.reload(); // Reload to update cart
+                } else {
+                    throw new Error(response.error || 'Failed to remove item');
+                }
+            } else if (typeof window.removeFromCart === 'function' && window.removeFromCart !== removeFromCart) {
+                // Fallback to data.js function (if it exists globally and is different)
+                await window.removeFromCart(productId);
+                window.location.reload();
+            } else {
+                // Fallback: remove from localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const filtered = cart.filter(item => String(item.productId) !== String(productId));
+                localStorage.setItem('cart', JSON.stringify(filtered));
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error removing from cart:', error);
+            alert('Failed to remove item from cart: ' + error.message);
         }
     }
     
-    function clearCart() {
+    async function clearCart() {
         if (confirm('Are you sure you want to clear your cart?')) {
-            if (typeof clearCartItems === 'function') {
-                clearCartItems();
+            try {
+                if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                    const response = await CartAPI.clear();
+                    if (response.success) {
+                        window.location.reload(); // Reload to update cart
+                    } else {
+                        throw new Error(response.error || 'Failed to clear cart');
+                    }
+                } else if (typeof window.clearCart === 'function' && window.clearCart !== clearCart) {
+                    // Fallback to data.js function (if it exists globally and is different)
+                    window.clearCart();
+                    window.location.reload();
+                } else {
+                    // Fallback: clear localStorage
+                    localStorage.removeItem('cart');
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error clearing cart:', error);
+                alert('Failed to clear cart: ' + error.message);
             }
         }
     }

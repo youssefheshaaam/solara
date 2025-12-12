@@ -423,19 +423,76 @@
         const fileNameSpan = document.getElementById('avatar-file-name');
         
         if (avatarUpload) {
-            avatarUpload.addEventListener('change', function(e) {
+            avatarUpload.addEventListener('change', async function(e) {
                 const file = e.target.files[0];
                 if (file) {
                     if (fileNameSpan) {
                         fileNameSpan.textContent = file.name;
                     }
-                    if (typeof handleAvatarUpload === 'function') {
-                        handleAvatarUpload(e);
-                    } else if (typeof uploadAvatar === 'function') {
-                        uploadAvatar(file);
-                    }
+                    await uploadAvatar(file);
                 }
             });
+        }
+    }
+    
+    async function uploadAvatar(file) {
+        if (!file) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
+            
+            // Get current user data
+            const firstNameEl = document.getElementById('profile-firstName');
+            const lastNameEl = document.getElementById('profile-lastName');
+            const phoneEl = document.getElementById('profile-phone');
+            
+            // Only append fields that have values
+            if (firstNameEl && firstNameEl.value.trim()) formData.append('firstName', firstNameEl.value.trim());
+            if (lastNameEl && lastNameEl.value.trim()) formData.append('lastName', lastNameEl.value.trim());
+            if (phoneEl && phoneEl.value.trim()) formData.append('phone', phoneEl.value.trim());
+            
+            // Use UsersAPI to upload
+            if (typeof UsersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                const user = AuthAPI.getCurrentUser();
+                const userId = user._id || user.id;
+                
+                const response = await UsersAPI.updateProfileWithFile(formData, userId);
+                
+                if (response.success) {
+                    // Update avatar display
+                    const avatar = document.getElementById('profile-avatar-display');
+                    if (response.data && response.data.avatar) {
+                        const avatarUrl = response.data.avatar.startsWith('http') ? response.data.avatar : '/uploads/' + response.data.avatar;
+                        avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">`;
+                    }
+                    
+                    if (typeof showNotification !== 'undefined') {
+                        showNotification('Profile picture updated successfully!', 'success');
+                    } else {
+                        alert('Profile picture updated successfully!');
+                    }
+                    
+                    // Update current user data
+                    if (response.data) {
+                        currentUserData = response.data;
+                        if (typeof AuthAPI !== 'undefined' && AuthAPI.setCurrentUser) {
+                            AuthAPI.setCurrentUser(response.data);
+                        }
+                    }
+                } else {
+                    throw new Error(response.error || 'Failed to upload avatar');
+                }
+            } else {
+                throw new Error('You must be logged in to upload a profile picture');
+            }
+        } catch (error) {
+            console.error('Error uploading avatar:', error);
+            if (typeof showNotification !== 'undefined') {
+                showNotification('Failed to upload profile picture: ' + error.message, 'error');
+            } else {
+                alert('Failed to upload profile picture: ' + error.message);
+            }
         }
     }
     

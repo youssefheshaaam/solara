@@ -315,10 +315,12 @@
                                                 <div class="item-image">
                                                     <% 
                                                     let itemImageUrl = '/images/placeholder.jpg';
-                                                    if (item.product && item.product.image) {
-                                                        itemImageUrl = item.product.image.startsWith('http') ? item.product.image : '/uploads/' + item.product.image;
+                                                    if (item.product && item.product.imageUrl) {
+                                                        itemImageUrl = item.product.imageUrl;
+                                                    } else if (item.product && item.product.image) {
+                                                        itemImageUrl = item.product.image.startsWith('http') ? item.product.image : (item.product.image.startsWith('/') ? item.product.image : '/uploads/' + item.product.image);
                                                     } else if (item.image) {
-                                                        itemImageUrl = item.image.startsWith('http') ? item.image : '/uploads/' + item.image;
+                                                        itemImageUrl = item.image.startsWith('http') ? item.image : (item.image.startsWith('/') ? item.image : '/uploads/' + item.image);
                                                     }
                                                     %>
                                                     <img src="<%= itemImageUrl %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.jpg';">
