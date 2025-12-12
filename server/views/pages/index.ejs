@@ -272,3 +272,36 @@
 
 <%- include('../partials/footer.ejs') %>
 
+<style>
+    /* Make product cards clickable */
+    .product-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
+<script>
+    // Setup product card click handlers for server-rendered products
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use event delegation for product cards (works for both server-rendered and AJAX-loaded)
+        document.addEventListener('click', function(e) {
+            const productCard = e.target.closest('.product-card');
+            if (productCard && !e.target.closest('button') && !e.target.closest('.btn')) {
+                const productId = productCard.dataset.productId;
+                if (productId) {
+                    window.location.href = `/product/${productId}`;
+                }
+            }
+        });
+        
+        // Also call the existing function if available (for AJAX-loaded products)
+        if (typeof setupProductCardEvents === 'function') {
+            setupProductCardEvents();
+        }
+    });
+</script>
+

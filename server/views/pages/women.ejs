@@ -219,9 +219,37 @@
 
 <%- include('../partials/footer.ejs') %>
 
+<style>
+    /* Make product cards clickable */
+    .product-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
 <script>
     // Page-specific initialization for Women's collection
     document.addEventListener('DOMContentLoaded', function() {
+        // Setup product card click handlers using event delegation
+        document.addEventListener('click', function(e) {
+            const productCard = e.target.closest('.product-card');
+            if (productCard && !e.target.closest('button') && !e.target.closest('.btn')) {
+                const productId = productCard.dataset.productId;
+                if (productId) {
+                    window.location.href = `/product/${productId}`;
+                }
+            }
+        });
+        
+        // Also call the existing function if available (for AJAX-loaded products)
+        if (typeof setupProductCardEvents === 'function') {
+            setupProductCardEvents();
+        }
+        
         // Products are already loaded server-side, but setup AJAX for Load More
         const loadMoreBtn = document.getElementById('load-more-btn');
         if (loadMoreBtn && typeof loadMoreCategoryProducts !== 'undefined') {

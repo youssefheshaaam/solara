@@ -49,7 +49,38 @@
 
 <%- include('../partials/footer.ejs') %>
 
+<style>
+    /* Make product cards clickable */
+    .product-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
 <script>
+    // Setup product card click handlers for wishlist
+    document.addEventListener('DOMContentLoaded', function() {
+        // Use event delegation for product cards
+        document.addEventListener('click', function(e) {
+            const productCard = e.target.closest('.product-card');
+            if (productCard && !e.target.closest('button') && !e.target.closest('.btn')) {
+                const productId = productCard.dataset.productId;
+                if (productId) {
+                    window.location.href = `/product/${productId}`;
+                }
+            }
+        });
+        
+        // Also call the existing function if available
+        if (typeof setupProductCardEvents === 'function') {
+            setupProductCardEvents();
+        }
+    });
+    
     function toggleWishlist(productId, btn) {
         if (typeof toggleWishlistItem === 'function') {
             toggleWishlistItem(productId, btn);
