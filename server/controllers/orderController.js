@@ -254,21 +254,28 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
         });
     }
 
-    // Validate status transition
-    const validTransitions = {
-        'pending': ['confirmed', 'cancelled'],
-        'confirmed': ['processing', 'cancelled'],
-        'processing': ['shipped', 'cancelled'],
-        'shipped': ['delivered'],
-        'delivered': ['refunded'],
-        'cancelled': [],
-        'refunded': []
-    };
-
-    if (!validTransitions[order.status].includes(status)) {
+    // Validate status - admins can change to any valid status
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
+    
+    if (!validStatuses.includes(status)) {
         return res.status(400).json({
             success: false,
-            error: `Cannot transition from ${order.status} to ${status}`
+            error: `Invalid status: ${status}`
+        });
+    }
+    
+    // Only prevent going backwards from final states (cancelled/refunded)
+    if (order.status === 'cancelled' && status !== 'cancelled') {
+        return res.status(400).json({
+            success: false,
+            error: 'Cannot change status of a cancelled order'
+        });
+    }
+    
+    if (order.status === 'refunded' && status !== 'refunded') {
+        return res.status(400).json({
+            success: false,
+            error: 'Cannot change status of a refunded order'
         });
     }
 

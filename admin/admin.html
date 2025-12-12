@@ -2269,24 +2269,17 @@
             const currentStatus = order.status || 'pending';
             currentOrderIdForStatusUpdate = orderId;
             
-            // Determine valid next statuses based on current status
-            const validTransitions = {
-                'pending': ['confirmed', 'cancelled'],
-                'confirmed': ['processing', 'cancelled'],
-                'processing': ['shipped', 'cancelled'],
-                'shipped': ['delivered'],
-                'delivered': ['refunded'],
-                'cancelled': [],
-                'refunded': []
-            };
+            // All valid statuses (admins can change to any status)
+            const allStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
             
-            const validStatuses = validTransitions[currentStatus] || [];
+            // Filter out current status and prevent changing cancelled/refunded orders
+            let validStatuses = allStatuses.filter(s => s !== currentStatus);
             
-            if (validStatuses.length === 0) {
+            if (currentStatus === 'cancelled' || currentStatus === 'refunded') {
                 if (typeof showNotification === 'function') {
-                    showNotification(`Order is ${currentStatus} and cannot be changed further`, 'error');
+                    showNotification(`Order is ${currentStatus} and cannot be changed`, 'error');
                 } else {
-                    alert(`Order is ${currentStatus} and cannot be changed further`);
+                    alert(`Order is ${currentStatus} and cannot be changed`);
                 }
                 return;
             }
