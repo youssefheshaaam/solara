@@ -140,12 +140,12 @@
                                     <i class="fas fa-user" id="avatar-icon"></i>
                                 </div>
                                 <div class="form-group" style="margin-top: 1rem;">
-                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Change Picture</label>
-                                    <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
-                                    <button type="button" id="avatar-upload-btn" class="btn btn-outline" style="width: 100%; padding: 0.75rem;">
+                                    <label for="avatar-upload" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary);">Change Picture</label>
+                                    <label for="avatar-upload" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-bottom: 0.5rem;">
                                         <i class="fas fa-camera"></i> Choose File
-                                    </button>
-                                    <span id="avatar-file-name" style="display: block; margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;"></span>
+                                    </label>
+                                    <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="display: none;">
+                                    <div id="avatar-file-name" style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.875rem; font-style: italic;"></div>
                                     <small class="form-help" style="display: block; margin-top: 0.5rem; color: var(--text-secondary);">Max 2MB, JPEG, PNG, GIF, WebP</small>
                                 </div>
                             </div>
@@ -263,24 +263,17 @@
             
             // Setup change listener
             avatarUploadInput.addEventListener('change', function(e) {
-                console.log('🔵 Change event fired!', e);
-                const fileName = e.target.files[0]?.name || 'No file selected';
-                document.getElementById('avatar-file-name').textContent = fileName;
-                handleAvatarUpload(e);
+                const file = e.target.files[0];
+                if (file) {
+                    const fileNameSpan = document.getElementById('avatar-file-name');
+                    if (fileNameSpan) {
+                        fileNameSpan.textContent = 'Selected: ' + file.name;
+                        fileNameSpan.style.color = 'var(--accent-color)';
+                    }
+                    handleAvatarUpload(e);
+                }
             });
             console.log('✅ Avatar upload change listener attached');
-            
-            // Setup button to trigger file input
-            const uploadBtn = document.getElementById('avatar-upload-btn');
-            if (uploadBtn) {
-                uploadBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('🔵 Upload button clicked!');
-                    avatarUploadInput.click();
-                });
-                console.log('✅ Upload button click listener attached');
-            }
         }
         
         async function checkAuthAndLoad() {
@@ -416,14 +409,20 @@
                 const formData = new FormData();
                 formData.append('avatar', file);
                 
-                // Add other user data to maintain existing fields
+                // Add other user data to maintain existing fields (only if they have values)
                 const firstNameEl = document.getElementById('profile-firstName');
                 const lastNameEl = document.getElementById('profile-lastName');
                 const phoneEl = document.getElementById('profile-phone');
                 
-                if (firstNameEl) formData.append('firstName', firstNameEl.value);
-                if (lastNameEl) formData.append('lastName', lastNameEl.value);
-                if (phoneEl) formData.append('phone', phoneEl.value);
+                if (firstNameEl && firstNameEl.value.trim()) {
+                    formData.append('firstName', firstNameEl.value.trim());
+                }
+                if (lastNameEl && lastNameEl.value.trim()) {
+                    formData.append('lastName', lastNameEl.value.trim());
+                }
+                if (phoneEl && phoneEl.value.trim()) {
+                    formData.append('phone', phoneEl.value.trim());
+                }
                 
                 console.log('Calling UsersAPI.updateProfileWithFile');
                 
@@ -433,14 +432,23 @@
                     return;
                 }
                 
+                console.log('Calling UsersAPI.updateProfileWithFile with userId:', user._id || user.id);
                 const response = await UsersAPI.updateProfileWithFile(formData, user._id || user.id);
                 console.log('Upload response:', response);
                 
                 if (response.success) {
-                    if (typeof showNotification === 'function') {
-                        showNotification('Profile picture updated successfully!', 'success');
-                    } else {
-                        alert('Profile picture updated successfully!');
+                    // Update avatar display with new image
+                    if (response.data && response.data.avatar) {
+                        const avatarImg = document.getElementById('avatar-img');
+                        const avatarIcon = document.getElementById('avatar-icon');
+                        if (avatarImg && avatarIcon) {
+                            const avatarUrl = response.data.avatar.startsWith('http') 
+                                ? response.data.avatar 
+                                : `http://localhost:5000${response.data.avatar}`;
+                            avatarImg.src = avatarUrl;
+                            avatarImg.style.display = 'block';
+                            avatarIcon.style.display = 'none';
+                        }
                     }
                     
                     // Update user data
@@ -448,6 +456,19 @@
                         currentUserData = response.data;
                         localStorage.setItem('currentUser', JSON.stringify(response.data));
                         AuthAPI.setCurrentUser(response.data);
+                    }
+                    
+                    // Show success message
+                    if (typeof showNotification === 'function') {
+                        showNotification('Profile picture updated successfully!', 'success');
+                    } else {
+                        alert('Profile picture updated successfully!');
+                    }
+                    
+                    // Clear file name display after success
+                    const fileNameSpan = document.getElementById('avatar-file-name');
+                    if (fileNameSpan) {
+                        fileNameSpan.textContent = '';
                     }
                 } else {
                     throw new Error(response.error || 'Failed to update profile picture');

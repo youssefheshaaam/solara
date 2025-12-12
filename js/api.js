@@ -136,6 +136,14 @@ const AuthAPI = {
         return user ? JSON.parse(user) : null;
     },
     
+    setCurrentUser(user) {
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        } else {
+            localStorage.removeItem('currentUser');
+        }
+    },
+    
     isAdmin() {
         const user = this.getCurrentUser();
         return user && user.role === 'admin';

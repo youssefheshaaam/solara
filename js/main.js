@@ -2736,14 +2736,7 @@ async function loadUserProfile() {
 }
 
 function setupProfileButtons() {
-    // Avatar upload button
-    const avatarUploadBtn = document.getElementById('avatar-upload');
-    if (avatarUploadBtn) {
-        avatarUploadBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showNotification('Avatar upload feature coming soon!', 'info');
-        });
-    }
+    // Avatar upload button - handled in profile.html, don't interfere here
     
     // Edit personal info button
     const editPersonalBtn = document.getElementById('edit-personal-btn');

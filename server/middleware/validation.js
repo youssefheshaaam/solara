@@ -95,28 +95,28 @@ const loginValidation = [
 
 const updateProfileValidation = [
     body('firstName')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters')
         .matches(/^[a-zA-Z\s]+$/).withMessage('First name can only contain letters'),
     
     body('lastName')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters')
         .matches(/^[a-zA-Z\s]+$/).withMessage('Last name can only contain letters'),
     
     body('phone')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .matches(/^[\+]?[1-9][\d]{9,14}$/).withMessage('Please enter a valid phone number'),
     
     body('dateOfBirth')
-        .optional()
+        .optional({ checkFalsy: true })
         .isISO8601().withMessage('Please enter a valid date'),
     
     body('gender')
-        .optional()
+        .optional({ checkFalsy: true })
         .isIn(['male', 'female', 'other', '']).withMessage('Invalid gender value'),
     
     handleValidationErrors
