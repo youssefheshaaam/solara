@@ -1161,15 +1161,31 @@
                 return;
             }
             
+            // Helper function to get proper image URL (handles both local and server-uploaded images)
+            function getAdminImageUrl(imagePath) {
+                if (!imagePath) return '../images/placeholder.jpg';
+                // If it's already a full URL, use it
+                if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+                    return imagePath;
+                }
+                // If it's a server upload path (starts with /uploads), use full URL
+                if (imagePath.startsWith('/uploads/')) {
+                    return `http://localhost:5000${imagePath}`;
+                }
+                // Otherwise, treat as relative path from admin directory
+                return `../${imagePath}`;
+            }
+            
             tbody.innerHTML = filtered.map(product => {
                 const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                const imageUrl = getAdminImageUrl(imagePath);
                 const pid = product._id || product.id;
                 const price = typeof formatPrice === 'function' ? formatPrice(product.price) : (product.price + ' EGP');
                 return `
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="../${imagePath}" alt="${product.name}" class="product-image" onerror="this.src='../images/placeholder.jpg'">
+                                <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.src='../images/placeholder.jpg'">
                                 <span>${product.name}</span>
                             </div>
                         </td>
