@@ -249,11 +249,26 @@ exports.updateProduct = asyncHandler(async (req, res) => {
         }));
         updateData.image = updateData.images[0].url;
     } else if (req.file) {
-        // Delete old image
+        // Delete old images
+        if (product.images && product.images.length > 0) {
+            for (const img of product.images) {
+                if (img.url && !img.url.startsWith('http')) {
+                    await deleteFile(img.url).catch(() => {});
+                }
+            }
+        }
         if (product.image && !product.image.startsWith('http')) {
             await deleteFile(product.image).catch(() => {});
         }
-        updateData.image = getFileUrl(req.file.filename, 'products');
+        
+        // Update both image and images array
+        const newImageUrl = getFileUrl(req.file.filename, 'products');
+        updateData.image = newImageUrl;
+        updateData.images = [{
+            url: newImageUrl,
+            alt: updateData.name || product.name,
+            isPrimary: true
+        }];
     }
 
     // Handle FormData arrays - express.urlencoded with extended:true handles arrays

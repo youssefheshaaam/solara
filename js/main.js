@@ -41,6 +41,21 @@ function getAssetPath(relativePath) {
     }
 }
 
+// Helper function to get proper image URL (handles both local and server-uploaded images)
+function getImageUrl(imagePath) {
+    if (!imagePath) return getAssetPath('images/placeholder.jpg');
+    // If it's already a full URL, use it
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return imagePath;
+    }
+    // If it's a server upload path (starts with /uploads), use full URL
+    if (imagePath.startsWith('/uploads/')) {
+        return `http://localhost:5000${imagePath}`;
+    }
+    // Otherwise, treat as relative path
+    return getAssetPath(imagePath);
+}
+
 async function initializeApp() {
     // Initialize universal navigation
     initializeUniversalNavigation();
@@ -640,14 +655,15 @@ function createProductCard(product) {
     const isOnSale = product.comparePrice ? true : Math.random() > 0.7;
     const saleBadge = isOnSale ? '<div class="sale-badge">SALE</div>' : '';
     
-    // Handle image path - API returns relative path
+    // Handle image path - API returns relative path or server upload path
     const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+    const imageUrl = getImageUrl(imagePath);
     
     return `
         <div class="product-card" data-product-id="${productId}">
             <div class="product-image">
                 ${saleBadge}
-                <img src="${getAssetPath(imagePath)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <img src="${imageUrl}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="image-placeholder" style="display:none;">
                     <i class="fas fa-image"></i>
                 </div>
@@ -938,7 +954,7 @@ function updateCartSummary(subtotal, discount, total) {
 function createCartItemHTML(item, product) {
     // Handle both MongoDB _id and localStorage id formats
     const pid = item.productId || product._id || product.id;
-    const imagePath = getAssetPath(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg');
     const category = product.category || 'fashion';
     const size = item.size || 'M';
     const color = item.color || 'Default';
@@ -1555,7 +1571,7 @@ function showQuickView(productId) {
     
     // Handle both MongoDB _id and localStorage id
     const pid = product._id || product.id;
-    const imagePath = getAssetPath(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg');
     const sizes = product.sizes || ['S', 'M', 'L', 'XL'];
     const colors = product.colors || ['Black', 'White'];
     const description = product.description || 'No description available';
@@ -1814,7 +1830,7 @@ window.showWishlistModal = function() {
                     <div class="wishlist-items">
                         ${wishlistProducts.map(product => `
                             <div class="wishlist-item">
-                                <img src="${getAssetPath(product.image)}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg')}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
                     <i class="fas fa-image"></i>
                 </div>
@@ -2434,7 +2450,7 @@ async function loadCheckoutItems() {
             
             return `
                 <div class="checkout-item">
-                    <img src="${getAssetPath(product.image)}" alt="${product.name}">
+                    <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg')}" alt="${product.name}">
                     <div class="item-info">
                         <h4>${product.name}</h4>
                         <p>Qty: ${item.quantity}</p>

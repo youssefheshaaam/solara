@@ -593,10 +593,51 @@
         
         function renderProduct(product) {
             const pid = product._id || product.id;
-            const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
-            const images = product.images && product.images.length > 0 
-                ? product.images 
-                : [{ url: imagePath, alt: product.name }];
+            
+            // Helper function to get proper image URL
+            function getImageUrl(imagePath) {
+                if (!imagePath) return '../images/placeholder.jpg';
+                // If it's already a full URL, use it
+                if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+                    return imagePath;
+                }
+                // If it's a server upload path (starts with /uploads), use full URL
+                if (imagePath.startsWith('/uploads/')) {
+                    return `http://localhost:5000${imagePath}`;
+                }
+                // Otherwise, treat as relative path from pages directory
+                return `../${imagePath}`;
+            }
+            
+            // Get primary image
+            let imagePath = null;
+            if (product.images && product.images.length > 0) {
+                const primaryImage = product.images.find(img => img.isPrimary);
+                imagePath = primaryImage ? primaryImage.url : product.images[0].url;
+            } else if (product.image) {
+                imagePath = product.image;
+            } else if (product.primaryImage) {
+                imagePath = product.primaryImage;
+            }
+            
+            // Build images array - ensure we always have at least the main image
+            let images = [];
+            if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                images = product.images;
+                // Check if the main imagePath is in the images array
+                const mainImageInArray = images.some(img => {
+                    const imgUrl = img.url || '';
+                    return imgUrl === imagePath || imgUrl.endsWith(imagePath) || imagePath.endsWith(imgUrl);
+                });
+                // If main image is not in the array, add it as the first (primary) image
+                if (!mainImageInArray && imagePath) {
+                    images.unshift({ url: imagePath, alt: product.name, isPrimary: true });
+                }
+            } else if (imagePath) {
+                // If no images array, create one from the main image
+                images = [{ url: imagePath, alt: product.name, isPrimary: true }];
+            }
+            
             const sizes = product.sizes || ['S', 'M', 'L', 'XL'];
             const colors = product.colors || ['Black', 'White', 'Navy'];
             const rating = product.ratings?.average || 4.5;
@@ -608,20 +649,27 @@
             selectedSize = sizes[0];
             selectedColor = colors[0];
             
+            const mainImageUrl = getImageUrl(imagePath);
+            
             const content = document.getElementById('product-content');
             content.innerHTML = `
                 <div class="product-detail-container">
                     <!-- Product Gallery -->
                     <div class="product-gallery">
                         <div class="main-image" id="main-image">
-                            <img src="../${imagePath}" alt="${product.name}" id="main-product-image" onerror="this.src='../images/placeholder.jpg';">
+                            <img src="${mainImageUrl}" alt="${product.name}" id="main-product-image" onerror="this.src='../images/placeholder.jpg';">
                         </div>
                         <div class="thumbnail-gallery">
-                            ${images.map((img, index) => `
-                                <div class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeImage('${img.url || imagePath}', this)">
-                                    <img src="../${img.url || imagePath}" alt="${img.alt || product.name}" onerror="this.src='../images/placeholder.jpg';">
-                                </div>
-                            `).join('')}
+                            ${images.map((img, index) => {
+                                const imgUrl = getImageUrl(img.url || imagePath);
+                                // Escape single quotes in URL for onclick handler
+                                const escapedUrl = imgUrl.replace(/'/g, "\\'");
+                                return `
+                                    <div class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeImage('${escapedUrl}', this)">
+                                        <img src="${imgUrl}" alt="${img.alt || product.name}" onerror="this.src='../images/placeholder.jpg';">
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                     
@@ -826,7 +874,8 @@
         }
         
         function changeImage(src, thumbnail) {
-            document.getElementById('main-product-image').src = '../' + src;
+            // src is already a full URL from getImageUrl, so use it directly
+            document.getElementById('main-product-image').src = src;
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
             thumbnail.classList.add('active');
         }

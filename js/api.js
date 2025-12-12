@@ -247,6 +247,12 @@ const ProductsAPI = {
             const data = await response.json();
             
             if (!response.ok) {
+                // Show detailed validation errors if available
+                if (data.errors && Array.isArray(data.errors)) {
+                    const errorDetails = data.errors.map(e => `${e.field}: ${e.message}`).join(', ');
+                    console.error('Validation errors:', data.errors);
+                    throw new Error(`Validation failed: ${errorDetails}`);
+                }
                 throw new Error(data.error || 'Upload failed');
             }
             

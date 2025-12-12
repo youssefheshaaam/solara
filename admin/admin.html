@@ -1699,34 +1699,76 @@
                         }
                         
                         // Collect form data as FormData for file upload
-                        const formData = new FormData(e.target);
+                        const originalFormData = new FormData(e.target);
                         
-                        // Add all form fields to FormData
-                        formData.append('name', formData.get('name') || '');
-                        formData.append('category', formData.get('category') || '');
-                        formData.append('brand', formData.get('brand') || 'SOLARA');
-                        formData.append('description', formData.get('description') || '');
-                        formData.append('price', formData.get('price') || '0');
-                        if (formData.get('comparePrice')) {
-                            formData.append('comparePrice', formData.get('comparePrice'));
+                        // Clear and rebuild FormData to only include fields with values
+                        const formData = new FormData();
+                        
+                        // Required fields
+                        const name = originalFormData.get('name');
+                        const category = originalFormData.get('category');
+                        const price = originalFormData.get('price');
+                        
+                        if (name && name.trim()) formData.append('name', name.trim());
+                        if (category && category.trim()) formData.append('category', category.trim());
+                        if (price && price.trim()) formData.append('price', price.trim());
+                        
+                        // Optional fields - only add if they have values
+                        const brand = originalFormData.get('brand');
+                        if (brand && brand.trim()) formData.append('brand', brand.trim());
+                        
+                        const description = originalFormData.get('description');
+                        if (description && description.trim()) formData.append('description', description.trim());
+                        
+                        const comparePrice = originalFormData.get('comparePrice');
+                        if (comparePrice && comparePrice.trim()) {
+                            formData.append('comparePrice', comparePrice.trim());
                         }
-                        if (formData.get('sku')) {
-                            formData.append('sku', formData.get('sku'));
+                        
+                        const sku = originalFormData.get('sku');
+                        if (sku && sku.trim()) {
+                            formData.append('sku', sku.trim());
                         }
-                        formData.append('stock', formData.get('stock') || '0');
-                        formData.append('material', formData.get('material') || '');
-                        formData.append('care', formData.get('care') || '');
-                        if (formData.get('tags')) {
-                            formData.append('tags', formData.get('tags'));
+                        
+                        const stock = originalFormData.get('stock');
+                        if (stock && stock.trim()) formData.append('stock', stock.trim());
+                        
+                        const material = originalFormData.get('material');
+                        if (material && material.trim()) formData.append('material', material.trim());
+                        
+                        const care = originalFormData.get('care');
+                        if (care && care.trim()) formData.append('care', care.trim());
+                        
+                        const tags = originalFormData.get('tags');
+                        if (tags && tags.trim()) {
+                            formData.append('tags', tags.trim());
                         }
-                        if (formData.get('metaTitle')) {
-                            formData.append('metaTitle', formData.get('metaTitle'));
+                        
+                        const metaTitle = originalFormData.get('metaTitle');
+                        if (metaTitle && metaTitle.trim()) {
+                            formData.append('metaTitle', metaTitle.trim());
                         }
-                        if (formData.get('metaDescription')) {
-                            formData.append('metaDescription', formData.get('metaDescription'));
+                        
+                        const metaDescription = originalFormData.get('metaDescription');
+                        if (metaDescription && metaDescription.trim()) {
+                            formData.append('metaDescription', metaDescription.trim());
                         }
-                        formData.append('featured', formData.get('featured') === 'on' ? 'true' : 'false');
-                        formData.append('status', formData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        formData.append('featured', originalFormData.get('featured') === 'on' ? 'true' : 'false');
+                        formData.append('status', originalFormData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        // Add file inputs
+                        const mainImageInput = document.getElementById('edit-product-image-upload');
+                        if (mainImageInput && mainImageInput.files && mainImageInput.files.length > 0) {
+                            formData.append('images', mainImageInput.files[0]);
+                        }
+                        
+                        const galleryInput = document.getElementById('edit-product-gallery');
+                        if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                            Array.from(galleryInput.files).forEach(file => {
+                                formData.append('images', file);
+                            });
+                        }
                         
                         // Add sizes
                         const selectedSizes = Array.from(document.querySelectorAll('#edit-product-section input[name="sizes"]:checked')).map(cb => cb.value);
@@ -1741,7 +1783,7 @@
                         });
                         
                         // Validate required fields (image is optional for updates - can keep existing)
-                        if (!formData.get('name') || !formData.get('category') || !formData.get('price')) {
+                        if (!name || !category || !price) {
                             throw new Error('Please fill in all required fields');
                         }
                         
@@ -1761,6 +1803,17 @@
                         
                         if (typeof showNotification === 'function') {
                             showNotification('Product updated successfully', 'success');
+                        }
+                        
+                        // Reload the product data and refresh the edit form
+                        if (response.data) {
+                            populateEditForm(response.data);
+                        } else {
+                            // If response doesn't include data, fetch it
+                            const productResponse = await ProductsAPI.getById(productId);
+                            if (productResponse.success && productResponse.data) {
+                                populateEditForm(productResponse.data);
+                            }
                         }
                         
                         // Reload data from backend
@@ -1856,11 +1909,33 @@
             
             // Images - Show current image
             const currentImageDiv = document.getElementById('edit-current-image');
-            const imageUrl = product.image || product.primaryImage || (product.images && product.images[0]?.url);
+            // Try to find primary image first, then first image, then legacy image field
+            let imageUrl = null;
+            if (product.images && product.images.length > 0) {
+                const primaryImage = product.images.find(img => img.isPrimary);
+                imageUrl = primaryImage ? primaryImage.url : product.images[0].url;
+            } else if (product.image) {
+                imageUrl = product.image;
+            }
+            
             if (imageUrl && currentImageDiv) {
-                const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:5000${imageUrl}`;
+                // Ensure the URL starts with /uploads
+                let fullImageUrl = imageUrl;
+                if (!imageUrl.startsWith('http')) {
+                    // If it doesn't start with /, add it
+                    if (!imageUrl.startsWith('/')) {
+                        imageUrl = '/' + imageUrl;
+                    }
+                    fullImageUrl = `http://localhost:5000${imageUrl}`;
+                }
+                
+                console.log('Loading product image:', fullImageUrl);
+                
                 currentImageDiv.innerHTML = `
-                    <img src="${fullImageUrl}" alt="${product.name}" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" onerror="this.style.display='none'">
+                    <img src="${fullImageUrl}" alt="${product.name}" 
+                         style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" 
+                         onerror="console.error('Failed to load image:', '${fullImageUrl}'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <p style="display: none; color: #f44336; margin-top: 0.5rem;">Failed to load image: ${fullImageUrl}</p>
                 `;
             } else if (currentImageDiv) {
                 currentImageDiv.innerHTML = '<p style="color: var(--text-secondary);">No image uploaded</p>';
@@ -1911,19 +1986,32 @@
             const fileInput = document.getElementById('edit-product-image-upload');
             const galleryInput = document.getElementById('edit-product-gallery');
             const previewContainer = document.getElementById('edit-image-preview');
+            const currentImageDiv = document.getElementById('edit-current-image');
             
             if (!previewContainer) return;
             
-            let previewHTML = '';
+            let previewHTML = '<p style="color: var(--text-secondary); margin-bottom: 0.5rem;">New image preview:</p>';
             
             // Preview main image if selected
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    previewHTML += `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                    previewHTML += `<img src="${e.target.result}" alt="New Main Image Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin: 0.5rem; display: block;">`;
                     previewContainer.innerHTML = previewHTML;
+                    
+                    // Also update the current image div to show preview
+                    if (currentImageDiv) {
+                        currentImageDiv.innerHTML = `
+                            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Current (will be replaced):</p>
+                            ${currentImageDiv.innerHTML}
+                            <p style="color: var(--accent-color); margin-top: 0.5rem; font-weight: 500;">New image selected:</p>
+                            <img src="${e.target.result}" alt="New Image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin-top: 0.5rem;">
+                        `;
+                    }
                 };
                 reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                previewContainer.innerHTML = '';
             }
             
             // Preview gallery images if selected
@@ -1931,7 +2019,7 @@
                 Array.from(galleryInput.files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem; display: inline-block;">`;
                         previewContainer.innerHTML = previewHTML;
                     };
                     reader.readAsDataURL(file);

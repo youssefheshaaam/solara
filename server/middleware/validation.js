@@ -199,30 +199,40 @@ const productValidation = [
 
 const productUpdateValidation = [
     body('name')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ min: 3, max: 100 }).withMessage('Product name must be 3-100 characters'),
     
     body('description')
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isLength({ max: 2000 }).withMessage('Description cannot exceed 2000 characters'),
     
     body('price')
-        .optional()
+        .optional({ checkFalsy: true })
+        .toFloat()
         .isFloat({ min: 0.01 }).withMessage('Price must be at least 0.01'),
     
     body('category')
-        .optional()
+        .optional({ checkFalsy: true })
         .isIn(['men', 'women']).withMessage('Invalid category'),
     
     body('stock')
-        .optional()
+        .optional({ checkFalsy: true })
+        .toInt()
         .isInt({ min: 0 }).withMessage('Stock must be a non-negative integer'),
     
     body('status')
-        .optional()
+        .optional({ checkFalsy: true })
         .isIn(['active', 'inactive', 'draft']).withMessage('Invalid status'),
+    
+    body('featured')
+        .optional({ checkFalsy: true })
+        .custom((value) => {
+            if (value === 'true' || value === true) return true;
+            if (value === 'false' || value === false) return true;
+            return false;
+        }).withMessage('Featured must be true or false'),
     
     handleValidationErrors
 ];
