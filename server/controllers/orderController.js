@@ -190,7 +190,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
     // Calculate totals
     const shippingCost = subtotal >= 100 ? 0 : 25; // Free shipping over 100 EGP
-    const tax = subtotal * 0.14; // 14% VAT
+    const tax = 0; // No tax
     let discount = 0;
 
     // Apply coupon discount (placeholder - implement coupon system)
@@ -200,8 +200,14 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
     const total = subtotal + shippingCost + tax - discount;
 
+    // Generate order number
+    const year = new Date().getFullYear();
+    const orderCount = await Order.countDocuments() + 1;
+    const orderNumber = `SOL-${year}-${String(orderCount).padStart(5, '0')}`;
+
     // Create order
     const order = await Order.create({
+        orderNumber,
         user: req.user._id,
         items: orderItems,
         shippingAddress,

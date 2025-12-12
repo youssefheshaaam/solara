@@ -104,10 +104,12 @@
         }
         
         .status-pending { background: #fff3e0; color: #e65100; }
+        .status-confirmed { background: #e1f5fe; color: #0277bd; }
         .status-processing { background: #e3f2fd; color: #1565c0; }
         .status-shipped { background: #e8f5e9; color: #2e7d32; }
         .status-delivered { background: #c8e6c9; color: #1b5e20; }
         .status-cancelled { background: #ffebee; color: #c62828; }
+        .status-refunded { background: #f3e5f5; color: #7b1fa2; }
         
         .order-body {
             padding: 1.5rem;
@@ -301,9 +303,11 @@
             <div class="order-filters">
                 <button class="filter-btn active" data-status="">All Orders</button>
                 <button class="filter-btn" data-status="pending">Pending</button>
+                <button class="filter-btn" data-status="confirmed">Confirmed</button>
                 <button class="filter-btn" data-status="processing">Processing</button>
                 <button class="filter-btn" data-status="shipped">Shipped</button>
                 <button class="filter-btn" data-status="delivered">Delivered</button>
+                <button class="filter-btn" data-status="cancelled">Cancelled</button>
             </div>
             
             <!-- Orders List -->
@@ -453,7 +457,9 @@
                                 <div class="order-number">Order #${String(orderNumber).slice(-8).toUpperCase()}</div>
                                 <div class="order-date">Placed on ${date}</div>
                             </div>
-                            <span class="status-badge status-${status}">${status}</span>
+                            <span class="status-badge status-${status}" title="Order Status: ${status.charAt(0).toUpperCase() + status.slice(1)}">
+                                ${status.charAt(0).toUpperCase() + status.slice(1)}
+                            </span>
                         </div>
                         
                         <div class="order-body">

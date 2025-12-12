@@ -153,10 +153,12 @@
         .status-active { background: #e8f5e9; color: #4caf50; }
         .status-inactive { background: #ffebee; color: #f44336; }
         .status-pending { background: #fff3e0; color: #ff9800; }
+        .status-confirmed { background: #e1f5fe; color: #0277bd; }
         .status-processing { background: #e3f2fd; color: #2196f3; }
         .status-shipped { background: #e8f5e9; color: #4caf50; }
-        .status-delivered { background: #e8f5e9; color: #2e7d32; }
+        .status-delivered { background: #c8e6c9; color: #1b5e20; }
         .status-cancelled { background: #ffebee; color: #c62828; }
+        .status-refunded { background: #f3e5f5; color: #7b1fa2; }
         
         .action-btns { display: flex; gap: 0.5rem; }
         .action-btns button {
@@ -446,6 +448,30 @@
                 </div>
                 <div class="orders-list" id="orders-list">
                     <p style="text-align: center; color: #666; padding: 2rem;">Loading orders...</p>
+                </div>
+            </div>
+
+            <!-- Status Update Modal -->
+            <div id="status-update-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+                <div style="background: white; border-radius: 16px; padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0; font-size: 1.5rem;">Update Order Status</h2>
+                        <button onclick="closeStatusModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: #666; margin-bottom: 0.5rem;">Current Status:</p>
+                        <span id="current-status-display" class="status-badge" style="font-size: 1rem; padding: 0.5rem 1rem;"></span>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="status-select" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Select New Status:</label>
+                        <select id="status-select" style="width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; background: white; cursor: pointer;">
+                            <option value="">-- Select Status --</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button onclick="closeStatusModal()" style="padding: 0.75rem 1.5rem; border: 2px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 500;">Cancel</button>
+                        <button onclick="confirmStatusUpdate()" style="padding: 0.75rem 1.5rem; border: none; background: var(--accent-color, #1a1a2e); color: white; border-radius: 8px; cursor: pointer; font-weight: 500;">Update Status</button>
+                    </div>
                 </div>
             </div>
 
@@ -1070,7 +1096,7 @@
             
             // Update stats
             const productsEl = document.getElementById('stat-products');
-            const ordersEl = document.getElementById('stat-revenue');
+            const ordersEl = document.getElementById('stat-orders');
             const revenueEl = document.getElementById('stat-revenue');
             const customersEl = document.getElementById('stat-customers');
             
@@ -1234,7 +1260,9 @@
                             <p>${order.items?.length || 0} items</p>
                         </div>
                         <div>
-                            <span class="status-badge status-${status}">${status}</span>
+                            <span class="status-badge status-${status}" title="Order Status: ${status.charAt(0).toUpperCase() + status.slice(1)}">
+                                ${status.charAt(0).toUpperCase() + status.slice(1)}
+                            </span>
                         </div>
                         <div>
                             <p>${date}</p>
@@ -2224,13 +2252,88 @@
             }
         }
 
-        async function updateOrderStatus(orderId) {
-            const newStatus = prompt('Enter new status (pending, processing, shipped, delivered, cancelled):');
-            if (!newStatus || !['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(newStatus)) {
+        let currentOrderIdForStatusUpdate = null;
+        
+        function updateOrderStatus(orderId) {
+            // Find the order to get current status
+            const order = allOrders.find(o => (o._id || o.id) === orderId);
+            if (!order) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Invalid status', 'error');
+                    showNotification('Order not found', 'error');
                 } else {
-                    alert('Invalid status');
+                    alert('Order not found');
+                }
+                return;
+            }
+            
+            const currentStatus = order.status || 'pending';
+            currentOrderIdForStatusUpdate = orderId;
+            
+            // Determine valid next statuses based on current status
+            const validTransitions = {
+                'pending': ['confirmed', 'cancelled'],
+                'confirmed': ['processing', 'cancelled'],
+                'processing': ['shipped', 'cancelled'],
+                'shipped': ['delivered'],
+                'delivered': ['refunded'],
+                'cancelled': [],
+                'refunded': []
+            };
+            
+            const validStatuses = validTransitions[currentStatus] || [];
+            
+            if (validStatuses.length === 0) {
+                if (typeof showNotification === 'function') {
+                    showNotification(`Order is ${currentStatus} and cannot be changed further`, 'error');
+                } else {
+                    alert(`Order is ${currentStatus} and cannot be changed further`);
+                }
+                return;
+            }
+            
+            // Show modal
+            const modal = document.getElementById('status-update-modal');
+            const currentStatusDisplay = document.getElementById('current-status-display');
+            const statusSelect = document.getElementById('status-select');
+            
+            // Update current status display
+            currentStatusDisplay.textContent = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+            currentStatusDisplay.className = `status-badge status-${currentStatus}`;
+            
+            // Populate dropdown
+            statusSelect.innerHTML = '<option value="">-- Select Status --</option>';
+            validStatuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusSelect.appendChild(option);
+            });
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+        
+        function closeStatusModal() {
+            const modal = document.getElementById('status-update-modal');
+            modal.style.display = 'none';
+            currentOrderIdForStatusUpdate = null;
+            document.getElementById('status-select').value = '';
+        }
+        
+        async function confirmStatusUpdate() {
+            if (!currentOrderIdForStatusUpdate) {
+                closeStatusModal();
+                return;
+            }
+            
+            const statusSelect = document.getElementById('status-select');
+            const newStatus = statusSelect.value;
+            
+            if (!newStatus) {
+                if (typeof showNotification === 'function') {
+                    showNotification('Please select a status', 'error');
+                } else {
+                    alert('Please select a status');
                 }
                 return;
             }
@@ -2241,29 +2344,47 @@
                     throw new Error('Backend API not available');
                 }
                 
-                const response = await OrdersAPI.updateStatus(orderId, newStatus);
+                console.log('Updating order status:', currentOrderIdForStatusUpdate, 'to', newStatus);
+                const response = await OrdersAPI.updateStatus(currentOrderIdForStatusUpdate, newStatus.toLowerCase());
+                console.log('Update status response:', response);
                 
                 if (!response.success) {
                     throw new Error(response.error || 'Failed to update order status');
                 }
                 
+                // Close modal
+                closeStatusModal();
+                
                 // Reload orders from backend
                 await loadDashboardData();
                 
                 if (typeof showNotification === 'function') {
-                    showNotification('Order status updated successfully', 'success');
+                    showNotification(`Order status updated to ${newStatus}`, 'success');
                 } else {
-                    alert('Order status updated');
+                    alert(`Order status updated to ${newStatus}`);
                 }
             } catch (error) {
                 console.error('Error updating order status:', error);
+                const errorMsg = error.message || 'Failed to update order status';
                 if (typeof showNotification === 'function') {
-                    showNotification(error.message || 'Failed to update order status', 'error');
+                    showNotification(errorMsg, 'error');
                 } else {
-                    alert('Error: ' + error.message);
+                    alert('Error: ' + errorMsg);
                 }
             }
         }
+        
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('status-update-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeStatusModal();
+                    }
+                });
+            }
+        });
     </script>
 
     <!-- Credentials Banner -->

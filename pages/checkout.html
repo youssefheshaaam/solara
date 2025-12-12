@@ -567,6 +567,10 @@
                                         <option value="Other">Other</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="zipCode">Zip Code *</label>
+                                    <input type="text" id="zipCode" name="zipCode" placeholder="12345" required pattern="[0-9]{5,10}">
+                                </div>
                                 <div class="form-group full-width">
                                     <label for="notes">Order Notes (Optional)</label>
                                     <textarea id="notes" name="notes" placeholder="Notes about your order, e.g. special delivery instructions"></textarea>
@@ -780,57 +784,104 @@
                     street: document.getElementById('address').value,
                     city: document.getElementById('city').value,
                     state: document.getElementById('governorate').value,
+                    zipCode: document.getElementById('zipCode').value,
                     country: 'Egypt'
                 };
-                
-                const orderItems = cartProducts.map(item => ({
-                    product: item.productId,
-                    name: item.product.name,
-                    image: item.product.image || item.product.primaryImage,
-                    quantity: item.quantity,
-                    price: item.price || item.product.price,
-                    size: item.size,
-                    color: item.color
-                }));
-                
-                // Generate order number
-                const orderNum = 'SOL-' + Date.now().toString(36).toUpperCase();
                 
                 // Get current user
                 const user = (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser()) || 
                              JSON.parse(localStorage.getItem('currentUser') || '{}');
                 
-                // Create order object
-                const order = {
-                    _id: orderNum,
-                    orderNumber: orderNum,
-                    userId: user._id || user.id || null,
-                    userEmail: user.email || shippingAddress.email,
+                // Build order items - need product ID (MongoDB ObjectId)
+                const orderItems = cartProducts.map(item => {
+                    // Get product ID - could be _id, id, or productId
+                    const productId = item.product?._id || item.product?.id || item.productId || item.product;
+                    if (!productId) {
+                        console.error('Missing product ID for item:', item);
+                        throw new Error('Invalid product in cart');
+                    }
+                    return {
+                        product: productId,
+                        quantity: item.quantity,
+                        size: item.size || undefined,
+                        color: item.color || undefined
+                    };
+                });
+                
+                // Create order object for API
+                const orderData = {
                     items: orderItems,
-                    shippingAddress: shippingAddress,
-                    paymentMethod: 'cod',
-                    subtotal: orderTotals.subtotal,
-                    shipping: orderTotals.shipping,
-                    codFee: orderTotals.codFee,
-                    total: orderTotals.total,
-                    notes: document.getElementById('notes').value || '',
-                    status: 'pending',
-                    createdAt: new Date().toISOString()
+                    shippingAddress: {
+                        firstName: shippingAddress.firstName,
+                        lastName: shippingAddress.lastName,
+                        street: shippingAddress.street,
+                        city: shippingAddress.city,
+                        state: shippingAddress.state,
+                        zipCode: shippingAddress.zipCode || '00000',
+                        country: shippingAddress.country || 'Egypt',
+                        phone: shippingAddress.phone
+                    },
+                    payment: {
+                        method: 'cash-on-delivery',
+                        status: 'pending'
+                    },
+                    notes: document.getElementById('notes')?.value || ''
                 };
                 
-                // Save to localStorage
-                const orders = JSON.parse(localStorage.getItem('fashionStoreOrders') || '[]');
-                orders.push(order);
-                localStorage.setItem('fashionStoreOrders', JSON.stringify(orders));
+                let order;
                 
-                // Clear cart
-                saveCart([]);
-                updateCartCount();
+                // Check if user is logged in
+                const isLoggedIn = typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn();
+                
+                if (!isLoggedIn) {
+                    throw new Error('You must be logged in to place an order. Please login first.');
+                }
+                
+                // User is logged in - save to MongoDB
+                if (typeof OrdersAPI === 'undefined') {
+                    throw new Error('Orders API not available. Please refresh the page.');
+                }
+                
+                console.log('Creating order with data:', orderData);
+                
+                try {
+                    const response = await OrdersAPI.create(orderData);
+                    console.log('Order API response:', response);
+                    
+                    if (response.success) {
+                        order = response.data;
+                        console.log('Order created successfully:', order);
+                        
+                        // Clear cart via API
+                        if (typeof CartAPI !== 'undefined') {
+                            await CartAPI.clear();
+                        }
+                    } else {
+                        throw new Error(response.error || 'Failed to create order');
+                    }
+                } catch (apiError) {
+                    console.error('API order creation failed:', apiError);
+                    console.error('Error details:', {
+                        message: apiError.message,
+                        stack: apiError.stack,
+                        orderData: orderData
+                    });
+                    throw apiError; // Re-throw to show error to user
+                }
+                
+                // Clear local cart as well
+                if (typeof saveCart === 'function') {
+                    saveCart([]);
+                }
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
                 
                 // Update modal with order info
-                document.getElementById('order-number-display').textContent = 'Order #' + orderNum.slice(-8).toUpperCase();
+                const orderNumber = order.orderNumber || order._id || 'N/A';
+                document.getElementById('order-number-display').textContent = 'Order #' + (orderNumber.length > 8 ? orderNumber.slice(-8) : orderNumber).toUpperCase();
                 document.getElementById('shipping-summary').textContent = shippingAddress.street + ', ' + shippingAddress.city + ', ' + shippingAddress.state;
-                document.getElementById('total-amount').textContent = formatPrice(orderTotals.total);
+                document.getElementById('total-amount').textContent = formatPrice(order.total || orderTotals.total);
                 
                 // Show success modal - add class to override CSS !important
                 document.getElementById('success-modal').classList.add('active');
@@ -838,8 +889,9 @@
                 btn.innerHTML = '<i class="fas fa-check"></i> Order Placed!';
                 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error placing order: ' + error.message);
+                console.error('Error placing order:', error);
+                const errorMessage = error.message || 'Failed to place order. Please try again.';
+                alert('Error placing order: ' + errorMessage);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check"></i> Place Order';
             }
