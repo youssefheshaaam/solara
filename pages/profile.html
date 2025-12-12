@@ -134,11 +134,23 @@
                         </div>
                         
                         <div class="profile-info">
-                            <div class="profile-avatar" id="profile-avatar-display">
-                                <i class="fas fa-user"></i>
+                            <div class="profile-avatar-container" style="text-align: center; margin-bottom: 2rem;">
+                                <div class="profile-avatar" id="profile-avatar-display" style="margin: 0 auto; position: relative;">
+                                    <img id="avatar-img" src="" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
+                                    <i class="fas fa-user" id="avatar-icon"></i>
+                                </div>
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Change Picture</label>
+                                    <input type="file" id="avatar-upload" name="avatar" accept="image/*" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;">
+                                    <button type="button" id="avatar-upload-btn" class="btn btn-outline" style="width: 100%; padding: 0.75rem;">
+                                        <i class="fas fa-camera"></i> Choose File
+                                    </button>
+                                    <span id="avatar-file-name" style="display: block; margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;"></span>
+                                    <small class="form-help" style="display: block; margin-top: 0.5rem; color: var(--text-secondary);">Max 2MB, JPEG, PNG, GIF, WebP</small>
+                                </div>
                             </div>
                             
-                            <form class="profile-form" id="personal-form">
+                            <form class="profile-form" id="personal-form" enctype="multipart/form-data">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="profile-firstName">First Name</label>
@@ -235,7 +247,41 @@
             setupProfileTabs();
             setupEditFunctionality();
             setupPreferencesForm();
+            
+            // Setup avatar upload after a small delay to ensure DOM is ready
+            setTimeout(setupAvatarUpload, 100);
         });
+        
+        function setupAvatarUpload() {
+            const avatarUploadInput = document.getElementById('avatar-upload');
+            
+            if (!avatarUploadInput) {
+                console.error('Avatar upload input not found! Retrying in 500ms...');
+                setTimeout(setupAvatarUpload, 500);
+                return;
+            }
+            
+            // Setup change listener
+            avatarUploadInput.addEventListener('change', function(e) {
+                console.log('🔵 Change event fired!', e);
+                const fileName = e.target.files[0]?.name || 'No file selected';
+                document.getElementById('avatar-file-name').textContent = fileName;
+                handleAvatarUpload(e);
+            });
+            console.log('✅ Avatar upload change listener attached');
+            
+            // Setup button to trigger file input
+            const uploadBtn = document.getElementById('avatar-upload-btn');
+            if (uploadBtn) {
+                uploadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Upload button clicked!');
+                    avatarUploadInput.click();
+                });
+                console.log('✅ Upload button click listener attached');
+            }
+        }
         
         async function checkAuthAndLoad() {
             // Check if user is logged in
@@ -285,11 +331,134 @@
             document.getElementById('profile-email').value = user.email || '';
             document.getElementById('profile-phone').value = user.phone || '';
             
-            // Update avatar with initials
-            const avatar = document.getElementById('profile-avatar-display');
-            if (user.firstName) {
-                const initials = (user.firstName[0] || '') + (user.lastName?.[0] || '');
-                avatar.innerHTML = `<span style="font-size: 2rem; font-weight: 600;">${initials.toUpperCase()}</span>`;
+            // Update avatar
+            const avatarDisplay = document.getElementById('profile-avatar-display');
+            const avatarImg = document.getElementById('avatar-img');
+            const avatarIcon = document.getElementById('avatar-icon');
+            
+            if (user.avatar) {
+                // Show uploaded avatar image
+                const avatarUrl = user.avatar.startsWith('http') ? user.avatar : `http://localhost:5000${user.avatar}`;
+                avatarImg.src = avatarUrl;
+                avatarImg.style.display = 'block';
+                avatarIcon.style.display = 'none';
+            } else {
+                // Show initials
+                avatarImg.style.display = 'none';
+                avatarIcon.style.display = 'block';
+                if (user.firstName) {
+                    const initials = (user.firstName[0] || '') + (user.lastName?.[0] || '');
+                    avatarIcon.textContent = initials.toUpperCase();
+                    avatarIcon.style.fontSize = '2rem';
+                    avatarIcon.style.fontWeight = '600';
+                }
+            }
+        }
+        
+        // Make function globally accessible
+        window.handleAvatarUpload = function(event) {
+            console.log('🔵 handleAvatarUpload called!', event);
+            const file = event.target.files[0];
+            if (!file) {
+                console.log('No file selected');
+                return;
+            }
+            
+            console.log('File selected:', file.name, file.size, file.type);
+            
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarImg = document.getElementById('avatar-img');
+                const avatarIcon = document.getElementById('avatar-icon');
+                if (avatarImg && avatarIcon) {
+                    avatarImg.src = e.target.result;
+                    avatarImg.style.display = 'block';
+                    avatarIcon.style.display = 'none';
+                }
+            };
+            reader.readAsDataURL(file);
+            
+            // Upload immediately
+            uploadAvatar(file);
+        }
+        
+        async function uploadAvatar(file) {
+            console.log('uploadAvatar called with file:', file);
+            try {
+                if (typeof AuthAPI === 'undefined') {
+                    console.error('AuthAPI is not defined');
+                    alert('Authentication API not available. Please refresh the page.');
+                    return;
+                }
+                
+                const user = AuthAPI.getCurrentUser();
+                if (!user) {
+                    console.error('No user found');
+                    alert('Please log in to upload a profile picture');
+                    return;
+                }
+                
+                console.log('User found:', user);
+                
+                const formData = new FormData();
+                formData.append('avatar', file);
+                
+                // Add other user data to maintain existing fields
+                const firstNameEl = document.getElementById('profile-firstName');
+                const lastNameEl = document.getElementById('profile-lastName');
+                const phoneEl = document.getElementById('profile-phone');
+                
+                if (firstNameEl) formData.append('firstName', firstNameEl.value);
+                if (lastNameEl) formData.append('lastName', lastNameEl.value);
+                if (phoneEl) formData.append('phone', phoneEl.value);
+                
+                console.log('Calling UsersAPI.updateProfileWithFile');
+                
+                if (typeof UsersAPI === 'undefined' || !UsersAPI.updateProfileWithFile) {
+                    console.error('UsersAPI.updateProfileWithFile is not defined');
+                    alert('Upload API not available. Please refresh the page.');
+                    return;
+                }
+                
+                const response = await UsersAPI.updateProfileWithFile(formData, user._id || user.id);
+                console.log('Upload response:', response);
+                
+                if (response.success) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Profile picture updated successfully!', 'success');
+                    } else {
+                        alert('Profile picture updated successfully!');
+                    }
+                    
+                    // Update user data
+                    if (response.data) {
+                        currentUserData = response.data;
+                        localStorage.setItem('currentUser', JSON.stringify(response.data));
+                        AuthAPI.setCurrentUser(response.data);
+                    }
+                } else {
+                    throw new Error(response.error || 'Failed to update profile picture');
+                }
+            } catch (error) {
+                console.error('Error uploading avatar:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Failed to upload profile picture: ' + error.message, 'error');
+                } else {
+                    alert('Failed to upload profile picture: ' + error.message);
+                }
             }
         }
         

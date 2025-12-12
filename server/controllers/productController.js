@@ -184,15 +184,27 @@ exports.createProduct = asyncHandler(async (req, res) => {
         }];
     }
 
-    // Parse arrays if they're strings
-    if (typeof productData.sizes === 'string') {
-        productData.sizes = productData.sizes.split(',').map(s => s.trim()).filter(Boolean);
+    // Handle FormData arrays - express.urlencoded with extended:true handles arrays
+    // But we need to ensure they're arrays
+    if (req.body.sizes) {
+        productData.sizes = Array.isArray(req.body.sizes) 
+            ? req.body.sizes.filter(Boolean)
+            : [req.body.sizes].filter(Boolean);
     }
-    if (typeof productData.colors === 'string') {
-        productData.colors = productData.colors.split(',').map(c => c.trim()).filter(Boolean);
+    
+    if (req.body.colors) {
+        productData.colors = Array.isArray(req.body.colors)
+            ? req.body.colors.filter(Boolean)
+            : [req.body.colors].filter(Boolean);
     }
-    if (typeof productData.tags === 'string') {
-        productData.tags = productData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    
+    // Parse tags if it's a string
+    if (productData.tags) {
+        if (typeof productData.tags === 'string') {
+            productData.tags = productData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+        } else if (Array.isArray(productData.tags)) {
+            productData.tags = productData.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+        }
     }
 
     const product = await Product.create(productData);
@@ -244,15 +256,26 @@ exports.updateProduct = asyncHandler(async (req, res) => {
         updateData.image = getFileUrl(req.file.filename, 'products');
     }
 
-    // Parse arrays if they're strings
-    if (typeof updateData.sizes === 'string') {
-        updateData.sizes = updateData.sizes.split(',').map(s => s.trim()).filter(Boolean);
+    // Handle FormData arrays - express.urlencoded with extended:true handles arrays
+    if (req.body.sizes !== undefined) {
+        updateData.sizes = Array.isArray(req.body.sizes)
+            ? req.body.sizes.filter(Boolean)
+            : [req.body.sizes].filter(Boolean);
     }
-    if (typeof updateData.colors === 'string') {
-        updateData.colors = updateData.colors.split(',').map(c => c.trim()).filter(Boolean);
+    
+    if (req.body.colors !== undefined) {
+        updateData.colors = Array.isArray(req.body.colors)
+            ? req.body.colors.filter(Boolean)
+            : [req.body.colors].filter(Boolean);
     }
-    if (typeof updateData.tags === 'string') {
-        updateData.tags = updateData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+    
+    // Parse tags if it's a string
+    if (updateData.tags) {
+        if (typeof updateData.tags === 'string') {
+            updateData.tags = updateData.tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+        } else if (Array.isArray(updateData.tags)) {
+            updateData.tags = updateData.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+        }
     }
 
     product = await Product.findByIdAndUpdate(

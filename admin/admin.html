@@ -489,7 +489,7 @@
                 <div class="section-header">
                     <h2>Add New Product</h2>
                 </div>
-                <form id="add-product-form" class="product-form">
+                <form id="add-product-form" class="product-form" enctype="multipart/form-data">
                     <div class="form-sections">
                         <!-- Basic Information -->
                         <section class="form-section">
@@ -574,16 +574,16 @@
                             <h2>Product Images</h2>
                             
                             <div class="form-group">
-                                <label for="product-image">Main Image URL *</label>
-                                <input type="url" id="product-image" name="image" placeholder="images/products/example.jpg" required>
+                                <label for="product-image">Main Image *</label>
+                                <input type="file" id="product-image" name="images" accept="image/*" required>
                                 <span class="error-message" id="image-error"></span>
-                                <small class="form-help">Enter the path to the main product image</small>
+                                <small class="form-help">Upload the main product image (Max 5MB, JPEG, PNG, GIF, WebP)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="product-gallery">Additional Images</label>
-                                <textarea id="product-gallery" name="gallery" rows="3" placeholder="Enter additional image URLs, one per line"></textarea>
-                                <small class="form-help">Add multiple image URLs for a product gallery</small>
+                                <label for="product-gallery">Additional Images (Optional)</label>
+                                <input type="file" id="product-gallery" name="images" accept="image/*" multiple>
+                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
                             </div>
                             
                             <div class="image-preview" id="image-preview">
@@ -707,7 +707,7 @@
                         <i class="fas fa-arrow-left"></i> Back to Products
                     </button>
                 </div>
-                <form id="edit-product-form" class="product-form">
+                <form id="edit-product-form" class="product-form" enctype="multipart/form-data">
                     <input type="hidden" id="edit-product-id" name="id">
                     
                     <div class="form-sections">
@@ -794,16 +794,20 @@
                             <h2>Product Images</h2>
                             
                             <div class="form-group">
-                                <label for="edit-product-image">Main Image URL *</label>
-                                <input type="url" id="edit-product-image" name="image" placeholder="images/products/example.jpg" required>
+                                <label for="edit-product-image">Current Main Image</label>
+                                <div id="edit-current-image" style="margin-bottom: 1rem;">
+                                    <!-- Current image will be shown here -->
+                                </div>
+                                <label for="edit-product-image-upload">Upload New Main Image (Optional)</label>
+                                <input type="file" id="edit-product-image-upload" name="images" accept="image/*">
                                 <span class="error-message" id="edit-image-error"></span>
-                                <small class="form-help">Enter the path to the main product image</small>
+                                <small class="form-help">Leave empty to keep current image, or upload a new one (Max 5MB)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="edit-product-gallery">Additional Images</label>
-                                <textarea id="edit-product-gallery" name="gallery" rows="3" placeholder="Enter additional image URLs, one per line"></textarea>
-                                <small class="form-help">Add multiple image URLs for a product gallery</small>
+                                <label for="edit-product-gallery">Additional Images (Optional)</label>
+                                <input type="file" id="edit-product-gallery" name="images" accept="image/*" multiple>
+                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
                             </div>
                             
                             <div class="image-preview" id="edit-image-preview">
@@ -1515,36 +1519,67 @@
                             throw new Error('Backend API not available');
                         }
                         
-                        // Collect form data
+                        // Collect form data as FormData for file upload
                         const formData = new FormData(e.target);
-                        const productData = {
-                            name: formData.get('name'),
-                            category: formData.get('category'),
-                            brand: formData.get('brand') || 'SOLARA',
-                            description: formData.get('description') || '',
-                            price: parseFloat(formData.get('price')),
-                            comparePrice: formData.get('comparePrice') ? parseFloat(formData.get('comparePrice')) : null,
-                            sku: formData.get('sku') || '',
-                            stock: parseInt(formData.get('stock')) || 0,
-                            image: formData.get('image'),
-                            material: formData.get('material') || '',
-                            care: formData.get('care') || '',
-                            tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()).filter(t => t) : [],
-                            metaTitle: formData.get('metaTitle') || '',
-                            metaDescription: formData.get('metaDescription') || '',
-                            featured: formData.get('featured') === 'on',
-                            status: formData.get('status') === 'on' ? 'active' : 'inactive',
-                            sizes: Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value),
-                            colors: Array.from(document.querySelectorAll('input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '')
-                        };
                         
-                        // Validate required fields
-                        if (!productData.name || !productData.category || !productData.price || !productData.image) {
-                            throw new Error('Please fill in all required fields');
+                        // Get file inputs
+                        const mainImageInput = document.getElementById('product-image');
+                        const galleryInput = document.getElementById('product-gallery');
+                        
+                        // Validate that main image is uploaded
+                        if (!mainImageInput.files || mainImageInput.files.length === 0) {
+                            throw new Error('Please upload a main product image');
                         }
                         
-                        // Call backend API
-                        const response = await ProductsAPI.create(productData);
+                        // Add all form fields to FormData
+                        formData.append('name', formData.get('name') || '');
+                        formData.append('category', formData.get('category') || '');
+                        formData.append('brand', formData.get('brand') || 'SOLARA');
+                        formData.append('description', formData.get('description') || '');
+                        formData.append('price', formData.get('price') || '0');
+                        if (formData.get('comparePrice')) {
+                            formData.append('comparePrice', formData.get('comparePrice'));
+                        }
+                        if (formData.get('sku')) {
+                            formData.append('sku', formData.get('sku'));
+                        }
+                        formData.append('stock', formData.get('stock') || '0');
+                        formData.append('material', formData.get('material') || '');
+                        formData.append('care', formData.get('care') || '');
+                        if (formData.get('tags')) {
+                            formData.append('tags', formData.get('tags'));
+                        }
+                        if (formData.get('metaTitle')) {
+                            formData.append('metaTitle', formData.get('metaTitle'));
+                        }
+                        if (formData.get('metaDescription')) {
+                            formData.append('metaDescription', formData.get('metaDescription'));
+                        }
+                        formData.append('featured', formData.get('featured') === 'on' ? 'true' : 'false');
+                        formData.append('status', formData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        // Add sizes
+                        const selectedSizes = Array.from(document.querySelectorAll('#add-product-section input[name="sizes"]:checked')).map(cb => cb.value);
+                        selectedSizes.forEach(size => {
+                            formData.append('sizes', size);
+                        });
+                        
+                        // Add colors
+                        const colorInputs = Array.from(document.querySelectorAll('#add-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '');
+                        colorInputs.forEach(color => {
+                            formData.append('colors', color);
+                        });
+                        
+                        // Validate required fields (mainImageInput already declared above)
+                        if (!formData.get('name') || !formData.get('category') || !formData.get('price')) {
+                            throw new Error('Please fill in all required fields');
+                        }
+                        if (!mainImageInput || !mainImageInput.files || mainImageInput.files.length === 0) {
+                            throw new Error('Please upload a main product image');
+                        }
+                        
+                        // Call backend API with FormData
+                        const response = await ProductsAPI.createWithFiles(formData);
                         
                         if (!response.success) {
                             throw new Error(response.error || 'Failed to create product');
@@ -1552,8 +1587,9 @@
                         
                         // Success - refresh from backend
                         e.target.reset();
-                        if (typeof updateImagePreview === 'function') {
-                            updateImagePreview();
+                        const previewContainer = document.getElementById('image-preview');
+                        if (previewContainer) {
+                            previewContainer.innerHTML = '';
                         }
                         
                         // Show success message
@@ -1662,36 +1698,55 @@
                             throw new Error('Backend API not available');
                         }
                         
-                        // Collect form data
+                        // Collect form data as FormData for file upload
                         const formData = new FormData(e.target);
-                        const productData = {
-                            name: formData.get('name'),
-                            category: formData.get('category'),
-                            brand: formData.get('brand') || 'SOLARA',
-                            description: formData.get('description') || '',
-                            price: parseFloat(formData.get('price')),
-                            comparePrice: formData.get('comparePrice') ? parseFloat(formData.get('comparePrice')) : null,
-                            sku: formData.get('sku') || '',
-                            stock: parseInt(formData.get('stock')) || 0,
-                            image: formData.get('image'),
-                            material: formData.get('material') || '',
-                            care: formData.get('care') || '',
-                            tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()).filter(t => t) : [],
-                            metaTitle: formData.get('metaTitle') || '',
-                            metaDescription: formData.get('metaDescription') || '',
-                            featured: formData.get('featured') === 'on',
-                            status: formData.get('status') === 'on' ? 'active' : 'inactive',
-                            sizes: Array.from(document.querySelectorAll('#edit-product-section input[name="sizes"]:checked')).map(cb => cb.value),
-                            colors: Array.from(document.querySelectorAll('#edit-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '')
-                        };
                         
-                        // Validate required fields
-                        if (!productData.name || !productData.category || !productData.price || !productData.image) {
+                        // Add all form fields to FormData
+                        formData.append('name', formData.get('name') || '');
+                        formData.append('category', formData.get('category') || '');
+                        formData.append('brand', formData.get('brand') || 'SOLARA');
+                        formData.append('description', formData.get('description') || '');
+                        formData.append('price', formData.get('price') || '0');
+                        if (formData.get('comparePrice')) {
+                            formData.append('comparePrice', formData.get('comparePrice'));
+                        }
+                        if (formData.get('sku')) {
+                            formData.append('sku', formData.get('sku'));
+                        }
+                        formData.append('stock', formData.get('stock') || '0');
+                        formData.append('material', formData.get('material') || '');
+                        formData.append('care', formData.get('care') || '');
+                        if (formData.get('tags')) {
+                            formData.append('tags', formData.get('tags'));
+                        }
+                        if (formData.get('metaTitle')) {
+                            formData.append('metaTitle', formData.get('metaTitle'));
+                        }
+                        if (formData.get('metaDescription')) {
+                            formData.append('metaDescription', formData.get('metaDescription'));
+                        }
+                        formData.append('featured', formData.get('featured') === 'on' ? 'true' : 'false');
+                        formData.append('status', formData.get('status') === 'on' ? 'active' : 'inactive');
+                        
+                        // Add sizes
+                        const selectedSizes = Array.from(document.querySelectorAll('#edit-product-section input[name="sizes"]:checked')).map(cb => cb.value);
+                        selectedSizes.forEach(size => {
+                            formData.append('sizes', size);
+                        });
+                        
+                        // Add colors
+                        const colorInputs = Array.from(document.querySelectorAll('#edit-product-section input[name="colors"]')).map(input => input.value).filter(color => color.trim() !== '');
+                        colorInputs.forEach(color => {
+                            formData.append('colors', color);
+                        });
+                        
+                        // Validate required fields (image is optional for updates - can keep existing)
+                        if (!formData.get('name') || !formData.get('category') || !formData.get('price')) {
                             throw new Error('Please fill in all required fields');
                         }
                         
-                        // Call backend API to update
-                        const response = await ProductsAPI.update(productId, productData);
+                        // Call backend API to update with FormData
+                        const response = await ProductsAPI.updateWithFiles(productId, formData);
                         
                         if (!response.success) {
                             throw new Error(response.error || 'Failed to update product');
@@ -1743,11 +1798,7 @@
                     }
                 });
                 
-                // Image preview functionality for edit form
-                const editImageInput = document.getElementById('edit-product-image');
-                if (editImageInput) {
-                    editImageInput.addEventListener('input', updateEditImagePreview);
-                }
+                // Image preview functionality for edit form (handled in DOMContentLoaded above)
             }
             
             eventListenersSetup = true;
@@ -1803,16 +1854,23 @@
             document.getElementById('edit-product-stock').value = product.stock || 0;
             document.getElementById('edit-track-inventory').checked = product.trackInventory || false;
             
-            // Images
-            document.getElementById('edit-product-image').value = product.image || product.primaryImage || '';
-            if (product.gallery && Array.isArray(product.gallery)) {
-                document.getElementById('edit-product-gallery').value = product.gallery.join('\n');
-            } else if (typeof product.gallery === 'string') {
-                document.getElementById('edit-product-gallery').value = product.gallery;
+            // Images - Show current image
+            const currentImageDiv = document.getElementById('edit-current-image');
+            const imageUrl = product.image || product.primaryImage || (product.images && product.images[0]?.url);
+            if (imageUrl && currentImageDiv) {
+                const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:5000${imageUrl}`;
+                currentImageDiv.innerHTML = `
+                    <img src="${fullImageUrl}" alt="${product.name}" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" onerror="this.style.display='none'">
+                `;
+            } else if (currentImageDiv) {
+                currentImageDiv.innerHTML = '<p style="color: var(--text-secondary);">No image uploaded</p>';
             }
             
-            // Update image preview
-            updateEditImagePreview();
+            // Clear file inputs (user can upload new ones if needed)
+            const imageUploadInput = document.getElementById('edit-product-image-upload');
+            const galleryInput = document.getElementById('edit-product-gallery');
+            if (imageUploadInput) imageUploadInput.value = '';
+            if (galleryInput) galleryInput.value = '';
             
             // Sizes
             if (product.sizes && Array.isArray(product.sizes)) {
@@ -1849,17 +1907,99 @@
         }
         
         function updateEditImagePreview() {
-            const imageUrl = document.getElementById('edit-product-image').value;
+            // Handle file input preview for edit form
+            const fileInput = document.getElementById('edit-product-image-upload');
+            const galleryInput = document.getElementById('edit-product-gallery');
             const previewContainer = document.getElementById('edit-image-preview');
             
             if (!previewContainer) return;
             
-            if (imageUrl) {
-                previewContainer.innerHTML = `
-                    <img src="../${imageUrl}" alt="Product preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" onerror="this.style.display='none'">
-                `;
-            } else {
-                previewContainer.innerHTML = '';
+            let previewHTML = '';
+            
+            // Preview main image if selected
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHTML += `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                    previewContainer.innerHTML = previewHTML;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            
+            // Preview gallery images if selected
+            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                Array.from(galleryInput.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                        previewContainer.innerHTML = previewHTML;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        // Setup file input previews
+        document.addEventListener('DOMContentLoaded', function() {
+            const addImageInput = document.getElementById('product-image');
+            const addGalleryInput = document.getElementById('product-gallery');
+            const editImageInput = document.getElementById('edit-product-image-upload');
+            const editGalleryInput = document.getElementById('edit-product-gallery');
+            
+            if (addImageInput) {
+                addImageInput.addEventListener('change', function() {
+                    updateAddImagePreview();
+                });
+            }
+            
+            if (addGalleryInput) {
+                addGalleryInput.addEventListener('change', function() {
+                    updateAddImagePreview();
+                });
+            }
+            
+            if (editImageInput) {
+                editImageInput.addEventListener('change', function() {
+                    updateEditImagePreview();
+                });
+            }
+            
+            if (editGalleryInput) {
+                editGalleryInput.addEventListener('change', function() {
+                    updateEditImagePreview();
+                });
+            }
+        });
+        
+        function updateAddImagePreview() {
+            const fileInput = document.getElementById('product-image');
+            const galleryInput = document.getElementById('product-gallery');
+            const previewContainer = document.getElementById('image-preview');
+            
+            if (!previewContainer) return;
+            
+            let previewHTML = '';
+            
+            // Preview main image if selected
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHTML += `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                    previewContainer.innerHTML = previewHTML;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+            
+            // Preview gallery images if selected
+            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
+                Array.from(galleryInput.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                        previewContainer.innerHTML = previewHTML;
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         }
 

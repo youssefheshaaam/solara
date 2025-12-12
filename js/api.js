@@ -184,11 +184,69 @@ const ProductsAPI = {
         });
     },
     
+    async createWithFiles(formData) {
+        const url = `${API_BASE_URL}/products`;
+        const token = localStorage.getItem('authToken');
+        
+        const config = {
+            method: 'POST',
+            headers: {
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                // Don't set Content-Type - browser will set it with boundary for FormData
+            },
+            body: formData,
+            credentials: 'include',
+        };
+        
+        try {
+            const response = await fetch(url, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Upload failed');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('File upload error:', error);
+            throw error;
+        }
+    },
+    
     async update(id, productData) {
         return await apiRequest(`/products/${id}`, {
             method: 'PUT',
             body: JSON.stringify(productData),
         });
+    },
+    
+    async updateWithFiles(id, formData) {
+        const url = `${API_BASE_URL}/products/${id}`;
+        const token = localStorage.getItem('authToken');
+        
+        const config = {
+            method: 'PUT',
+            headers: {
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                // Don't set Content-Type - browser will set it with boundary for FormData
+            },
+            body: formData,
+            credentials: 'include',
+        };
+        
+        try {
+            const response = await fetch(url, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Upload failed');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('File upload error:', error);
+            throw error;
+        }
     },
     
     async delete(id) {
@@ -397,10 +455,48 @@ const UsersAPI = {
         });
         
         if (response.success) {
+            // Update stored user data
+            if (response.data) {
+                AuthAPI.setCurrentUser(response.data);
+            }
             localStorage.setItem('currentUser', JSON.stringify(response.data));
         }
         
         return response;
+    },
+    
+    async updateProfileWithFile(formData, userId) {
+        const url = `${API_BASE_URL}/users/${userId}`;
+        const token = localStorage.getItem('authToken');
+        
+        const config = {
+            method: 'PUT',
+            headers: {
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+                // Don't set Content-Type - browser will set it with boundary for FormData
+            },
+            body: formData,
+            credentials: 'include',
+        };
+        
+        try {
+            const response = await fetch(url, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Upload failed');
+            }
+            
+            if (data.success && data.data) {
+                AuthAPI.setCurrentUser(data.data);
+                localStorage.setItem('currentUser', JSON.stringify(data.data));
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('File upload error:', error);
+            throw error;
+        }
     },
     
     async addAddress(address) {
