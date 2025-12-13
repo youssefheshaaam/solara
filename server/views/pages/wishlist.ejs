@@ -17,7 +17,7 @@
                                 <% if (product.comparePrice) { %>
                                     <div class="sale-badge">SALE</div>
                                 <% } %>
-                                <button class="wishlist-btn active" onclick="toggleWishlist('<%= product._id %>', this)">
+                                <button class="wishlist-btn active" onclick="removeFromWishlistPage('<%= product._id %>', this); return false;" title="Remove from wishlist">
                                     <i class="fas fa-heart"></i>
                                 </button>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none';">
@@ -27,9 +27,13 @@
                                 <h3><a href="/product/<%= product._id %>"><%= product.name %></a></h3>
                                 <p class="price">EGP <%= product.price.toFixed(2) %></p>
                                 <div class="product-actions">
-                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>" onclick="event.stopPropagation();">
                                         <i class="fas fa-shopping-cart"></i>
                                         Add to Cart
+                                    </button>
+                                    <button class="btn btn-outline remove-from-wishlist-btn" onclick="removeFromWishlistPage('<%= product._id %>', this); return false;" title="Remove from wishlist">
+                                        <i class="fas fa-trash"></i>
+                                        Remove
                                     </button>
                                 </div>
                             </div>
@@ -59,11 +63,49 @@
     .product-card:hover {
         transform: translateY(-4px);
     }
+    
+    .product-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .remove-from-wishlist-btn {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        color: #666;
+        padding: var(--spacing-md) var(--spacing-xl);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    
+    .remove-from-wishlist-btn:hover {
+        background: #fee;
+        border-color: #fcc;
+        color: #c33;
+    }
+    
+    .wishlist-btn.active {
+        background: #e91e63;
+        color: white;
+    }
 </style>
 
 <script>
     // Setup product card click handlers for wishlist
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Load wishlist for guests (if no server-rendered items)
+        const wishlistGrid = document.getElementById('wishlist-grid');
+        const hasServerItems = wishlistGrid.querySelectorAll('.product-card').length > 0;
+        
+        if (!hasServerItems) {
+            // Load from localStorage for guests
+            await loadGuestWishlist();
+        }
+        
         // Use event delegation for product cards
         document.addEventListener('click', function(e) {
             const productCard = e.target.closest('.product-card');
@@ -79,12 +121,181 @@
         if (typeof setupProductCardEvents === 'function') {
             setupProductCardEvents();
         }
+        
+        // Update wishlist count on page load
+        if (typeof updateWishlistCount === 'function') {
+            updateWishlistCount();
+        }
     });
     
-    function toggleWishlist(productId, btn) {
-        if (typeof toggleWishlistItem === 'function') {
-            toggleWishlistItem(productId, btn);
+    // Load wishlist from localStorage for guests
+    async function loadGuestWishlist() {
+        try {
+            const wishlistIds = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+            if (wishlistIds.length === 0) {
+                return; // Already showing empty state
+            }
+            
+            const wishlistGrid = document.getElementById('wishlist-grid');
+            wishlistGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Loading wishlist...</div>';
+            
+            // Fetch product details for each wishlist item
+            const products = [];
+            for (const productId of wishlistIds) {
+                try {
+                    const response = await fetch(`/api/products/${productId}`);
+                    if (response.ok) {
+                        const product = await response.json();
+                        if (product.success && product.data && product.data.status === 'active') {
+                            products.push(product.data);
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching product ${productId}:`, error);
+                }
+            }
+            
+            if (products.length === 0) {
+                wishlistGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem;">
+                        <i class="fas fa-heart" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h3>Your wishlist is empty</h3>
+                        <p>Add products to your wishlist to save them for later</p>
+                        <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Render products
+            const productsHTML = products.map(product => {
+                const imageUrl = product.imageUrl || (product.image ? `/uploads/${product.image}` : '/images/placeholder.jpg');
+                const category = product.category || 'fashion';
+                const saleBadge = product.comparePrice ? '<div class="sale-badge">SALE</div>' : '';
+                
+                return `
+                    <div class="product-card" data-product-id="${product._id}">
+                        <div class="product-image">
+                            ${saleBadge}
+                            <button class="wishlist-btn active" onclick="removeFromWishlistPage('${product._id}', this); return false;" title="Remove from wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <img src="${imageUrl}" alt="${product.name}" onerror="this.style.display='none';">
+                        </div>
+                        <div class="product-card-content">
+                            <p class="category">${category.charAt(0).toUpperCase() + category.slice(1)}</p>
+                            <h3><a href="/product/${product._id}">${product.name}</a></h3>
+                            <p class="price">EGP ${product.price.toFixed(2)}</p>
+                            <div class="product-actions">
+                                <button class="btn btn-primary btn-add-to-cart" data-product-id="${product._id}" onclick="event.stopPropagation();">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Add to Cart
+                                </button>
+                                <button class="btn btn-outline remove-from-wishlist-btn" onclick="removeFromWishlistPage('${product._id}', this); return false;" title="Remove from wishlist">
+                                    <i class="fas fa-trash"></i>
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            wishlistGrid.innerHTML = productsHTML;
+            
+        } catch (error) {
+            console.error('Error loading guest wishlist:', error);
         }
     }
+    
+    // Remove from wishlist function for wishlist page
+    async function removeFromWishlistPage(productId, btn) {
+        if (!productId) return;
+        
+        // Show loading state
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+            // Check if user is logged in
+            const isLoggedIn = typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn();
+            
+            if (isLoggedIn) {
+                // Use API for logged-in users
+                if (typeof UsersAPI !== 'undefined') {
+                    const user = AuthAPI.getCurrentUser();
+                    const response = await UsersAPI.removeFromWishlist(productId);
+                    
+                    if (response && response.success) {
+                        // Update localStorage to sync
+                        const wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                        const filteredWishlist = wishlist.filter(id => 
+                            String(id) !== String(productId)
+                        );
+                        localStorage.setItem('fashionStoreWishlist', JSON.stringify(filteredWishlist));
+                    }
+                }
+            } else {
+                // Use localStorage for guests
+                if (typeof window.removeFromWishlist === 'function') {
+                    await window.removeFromWishlist(productId);
+                } else {
+                    // Fallback: manual localStorage update
+                    const wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                    const filteredWishlist = wishlist.filter(id => 
+                        String(id) !== String(productId)
+                    );
+                    localStorage.setItem('fashionStoreWishlist', JSON.stringify(filteredWishlist));
+                }
+            }
+            
+            // Remove the product card from the DOM
+            const productCard = btn.closest('.product-card');
+            if (productCard) {
+                productCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                productCard.style.opacity = '0';
+                productCard.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    productCard.remove();
+                    
+                    // Check if wishlist is now empty
+                    const remainingCards = document.querySelectorAll('.product-card');
+                    if (remainingCards.length === 0) {
+                        // Reload page to show empty state
+                        window.location.reload();
+                    }
+                }, 300);
+            }
+            
+            // Update wishlist count
+            if (typeof updateWishlistCount === 'function') {
+                updateWishlistCount();
+            }
+            
+            // Show success notification
+            if (typeof showNotification === 'function') {
+                showNotification('Removed from wishlist', 'success');
+            } else {
+                alert('Removed from wishlist');
+            }
+            
+        } catch (error) {
+            console.error('Error removing from wishlist:', error);
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            
+            // Show error notification
+            if (typeof showNotification === 'function') {
+                showNotification('Failed to remove from wishlist', 'error');
+            } else {
+                alert('Failed to remove from wishlist');
+            }
+        }
+    }
+    
+    // Make function globally available
+    window.removeFromWishlistPage = removeFromWishlistPage;
 </script>
 

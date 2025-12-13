@@ -313,26 +313,33 @@ exports.getProfile = asyncHandler(async (req, res) => {
 
 // @desc    Render wishlist page
 // @route   GET /wishlist
-// @access  Private
+// @access  Public (works for both logged-in users and guests)
 exports.getWishlist = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.user._id).populate({
-        path: 'wishlist',
-        select: 'name price image images status category comparePrice',
-        match: { status: 'active' } // Only get active products
-    });
+    let wishlistItems = [];
     
-    // Filter out null products (in case some were deleted)
-    const wishlistItems = (user.wishlist || []).filter(item => item && item.status === 'active');
+    // If user is logged in, get wishlist from database
+    if (req.user && req.user._id) {
+        const user = await User.findById(req.user._id).populate({
+            path: 'wishlist',
+            select: 'name price image images status category comparePrice',
+            match: { status: 'active' } // Only get active products
+        });
+        
+        // Filter out null products (in case some were deleted)
+        wishlistItems = (user.wishlist || []).filter(item => item && item.status === 'active').map(item => ({
+            ...item.toObject(),
+            imageUrl: getImageUrl(item.image || (item.images && item.images[0]?.url)),
+            category: item.category || 'fashion'
+        }));
+    }
+    // For guests, wishlist will be loaded from localStorage on the client side
+    // The page will handle this with JavaScript
 
     res.render('pages/wishlist', {
         title: 'My Wishlist - SOLARA',
         currentPage: 'wishlist',
-        wishlist: wishlistItems.map(item => ({
-            ...item.toObject(),
-            imageUrl: getImageUrl(item.image || (item.images && item.images[0]?.url)),
-            category: item.category || 'fashion'
-        })),
-        user: req.user
+        wishlist: wishlistItems,
+        user: req.user || null
     });
 });
 

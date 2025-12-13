@@ -21,7 +21,7 @@ router.get('/cart', authenticate, frontendController.getCart);
 router.get('/checkout', authenticate, frontendController.getCheckout);
 router.get('/orders', authenticate, frontendController.getOrders);
 router.get('/profile', authenticate, frontendController.getProfile);
-router.get('/wishlist', authenticate, frontendController.getWishlist);
+router.get('/wishlist', frontendController.getWishlist);
 
 // Admin route (require admin authentication)
 router.get('/admin', authenticate, authorizeAdmin, frontendController.getAdmin);
