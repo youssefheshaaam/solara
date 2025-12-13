@@ -2696,13 +2696,8 @@ if (window.location.pathname === '/register' || window.location.pathname.include
 function setupRegisterForm() {
     const form = document.getElementById('register-form');
     if (!form) return;
-    // Simple registration with localStorage
-    setupRealTimeValidation(form);
-    const passwordField = form.querySelector('input[name="password"]');
-    if (passwordField) {
-        setupPasswordStrength(passwordField);
-        setupPasswordRequirements(passwordField);
-    }
+    // Form is handled by register.ejs inline script
+    // No need for additional setup here
 }
 
 // ===== PROFILE PAGE FUNCTIONALITY =====

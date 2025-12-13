@@ -34,13 +34,22 @@ async function apiRequest(endpoint, options = {}) {
         const data = await response.json();
         
         if (!response.ok) {
-            const errorMsg = data.error || data.errors?.[0]?.message || 'Request failed';
+            // Create error object with full details including validation errors
+            const error = new Error(data.error || data.errors?.[0]?.message || 'Request failed');
+            error.response = response;
+            error.data = data;
+            error.errors = data.errors || [];
             console.error('API Error Details:', data);
-            throw new Error(errorMsg);
+            throw error;
         }
         
         return data;
     } catch (error) {
+        // If it's already our custom error, re-throw it
+        if (error.response) {
+            throw error;
+        }
+        // Otherwise wrap it
         console.error(`API Error [${endpoint}]:`, error.message);
         throw error;
     }
@@ -50,18 +59,27 @@ async function apiRequest(endpoint, options = {}) {
 
 const AuthAPI = {
     async register(userData) {
-        const response = await apiRequest('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData),
-        });
-        
-        if (response.success && response.data.token) {
-            authToken = response.data.token;
-            localStorage.setItem('authToken', authToken);
-            localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+        try {
+            const response = await apiRequest('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify(userData),
+            });
+            
+            if (response.success && response.data.token) {
+                authToken = response.data.token;
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+            }
+            
+            return response;
+        } catch (error) {
+            // Return error in same format as success response for easier handling
+            return {
+                success: false,
+                error: error.message || 'Registration failed',
+                errors: error.errors || error.data?.errors || []
+            };
         }
-        
-        return response;
     },
     
     async login(email, password) {
@@ -80,19 +98,28 @@ const AuthAPI = {
     },
     
     async adminLogin(email, password) {
-        const response = await apiRequest('/auth/admin/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password }),
-        });
-        
-        if (response.success && response.data.token) {
-            authToken = response.data.token;
-            localStorage.setItem('authToken', authToken);
-            localStorage.setItem('currentUser', JSON.stringify(response.data.user));
-            localStorage.setItem('isAdmin', 'true');
+        try {
+            const response = await apiRequest('/auth/admin/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+            });
+            
+            if (response.success && response.data.token) {
+                authToken = response.data.token;
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+                localStorage.setItem('isAdmin', 'true');
+            }
+            
+            return response;
+        } catch (error) {
+            // Return error in same format as success response
+            return {
+                success: false,
+                error: error.message || 'Admin login failed',
+                errors: error.errors || error.data?.errors || []
+            };
         }
-        
-        return response;
     },
     
     async logout() {

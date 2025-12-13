@@ -98,28 +98,132 @@
     // Handle form submission with AJAX
     document.getElementById('register-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
+        
+        const form = this;
+        const submitButton = form.querySelector('button[type="submit"]');
+        const messageDiv = document.getElementById('register-message');
+        
+        // Get form data
+        const formData = new FormData(form);
         const data = Object.fromEntries(formData);
         
+        // Clear previous messages
+        messageDiv.textContent = '';
+        messageDiv.className = 'form-message';
+        
+        // Validate passwords match
         if (data.password !== data.confirmPassword) {
-            document.getElementById('register-message').textContent = 'Passwords do not match';
+            messageDiv.textContent = 'Passwords do not match';
+            messageDiv.className = 'form-message error';
+            messageDiv.style.display = 'block';
+            messageDiv.style.color = '#c33';
+            messageDiv.style.background = '#fee';
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
             return;
         }
         
+        // Show loading state
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        
         try {
-            if (typeof AuthAPI !== 'undefined') {
-                const response = await AuthAPI.register(data);
-                if (response.success) {
-                    window.location.href = '/';
-                } else {
-                    document.getElementById('register-message').textContent = response.error || 'Registration failed';
-                }
+            // Prepare registration data
+            const registerData = {
+                firstName: data.firstName.trim(),
+                lastName: data.lastName.trim(),
+                email: data.email.trim(),
+                phone: data.phone.trim(),
+                password: data.password,
+                confirmPassword: data.confirmPassword
+            };
+            
+            // Try using AuthAPI if available
+            let response;
+            if (typeof AuthAPI !== 'undefined' && typeof window.AuthAPI !== 'undefined') {
+                response = await AuthAPI.register(registerData);
             } else {
-                // Fallback to form submission
-                this.submit();
+                // Fallback: Submit form directly to server (will sync to MongoDB)
+                const fetchResponse = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(registerData)
+                });
+                response = await fetchResponse.json();
+            }
+            
+            if (response && response.success) {
+                messageDiv.textContent = 'Account created successfully! Redirecting...';
+                messageDiv.className = 'form-message success';
+                messageDiv.style.color = '#0a0';
+                messageDiv.style.background = '#efe';
+                messageDiv.style.border = '1px solid #0a0';
+                
+                // Update UI
+                if (response.data && response.data.user) {
+                    localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+                    if (response.data.token) {
+                        localStorage.setItem('authToken', response.data.token);
+                    }
+                }
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                // Handle validation errors
+                let errorMessage = response.error || response.message || 'Registration failed. Please try again.';
+                
+                if (response.errors && Array.isArray(response.errors)) {
+                    // Show all validation errors
+                    const errorList = response.errors.map(err => {
+                        const field = err.field || '';
+                        return `${field.charAt(0).toUpperCase() + field.slice(1)}: ${err.message}`;
+                    }).join('<br>');
+                    errorMessage = errorList;
+                }
+                
+                messageDiv.innerHTML = errorMessage;
+                messageDiv.className = 'form-message error';
+                messageDiv.style.color = '#c33';
+                messageDiv.style.background = '#fee';
+                messageDiv.style.border = '1px solid #c33';
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
         } catch (error) {
-            document.getElementById('register-message').textContent = error.message || 'Registration failed';
+            console.error('Registration error:', error);
+            let errorMessage = error.message || 'Registration failed. Please check your connection and try again.';
+            
+            // Try to extract error details from response
+            if (error.response) {
+                try {
+                    const errorData = await error.response.json();
+                    if (errorData.errors && Array.isArray(errorData.errors)) {
+                        errorMessage = errorData.errors.map(err => {
+                            const field = err.field || '';
+                            return `${field.charAt(0).toUpperCase() + field.slice(1)}: ${err.message}`;
+                        }).join('<br>');
+                    } else if (errorData.error) {
+                        errorMessage = errorData.error;
+                    }
+                } catch (e) {
+                    // Ignore JSON parse errors
+                }
+            }
+            
+            messageDiv.innerHTML = errorMessage;
+            messageDiv.className = 'form-message error';
+            messageDiv.style.color = '#c33';
+            messageDiv.style.background = '#fee';
+            messageDiv.style.border = '1px solid #c33';
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
         }
     });
     

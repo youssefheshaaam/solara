@@ -409,8 +409,8 @@
                         console.log('Logout API error (may not be logged in):', error);
                     }
                     
-                    // Redirect to login
-                    window.location.href = '/login';
+                    // Redirect to home page (not login page)
+                    window.location.href = '/';
                 });
             }
         })();
@@ -1062,6 +1062,18 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('DOM Content Loaded');
+            
+            // Wait for AuthAPI to be available
+            let retries = 0;
+            while (typeof AuthAPI === 'undefined' && retries < 10) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                retries++;
+            }
+            
+            if (typeof AuthAPI === 'undefined') {
+                console.warn('AuthAPI not loaded after waiting');
+            }
+            
             await initializeData();
             // Set up login form listener immediately (needed for login screen)
             setupEventListeners();
@@ -1070,7 +1082,22 @@
 
         function checkAdminAuth() {
             const adminAuthed = localStorage.getItem('solaraAdminAuthed');
-            const currentUser = AuthAPI?.getCurrentUser() || JSON.parse(localStorage.getItem('currentUser') || '{}');
+            let currentUser = {};
+            
+            // Check if AuthAPI is available
+            if (typeof AuthAPI !== 'undefined' && AuthAPI.getCurrentUser) {
+                currentUser = AuthAPI.getCurrentUser() || {};
+            } else {
+                // Fallback to localStorage
+                try {
+                    const storedUser = localStorage.getItem('currentUser');
+                    if (storedUser) {
+                        currentUser = JSON.parse(storedUser);
+                    }
+                } catch (e) {
+                    console.error('Error parsing currentUser from localStorage:', e);
+                }
+            }
             
             if (adminAuthed === 'true' || currentUser.role === 'admin') {
                 isAdminLoggedIn = true;
