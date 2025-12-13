@@ -737,14 +737,107 @@ function isCacheStale() {
 
 ---
 
+## ⭐ Additional Features
+
+### Wishlist System
+
+Users can save products to their wishlist for later purchase:
+- **Add to Wishlist**: Click heart icon on any product
+- **View Wishlist**: Access via `/wishlist` page
+- **Remove from Wishlist**: Click heart icon again to remove
+- Stored in MongoDB, synced across devices
+
+**API Endpoints:**
+- `POST /api/users/:id/wishlist` - Add product to wishlist
+- `DELETE /api/users/:id/wishlist/:productId` - Remove from wishlist
+
+### Address Management
+
+Users can manage multiple shipping addresses:
+- **Add Address**: Add home, work, or other addresses
+- **Set Default**: Mark one address as default
+- **Update/Delete**: Edit or remove saved addresses
+- Addresses stored in User model with type, street, city, state, zipCode, country
+
+**API Endpoints:**
+- `POST /api/users/:id/addresses` - Add new address
+- `PUT /api/users/:id/addresses/:addressId` - Update address
+- `DELETE /api/users/:id/addresses/:addressId` - Delete address
+
+### Coupon System
+
+Cart supports discount coupons:
+- **Apply Coupon**: Enter coupon code at checkout
+- **Discount Calculation**: Automatic discount application
+- **Remove Coupon**: Remove applied coupon if needed
+- Cart model includes `couponCode` and `discount` fields
+
+**API Endpoints:**
+- `POST /api/cart/coupon` - Apply coupon code
+- `DELETE /api/cart/coupon` - Remove coupon
+
+### Product Slug & SEO
+
+Products have SEO-friendly URLs:
+- **Auto-generated Slugs**: Created from product name (e.g., "summer-dress")
+- **Slug-based URLs**: Access products via `/api/products/slug/:slug`
+- **SEO Fields**: Meta title and description for search optimization
+- **Product URLs**: Clean, readable URLs instead of IDs
+
+### Order Number System
+
+Orders have unique, readable order numbers:
+- **Format**: `SOL-YYYY-#####` (e.g., `SOL-2025-00001`)
+- **Auto-generated**: Created automatically on order creation
+- **Lookup**: Find orders by number via `/api/orders/number/:orderNumber`
+- **Status History**: Track all status changes with timestamps
+
+### Cart Synchronization
+
+Sync cart between local storage and server:
+- **Sync Endpoint**: `POST /api/cart/sync` merges local and server cart
+- **Offline Support**: Cart stored in localStorage when offline
+- **Auto-sync**: Automatically syncs when user logs in
+
+### Token Refresh
+
+JWT token refresh mechanism:
+- **Refresh Endpoint**: `POST /api/auth/refresh` generates new token
+- **Extended Sessions**: Keep users logged in without re-authentication
+- **Security**: Tokens expire after 7 days by default
+
+### Statistics Endpoints
+
+Admin dashboard statistics:
+- **Product Stats**: `GET /api/products/admin/stats` - Product analytics
+- **Order Stats**: `GET /api/orders/admin/stats` - Order analytics (revenue, counts)
+- **User Stats**: `GET /api/users/stats` - User analytics
+
+### Product Features
+
+**Multiple Images**: Products support multiple images with primary image selection
+
+**Reviews & Ratings**: Product model includes reviews and ratings system (UI implementation may vary)
+
+**Discount Calculation**: Virtual field calculates discount percentage from comparePrice
+
+**Full-Text Search**: Static method for searching across name, description, brand, tags
+
+**Auto-generated SKU**: Products automatically get SKU in format `CAT-TIMESTAMP`
+
+---
+
 ## 📡 API Endpoints Reference
 
 ### Authentication
 ```
 POST   /api/auth/register     - Register new user
 POST   /api/auth/login        - User login
+POST   /api/auth/admin/login  - Admin login
 POST   /api/auth/logout       - User logout
 GET    /api/auth/me           - Get current user
+GET    /api/auth/check        - Check authentication status
+POST   /api/auth/refresh     - Refresh JWT token
 PUT    /api/auth/change-password - Change password
 ```
 
@@ -752,10 +845,12 @@ PUT    /api/auth/change-password - Change password
 ```
 GET    /api/products          - Get all products (paginated)
 GET    /api/products/:id      - Get single product
+GET    /api/products/slug/:slug - Get product by slug
 GET    /api/products/featured - Get featured products
 GET    /api/products/new-arrivals - Get new arrivals
 GET    /api/products/category/:category - Get by category
 GET    /api/products/search   - Search products
+GET    /api/products/admin/stats - Get product statistics (admin)
 POST   /api/products          - Create product (admin)
 PUT    /api/products/:id      - Update product (admin)
 DELETE /api/products/:id      - Delete product (admin)
@@ -765,6 +860,9 @@ DELETE /api/products/:id      - Delete product (admin)
 ```
 GET    /api/cart              - Get user's cart
 POST   /api/cart              - Add item to cart
+POST   /api/cart/sync         - Sync cart with local storage
+POST   /api/cart/coupon       - Apply coupon code
+DELETE /api/cart/coupon       - Remove coupon code
 PUT    /api/cart/:productId   - Update cart item
 DELETE /api/cart/:productId   - Remove from cart
 DELETE /api/cart              - Clear cart
@@ -773,18 +871,28 @@ DELETE /api/cart              - Clear cart
 ### Orders
 ```
 GET    /api/orders            - Get all orders (admin)
+GET    /api/orders/admin/stats - Get order statistics (admin)
 GET    /api/orders/my-orders  - Get user's orders
+GET    /api/orders/number/:orderNumber - Get order by order number
 GET    /api/orders/:id        - Get single order
 POST   /api/orders            - Create order
 PUT    /api/orders/:id/status - Update order status (admin)
+PUT    /api/orders/:id/cancel - Cancel order
 ```
 
 ### Users
 ```
 GET    /api/users             - Get all users (admin)
+GET    /api/users/stats       - Get user statistics (admin)
 GET    /api/users/:id         - Get user profile
-PUT    /api/users/:id         - Update profile
-DELETE /api/users/:id         - Delete user
+PUT    /api/users/:id         - Update profile (owner)
+PUT    /api/users/:id/admin   - Update user (admin)
+DELETE /api/users/:id         - Delete user (admin)
+POST   /api/users/:id/addresses - Add address
+PUT    /api/users/:id/addresses/:addressId - Update address
+DELETE /api/users/:id/addresses/:addressId - Delete address
+POST   /api/users/:id/wishlist - Add to wishlist
+DELETE /api/users/:id/wishlist/:productId - Remove from wishlist
 ```
 
 ### Localization

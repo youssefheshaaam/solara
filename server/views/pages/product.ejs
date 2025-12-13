@@ -341,6 +341,16 @@
         color: #dc3545;
     }
     
+    .btn-add-to-cart.success {
+        background: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    
+    .btn-add-to-cart:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
     /* Product Details Tabs */
     .product-tabs {
         border-top: 1px solid var(--border-color);
@@ -589,11 +599,11 @@
                     
                     <!-- Actions -->
                     <div class="product-actions">
-                        <button class="btn btn-primary btn-add-to-cart" onclick="addProductToCart('<%= product._id %>')" <%= product.stock <= 0 ? 'disabled' : '' %>>
+                        <button class="btn btn-primary btn-add-to-cart" id="main-add-to-cart-btn" data-product-id="<%= product._id %>" onclick="addProductToCart('<%= product._id %>')" <%= product.stock <= 0 ? 'disabled' : '' %>>
                             <i class="fas fa-shopping-cart"></i>
-                            <%= product.stock > 0 ? 'Add to Cart' : 'Out of Stock' %>
+                            <span class="btn-text"><%= product.stock > 0 ? 'Add to Cart' : 'Out of Stock' %></span>
                         </button>
-                        <button class="btn-wishlist" onclick="toggleProductWishlist('<%= product._id %>', this)">
+                        <button class="btn-wishlist" id="main-wishlist-btn" data-product-id="<%= product._id %>" onclick="toggleProductWishlist('<%= product._id %>', this)">
                             <i class="fas fa-heart"></i>
                         </button>
                     </div>
@@ -613,7 +623,7 @@
                 <h2 class="section-title">You May Also Like</h2>
                 <div class="products-grid">
                     <% relatedProducts.forEach(product => { %>
-                        <div class="product-card" data-product-id="<%= product._id %>">
+                        <div class="product-card" data-product-id="<%= product._id %>" onclick="window.location.href='/product/<%= product._id %>'" style="cursor: pointer;">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
                                     <div class="sale-badge">SALE</div>
@@ -622,10 +632,10 @@
                             </div>
                             <div class="product-card-content">
                                 <p class="category"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></p>
-                                <h3><a href="/product/<%= product._id %>"><%= product.name %></a></h3>
+                                <h3><%= product.name %></h3>
                                 <p class="price">EGP <%= product.price.toFixed(2) %></p>
-                                <div class="product-actions">
-                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
+                                <div class="product-actions" onclick="event.stopPropagation();">
+                                    <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>" onclick="event.stopPropagation(); addRelatedProductToCart('<%= product._id %>', event);">
                                         <i class="fas fa-shopping-cart"></i>
                                         Add to Cart
                                     </button>
@@ -683,20 +693,310 @@
         document.getElementById('qty-input').value = quantity;
     }
     
-    function addProductToCart(productId) {
-        if (typeof addToCart === 'function') {
-            addToCart(productId, quantity, selectedSize, selectedColor);
-        } else {
-            console.error('addToCart function not available');
+    async function addProductToCart(productId) {
+        const button = document.getElementById('main-add-to-cart-btn');
+        const btnText = button.querySelector('.btn-text');
+        const originalHTML = button.innerHTML;
+        
+        // Visual feedback - show loading
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="btn-text">Adding...</span>';
+        
+        try {
+            if (typeof addToCart === 'function') {
+                await addToCart(productId, quantity, selectedSize, selectedColor);
+                
+                // Success feedback
+                button.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">Added!</span>';
+                button.classList.add('success');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('success');
+                }, 2000);
+            } else if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                // Use API if logged in
+                const response = await CartAPI.add(productId, quantity, { size: selectedSize, color: selectedColor });
+                if (response.success) {
+                    if (typeof updateCartCount === 'function') updateCartCount();
+                    if (typeof showNotification === 'function') showNotification('Product added to cart!', 'success');
+                    
+                    button.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">Added!</span>';
+                    button.classList.add('success');
+                    
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                        button.classList.remove('success');
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Failed to add to cart');
+                }
+            } else {
+                // Fallback to localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const existingIndex = cart.findIndex(item => 
+                    (item.productId === productId || String(item.productId) === String(productId)) &&
+                    item.size === selectedSize && item.color === selectedColor
+                );
+                
+                if (existingIndex > -1) {
+                    cart[existingIndex].quantity += quantity;
+                } else {
+                    cart.push({
+                        productId: productId,
+                        quantity: quantity,
+                        size: selectedSize,
+                        color: selectedColor
+                    });
+                }
+                localStorage.setItem('cart', JSON.stringify(cart));
+                if (typeof updateCartCount === 'function') updateCartCount();
+                if (typeof showNotification === 'function') showNotification('Product added to cart!', 'success');
+                
+                button.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">Added!</span>';
+                button.classList.add('success');
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('success');
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to add to cart', 'error');
+            }
+            button.disabled = false;
+            button.innerHTML = originalHTML;
         }
     }
     
-    function toggleProductWishlist(productId, btn) {
-        if (typeof toggleWishlist === 'function') {
-            toggleWishlist(productId, btn);
-        } else {
-            console.error('toggleWishlist function not available');
+    async function toggleProductWishlist(productId, btn) {
+        const isActive = btn.classList.contains('active');
+        const originalHTML = btn.innerHTML;
+        const originalClass = btn.className;
+        
+        // Visual feedback
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+            // Check if user is logged in and API is available
+            if (typeof UsersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                if (isActive) {
+                    // Remove from wishlist
+                    const response = await UsersAPI.removeFromWishlist(productId);
+                    if (response && response.success) {
+                        // Update localStorage to sync with server
+                        let wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                        const productIdStr = String(productId);
+                        wishlist = wishlist.filter(id => String(id) !== productIdStr);
+                        localStorage.setItem('fashionStoreWishlist', JSON.stringify(wishlist));
+                        
+                        btn.classList.remove('active');
+                        btn.innerHTML = '<i class="far fa-heart"></i>';
+                        if (typeof showNotification === 'function') showNotification('Removed from wishlist', 'info');
+                        if (typeof updateWishlistCount === 'function') updateWishlistCount();
+                    } else {
+                        throw new Error((response && response.error) || 'Failed to remove from wishlist');
+                    }
+                } else {
+                    // Add to wishlist
+                    const response = await UsersAPI.addToWishlist(productId);
+                    if (response && response.success) {
+                        // Update localStorage to sync with server
+                        let wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                        const productIdStr = String(productId);
+                        if (!wishlist.some(id => String(id) === productIdStr)) {
+                            wishlist.push(productId);
+                            localStorage.setItem('fashionStoreWishlist', JSON.stringify(wishlist));
+                        }
+                        
+                        btn.classList.add('active');
+                        btn.innerHTML = '<i class="fas fa-heart"></i>';
+                        if (typeof showNotification === 'function') showNotification('Added to wishlist', 'success');
+                        if (typeof updateWishlistCount === 'function') updateWishlistCount();
+                    } else {
+                        throw new Error((response && response.error) || 'Failed to add to wishlist');
+                    }
+                }
+            } else if (typeof toggleWishlist === 'function') {
+                // Use main.js toggleWishlist function if available
+                toggleWishlist(productId);
+                // Update button state based on wishlist
+                const wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                const productIdStr = String(productId);
+                const inWishlist = wishlist.some(id => String(id) === productIdStr);
+                
+                if (inWishlist) {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-heart"></i>';
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="far fa-heart"></i>';
+                }
+                // updateWishlistCount should be called by toggleWishlist, but call it here too to be sure
+                if (typeof updateWishlistCount === 'function') updateWishlistCount();
+            } else {
+                // Fallback to localStorage (for guests)
+                let wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                const productIdStr = String(productId);
+                const index = wishlist.findIndex(id => String(id) === productIdStr);
+                
+                if (index > -1) {
+                    wishlist.splice(index, 1);
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="far fa-heart"></i>';
+                    if (typeof showNotification === 'function') showNotification('Removed from wishlist', 'info');
+                } else {
+                    wishlist.push(productId);
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-heart"></i>';
+                    if (typeof showNotification === 'function') showNotification('Added to wishlist', 'success');
+                }
+                
+                localStorage.setItem('fashionStoreWishlist', JSON.stringify(wishlist));
+                if (typeof updateWishlistCount === 'function') updateWishlistCount();
+            }
+        } catch (error) {
+            console.error('Error toggling wishlist:', error);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to update wishlist', 'error');
+            }
+            // Restore original state on error
+            btn.innerHTML = originalHTML;
+            btn.className = originalClass;
+        } finally {
+            btn.disabled = false;
         }
     }
+    
+    // Add to cart for related products
+    async function addRelatedProductToCart(productId, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        
+        const button = event ? event.target.closest('.btn-add-to-cart') : document.querySelector(`[data-product-id="${productId}"].btn-add-to-cart`);
+        if (!button) return;
+        
+        const originalHTML = button.innerHTML;
+        
+        // Visual feedback
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        
+        try {
+            if (typeof addToCart === 'function') {
+                await addToCart(productId, 1);
+                
+                button.innerHTML = '<i class="fas fa-check"></i> Added!';
+                button.classList.add('success');
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('success');
+                }, 2000);
+            } else if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                const response = await CartAPI.add(productId, 1);
+                if (response.success) {
+                    if (typeof updateCartCount === 'function') updateCartCount();
+                    if (typeof showNotification === 'function') showNotification('Product added to cart!', 'success');
+                    
+                    button.innerHTML = '<i class="fas fa-check"></i> Added!';
+                    button.classList.add('success');
+                    
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                        button.classList.remove('success');
+                    }, 2000);
+                } else {
+                    throw new Error(response.error || 'Failed to add to cart');
+                }
+            } else {
+                // Fallback to localStorage
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const existingIndex = cart.findIndex(item => 
+                    item.productId === productId || String(item.productId) === String(productId)
+                );
+                
+                if (existingIndex > -1) {
+                    cart[existingIndex].quantity += 1;
+                } else {
+                    cart.push({ productId: productId, quantity: 1 });
+                }
+                localStorage.setItem('cart', JSON.stringify(cart));
+                if (typeof updateCartCount === 'function') updateCartCount();
+                if (typeof showNotification === 'function') showNotification('Product added to cart!', 'success');
+                
+                button.innerHTML = '<i class="fas fa-check"></i> Added!';
+                button.classList.add('success');
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('success');
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to add to cart', 'error');
+            }
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    }
+    
+    // Check if product is in wishlist on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const wishlistBtn = document.getElementById('main-wishlist-btn');
+        if (wishlistBtn) {
+            const productId = '<%= typeof product !== 'undefined' ? product._id : '' %>';
+            if (productId) {
+                // Check localStorage first
+                const wishlist = JSON.parse(localStorage.getItem('fashionStoreWishlist') || '[]');
+                const productIdStr = String(productId);
+                const inWishlist = wishlist.some(id => String(id) === productIdStr);
+                
+                if (inWishlist) {
+                    wishlistBtn.classList.add('active');
+                    wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                }
+                
+                // Check API if logged in (this will override localStorage if different)
+                if (typeof UsersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+                    const user = AuthAPI.getCurrentUser();
+                    if (user && user.wishlist) {
+                        const userWishlist = Array.isArray(user.wishlist) ? user.wishlist : [];
+                        const inUserWishlist = userWishlist.some(id => String(id) === productIdStr || String(id._id || id.id) === productIdStr);
+                        if (inUserWishlist) {
+                            wishlistBtn.classList.add('active');
+                            wishlistBtn.innerHTML = '<i class="fas fa-heart"></i>';
+                            // Sync localStorage with user's wishlist
+                            const wishlistIds = userWishlist.map(id => String(id._id || id.id || id));
+                            localStorage.setItem('fashionStoreWishlist', JSON.stringify(wishlistIds));
+                        } else {
+                            wishlistBtn.classList.remove('active');
+                            wishlistBtn.innerHTML = '<i class="far fa-heart"></i>';
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Update wishlist count on page load
+        if (typeof updateWishlistCount === 'function') {
+            updateWishlistCount();
+        }
+    });
 </script>
+
 

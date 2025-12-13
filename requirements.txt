@@ -123,25 +123,41 @@ POST   /api/auth/admin/login  - Admin login
 POST   /api/auth/logout       - Logout user
 GET    /api/auth/me           - Get current user
 GET    /api/auth/check        - Check auth status
+POST   /api/auth/refresh     - Refresh JWT token
+PUT    /api/auth/change-password - Change password
 
 ### Products (CRUD):
 GET    /api/products          - Get all products (with pagination)
 GET    /api/products/:id      - Get single product
+GET    /api/products/slug/:slug - Get product by slug
+GET    /api/products/featured - Get featured products
+GET    /api/products/new-arrivals - Get new arrivals
+GET    /api/products/category/:category - Get by category
+GET    /api/products/search   - Search products
+GET    /api/products/admin/stats - Get product statistics (Admin)
 POST   /api/products          - Create product (Admin)
 PUT    /api/products/:id      - Update product (Admin)
 DELETE /api/products/:id      - Delete product (Admin)
-GET    /api/products/featured - Get featured products
-GET    /api/products/search   - Search products
 
 ### Users (CRUD):
 GET    /api/users             - Get all users (Admin)
+GET    /api/users/stats       - Get user statistics (Admin)
 GET    /api/users/:id         - Get user profile
-PUT    /api/users/:id         - Update profile
+PUT    /api/users/:id         - Update profile (owner)
+PUT    /api/users/:id/admin   - Update user (Admin)
 DELETE /api/users/:id         - Delete user (Admin)
+POST   /api/users/:id/addresses - Add address
+PUT    /api/users/:id/addresses/:addressId - Update address
+DELETE /api/users/:id/addresses/:addressId - Delete address
+POST   /api/users/:id/wishlist - Add to wishlist
+DELETE /api/users/:id/wishlist/:productId - Remove from wishlist
 
 ### Orders (CRUD):
 GET    /api/orders            - Get all orders (Admin)
+GET    /api/orders/admin/stats - Get order statistics (Admin)
 GET    /api/orders/my-orders  - Get user's orders
+GET    /api/orders/number/:orderNumber - Get order by order number
+GET    /api/orders/:id        - Get single order
 POST   /api/orders            - Create order
 PUT    /api/orders/:id/status - Update order status (Admin)
 PUT    /api/orders/:id/cancel - Cancel order
@@ -149,6 +165,9 @@ PUT    /api/orders/:id/cancel - Cancel order
 ### Cart:
 GET    /api/cart              - Get user's cart
 POST   /api/cart              - Add to cart
+POST   /api/cart/sync         - Sync cart with local storage
+POST   /api/cart/coupon       - Apply coupon code
+DELETE /api/cart/coupon       - Remove coupon code
 PUT    /api/cart/:productId   - Update cart item
 DELETE /api/cart/:productId   - Remove from cart
 DELETE /api/cart              - Clear cart
@@ -211,9 +230,9 @@ server/
 │   ├── auth/             # Authentication pages
 │   │   ├── login.ejs
 │   │   └── register.ejs
-│   ├── admin/            # Admin dashboard
-│   │   └── dashboard.ejs
 │   └── 404.ejs           # Error page
+│
+│ Note: Admin dashboard is served as static HTML from /admin/admin.html
 ├── locales/               # i18n translations
 │   ├── en.json
 │   └── ar.json
