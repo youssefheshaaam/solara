@@ -16,6 +16,7 @@
         /* Main Content */
         .admin-main {
             padding: 2rem;
+            padding-top: calc(2rem + 80px);
             min-height: 100vh;
         }
         
@@ -194,7 +195,8 @@
         
         /* Login Container */
         .admin-login-container {
-            min-height: 100vh;
+            min-height: calc(100vh - 80px);
+            margin-top: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -314,6 +316,106 @@
     </style>
 </head>
 <body>
+    <!-- Navigation Header -->
+    <header class="main-header" id="main-header" style="position: relative; z-index: 1000;">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/">
+                    <i class="fas fa-sun"></i>
+                    SOLARA
+                </a>
+            </div>
+            
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/men" class="nav-link">Men</a></li>
+                <li><a href="/women" class="nav-link">Women</a></li>
+                <li><a href="/contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Search products..." id="search-input">
+                    <button type="button" id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="user-actions">
+                    <a href="/cart" class="nav-icon" id="cart-link" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                    <a href="/wishlist" class="nav-icon" id="wishlist-link" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="wishlist-count" id="wishlist-count">0</span>
+                    </a>
+                    <a href="/login" class="nav-icon" id="login-link" title="Login">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <a href="/profile" class="nav-icon hidden" id="profile-link" title="Profile">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <button class="nav-icon hidden" id="nav-logout-btn" title="Logout" style="background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--text-primary);">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                    <a href="/admin" class="nav-icon" id="admin-link" title="Admin">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Menu Overlay for Mobile -->
+    <div class="menu-overlay" id="menu-overlay"></div>
+
+    <script>
+        // Nav bar logout button handler
+        (function() {
+            const navLogoutBtn = document.getElementById('nav-logout-btn');
+            if (navLogoutBtn) {
+                navLogoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Nav logout clicked');
+                    
+                    // Clear local storage
+                    try {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('currentUser');
+                        localStorage.removeItem('cart');
+                        localStorage.removeItem('wishlist');
+                        localStorage.removeItem('loggedInUser');
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('solaraAdminAuthed');
+                    } catch (err) {
+                        console.error('Error clearing localStorage:', err);
+                    }
+                    
+                    // Call logout API
+                    try {
+                        await fetch('/api/auth/logout', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    } catch (error) {
+                        console.log('Logout API error (may not be logged in):', error);
+                    }
+                    
+                    // Redirect to login
+                    window.location.href = '/login';
+                });
+            }
+        })();
+    </script>
+
     <!-- Login Screen -->
     <div class="admin-login-container" id="admin-login-container">
         <div class="login-card">
@@ -357,9 +459,6 @@
                     </button>
                     <button class="btn btn-primary" onclick="window.switchSection && window.switchSection('add-product')">
                         <i class="fas fa-plus"></i> Add Product
-                    </button>
-                    <button class="btn btn-secondary" id="admin-logout-btn" style="background: #ff6b6b; color: white;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
@@ -1442,19 +1541,6 @@
             if (!adminDashboard || adminDashboard.classList.contains('hidden')) {
                 console.warn('Dashboard not visible, skipping dashboard event listeners');
                 return;
-            }
-            
-            // Logout
-            const logoutBtn = document.getElementById('admin-logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    localStorage.removeItem('solaraAdminAuthed');
-                    localStorage.removeItem('isAdmin');
-                    if (typeof AuthAPI !== 'undefined') AuthAPI.logout();
-                    showLogin();
-                });
-            } else {
-                console.warn('Logout button not found');
             }
             
             // Tabs - use event delegation
