@@ -1,20 +1,169 @@
-<%- include('../partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'Page Not Found - SOLARA' }) %>
+<%- include('./partials/head.ejs', { title: typeof title !== 'undefined' ? title : 'Page Not Found - SOLARA' }) %>
 
-<%- include('../partials/nav.ejs') %>
+<%- include('./partials/nav.ejs') %>
 
-    <div class="error-page" style="min-height: 60vh; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem;">
-        <div class="container" style="text-align: center;">
-            <h1 style="font-size: 6rem; margin-bottom: 1rem; color: var(--accent-color);">404</h1>
-            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Page Not Found</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">
-                <%= typeof message !== 'undefined' ? message : 'The page you are looking for does not exist.' %>
-            </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="/" class="btn btn-primary">Go Home</a>
-                <a href="javascript:history.back()" class="btn btn-outline">Go Back</a>
-            </div>
+<style>
+    .error-page {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .error-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(233, 30, 99, 0.05) 0%, transparent 70%);
+        animation: float 20s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        50% { transform: translate(30px, -30px) rotate(180deg); }
+    }
+    
+    .error-container {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+    }
+    
+    .error-number {
+        font-size: 12rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        animation: bounce 2s ease-in-out infinite;
+        text-shadow: 0 0 40px rgba(233, 30, 99, 0.2);
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .error-emoji {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        animation: spin 3s linear infinite;
+        display: inline-block;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.2); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+    
+    .error-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+    }
+    
+    .error-message {
+        color: #666;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+    }
+    
+    .error-submessage {
+        color: #999;
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+        font-style: italic;
+    }
+    
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    .error-actions .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .error-actions .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .error-illustration {
+        margin: 2rem 0;
+        opacity: 0.1;
+    }
+    
+    @media (max-width: 768px) {
+        .error-number {
+            font-size: 8rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+        }
+        
+        .error-message {
+            font-size: 1rem;
+        }
+        
+        .error-emoji {
+            font-size: 4rem;
+        }
+    }
+</style>
+
+<div class="error-page">
+    <div class="error-container">
+        <div class="error-number">404</div>
+        <div class="error-emoji">🔍</div>
+        <h2 class="error-title">Oops! That page doesn't exist! 😅</h2>
+        <p class="error-message">
+            <%= typeof message !== 'undefined' ? message : "Looks like you've wandered off the fashion runway. The page you're looking for has gone out of style!" %>
+        </p>
+        <p class="error-submessage">
+            Don't worry, even the best models take a wrong turn sometimes. Let's get you back on track!
+        </p>
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </a>
+            <a href="/men" class="btn btn-outline">
+                <i class="fas fa-tshirt"></i> Shop Men
+            </a>
+            <a href="/women" class="btn btn-outline">
+                <i class="fas fa-tshirt"></i> Shop Women
+            </a>
         </div>
     </div>
+</div>
 
-<%- include('../partials/footer.ejs') %>
+<%- include('./partials/footer.ejs') %>
 

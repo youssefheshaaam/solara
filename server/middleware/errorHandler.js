@@ -79,7 +79,27 @@ const sendErrorDev = (err, req, res) => {
         });
     }
     
-    // Rendered website error
+    // 404 error - render 404 page
+    if (err.statusCode === 404) {
+        // Check if response has already been sent
+        if (res.headersSent) {
+            return;
+        }
+        try {
+            return res.status(404).render('404', {
+                title: 'Page Not Found - SOLARA',
+                message: 'The page you are looking for does not exist.'
+            });
+        } catch (renderError) {
+            console.error('Error rendering 404 page:', renderError);
+            return res.status(404).json({
+                success: false,
+                error: 'Page not found'
+            });
+        }
+    }
+    
+    // Other errors - render error page or return JSON
     console.error('ERROR:', err);
     return res.status(err.statusCode).json({
         success: false,
@@ -107,19 +127,56 @@ const sendErrorProd = (err, req, res) => {
         });
     }
 
-    // Rendered website error
-    if (err.isOperational) {
-        return res.status(err.statusCode).json({
-            success: false,
-            error: err.message
-        });
+    // 404 error - render 404 page
+    if (err.statusCode === 404) {
+        // Check if response has already been sent
+        if (res.headersSent) {
+            return;
+        }
+        try {
+            return res.status(404).render('404', {
+                title: 'Page Not Found - SOLARA',
+                message: 'The page you are looking for does not exist.'
+            });
+        } catch (renderError) {
+            console.error('Error rendering 404 page:', renderError);
+            return res.status(404).json({
+                success: false,
+                error: 'Page not found'
+            });
+        }
     }
 
+    // Other operational errors - render error page or return JSON
+    if (err.isOperational) {
+        // For frontend routes, try to render an error page
+        // If that fails, return JSON as fallback
+        try {
+            return res.status(err.statusCode).render('404', {
+                title: 'Error - SOLARA',
+                message: err.message || 'Something went wrong. Please try again later.'
+            });
+        } catch (renderError) {
+            return res.status(err.statusCode).json({
+                success: false,
+                error: err.message
+            });
+        }
+    }
+
+    // Programming or other unknown error: don't leak error details
     console.error('ERROR:', err);
-    return res.status(500).json({
-        success: false,
-        error: 'Something went wrong. Please try again later.'
-    });
+    try {
+        return res.status(500).render('404', {
+            title: 'Error - SOLARA',
+            message: 'Something went wrong. Please try again later.'
+        });
+    } catch (renderError) {
+        return res.status(500).json({
+            success: false,
+            error: 'Something went wrong. Please try again later.'
+        });
+    }
 };
 
 // Main error handler middleware
@@ -127,37 +184,40 @@ const errorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
+    // Handle specific error types first
+    let error = { ...err };
+    error.message = err.message;
+
+    if (err.name === ErrorTypes.CAST_ERROR) {
+        error = handleCastErrorDB(error);
+    }
+    
+    if (err.code === 11000) {
+        error = handleDuplicateFieldsDB(error);
+    }
+    
+    if (err.name === ErrorTypes.VALIDATION_ERROR) {
+        error = handleValidationErrorDB(error);
+    }
+    
+    if (err.name === ErrorTypes.JWT_ERROR) {
+        error = handleJWTError();
+    }
+    
+    if (err.name === ErrorTypes.JWT_EXPIRED) {
+        error = handleJWTExpiredError();
+    }
+    
+    if (err.name === ErrorTypes.MULTER_ERROR) {
+        error = handleMulterError(error);
+    }
+
+    // Debug logging
+    console.log('Error Handler - Status:', error.statusCode, 'URL:', req.originalUrl, 'Is API:', req.originalUrl.startsWith('/api'));
+
     if (process.env.NODE_ENV === 'development') {
-        sendErrorDev(err, req, res);
+        sendErrorDev(error, req, res);
     } else {
-        let error = { ...err };
-        error.message = err.message;
-
-        // Handle specific error types
-        if (err.name === ErrorTypes.CAST_ERROR) {
-            error = handleCastErrorDB(error);
-        }
-        
-        if (err.code === 11000) {
-            error = handleDuplicateFieldsDB(error);
-        }
-        
-        if (err.name === ErrorTypes.VALIDATION_ERROR) {
-            error = handleValidationErrorDB(error);
-        }
-        
-        if (err.name === ErrorTypes.JWT_ERROR) {
-            error = handleJWTError();
-        }
-        
-        if (err.name === ErrorTypes.JWT_EXPIRED) {
-            error = handleJWTExpiredError();
-        }
-        
-        if (err.name === ErrorTypes.MULTER_ERROR) {
-            error = handleMulterError(error);
-        }
-
         sendErrorProd(error, req, res);
     }
 };

@@ -451,9 +451,24 @@ exports.get404 = asyncHandler(async (req, res) => {
         });
     }
     
-    res.status(404).render('404', {
-        title: 'Page Not Found - SOLARA',
-        message: 'The page you are looking for does not exist.'
-    });
+    // Check if response has already been sent
+    if (res.headersSent) {
+        return;
+    }
+    
+    try {
+        res.status(404).render('404', {
+            title: 'Page Not Found - SOLARA',
+            message: 'The page you are looking for does not exist.',
+            currentPage: '404'
+        });
+    } catch (renderError) {
+        console.error('Error rendering 404 page:', renderError);
+        // Fallback to JSON if render fails
+        return res.status(404).json({
+            success: false,
+            error: 'Page not found'
+        });
+    }
 });
 
