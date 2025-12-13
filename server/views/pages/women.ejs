@@ -23,32 +23,43 @@
             <div class="filters-container" style="display: flex; gap: 2rem; align-items: flex-end; flex-wrap: wrap; justify-content: center;">
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Filter by Category</h3>
-                    <div class="filter-options" style="display: flex; gap: 0.5rem;">
-                        <button class="filter-btn active" data-category="all" style="padding: 0.5rem 1.25rem; border: 2px solid var(--accent-color); background: var(--accent-color); color: white; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">All Items</button>
+                    <div class="filter-options" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'all' ? 'active' : '' %>" data-subcategory="all" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">All Items</button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'tops' ? 'active' : '' %>" data-subcategory="tops" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Tops</button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'pants' ? 'active' : '' %>" data-subcategory="pants" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Pants</button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'shoes' ? 'active' : '' %>" data-subcategory="shoes" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Shoes</button>
                     </div>
                 </div>
                 
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Sort by</h3>
                     <select class="sort-select" id="sort-select" style="padding: 0.5rem 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; font-size: 0.9rem; cursor: pointer; min-width: 180px;">
-                        <option value="newest">Newest First</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="name-asc">Name: A to Z</option>
-                        <option value="name-desc">Name: Z to A</option>
+                        <option value="newest" <%= typeof filters !== 'undefined' && filters.sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+                        <option value="price-low" <%= typeof filters !== 'undefined' && filters.sort === 'price-low' ? 'selected' : '' %>>Price: Low to High</option>
+                        <option value="price-high" <%= typeof filters !== 'undefined' && filters.sort === 'price-high' ? 'selected' : '' %>>Price: High to Low</option>
+                        <option value="name-asc" <%= typeof filters !== 'undefined' && filters.sort === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
+                        <option value="name-desc" <%= typeof filters !== 'undefined' && filters.sort === 'name-desc' ? 'selected' : '' %>>Name: Z to A</option>
                     </select>
                 </div>
                 
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 200px;">
                     <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Price Range</h3>
                     <div class="price-range" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <input type="range" id="price-range" min="700" max="5000" value="5000" step="50" style="width: 100%;">
+                        <input type="range" id="price-range" min="700" max="5000" value="<%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '5000' %>" step="50" style="width: 100%;">
                         <div class="price-labels" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #666;">
                             <span>700 EGP</span>
-                            <span id="max-price">5000 EGP</span>
+                            <span id="max-price"><%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '5000' %> EGP</span>
                         </div>
                     </div>
                 </div>
+                
+                <% if (typeof filters !== 'undefined' && (filters.subcategory !== 'all' || filters.minPrice || filters.maxPrice)) { %>
+                <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button class="btn btn-outline" id="clear-filters-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+                <% } %>
             </div>
         </div>
     </section>
@@ -232,6 +243,39 @@
 </style>
 
 <script>
+    // Helper function to update URL with filters
+    function updateFilters() {
+        const url = new URL(window.location);
+        const subcategory = document.querySelector('.subcategory-filter.active')?.dataset.subcategory || 'all';
+        const sort = document.getElementById('sort-select')?.value || 'newest';
+        const maxPrice = document.getElementById('price-range')?.value || '';
+        
+        // Update URL params
+        if (subcategory && subcategory !== 'all') {
+            url.searchParams.set('subcategory', subcategory);
+        } else {
+            url.searchParams.delete('subcategory');
+        }
+        
+        if (sort && sort !== 'newest') {
+            url.searchParams.set('sort', sort);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        
+        if (maxPrice && maxPrice !== '5000') {
+            url.searchParams.set('maxPrice', maxPrice);
+        } else {
+            url.searchParams.delete('maxPrice');
+        }
+        
+        // Reset to page 1 when filters change
+        url.searchParams.set('page', '1');
+        
+        // Reload page with new filters
+        window.location.href = url.toString();
+    }
+    
     // Page-specific initialization for Women's collection
     document.addEventListener('DOMContentLoaded', function() {
         // Setup product card click handlers using event delegation
@@ -245,21 +289,82 @@
             }
         });
         
+        // Setup subcategory filter buttons
+        document.querySelectorAll('.subcategory-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('.subcategory-filter').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update URL and reload
+                updateFilters();
+            });
+        });
+        
+        // Setup sort dropdown
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                updateFilters();
+            });
+        }
+        
+        // Setup price range slider
+        const priceRange = document.getElementById('price-range');
+        const maxPriceDisplay = document.getElementById('max-price');
+        if (priceRange && maxPriceDisplay) {
+            // Update display on input
+            priceRange.addEventListener('input', function() {
+                maxPriceDisplay.textContent = this.value + ' EGP';
+            });
+            
+            // Update URL on change (with debounce)
+            let priceTimeout;
+            priceRange.addEventListener('change', function() {
+                clearTimeout(priceTimeout);
+                priceTimeout = setTimeout(() => {
+                    updateFilters();
+                }, 500);
+            });
+        }
+        
+        // Setup clear filters button
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', function() {
+                window.location.href = '/women';
+            });
+        }
+        
+        // Setup Load More button to maintain filter state
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const url = new URL(window.location);
+                const currentPage = parseInt(url.searchParams.get('page') || '1');
+                url.searchParams.set('page', (currentPage + 1).toString());
+                window.location.href = url.toString();
+            });
+        }
+        
+        // Update filter button styles
+        document.querySelectorAll('.subcategory-filter').forEach(btn => {
+            if (btn.classList.contains('active')) {
+                btn.style.borderColor = 'var(--accent-color)';
+                btn.style.background = 'var(--accent-color)';
+                btn.style.color = 'white';
+            } else {
+                btn.style.borderColor = '#ddd';
+                btn.style.background = 'white';
+                btn.style.color = '#666';
+            }
+        });
+        
         // Also call the existing function if available (for AJAX-loaded products)
         if (typeof setupProductCardEvents === 'function') {
             setupProductCardEvents();
         }
-        
-        // Products are already loaded server-side, but setup AJAX for Load More
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        if (loadMoreBtn && typeof loadMoreCategoryProducts !== 'undefined') {
-            loadMoreBtn.addEventListener('click', loadMoreCategoryProducts);
-        }
-        
-        // Setup filters and sorting (AJAX)
-        if (typeof setupCategoryFilters !== 'undefined') setupCategoryFilters();
-        if (typeof setupSorting !== 'undefined') setupSorting();
-        if (typeof setupPriceFilter !== 'undefined') setupPriceFilter();
     });
 </script>
+
 

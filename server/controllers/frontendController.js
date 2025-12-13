@@ -58,12 +58,40 @@ exports.getHome = asyncHandler(async (req, res) => {
 // @route   GET /men
 // @access  Public
 exports.getMen = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 12, sort = '-createdAt' } = req.query;
+    const { page = 1, limit = 12, sort = 'newest', subcategory, minPrice, maxPrice } = req.query;
     
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
+    // Build filter object
+    const filter = { 
+        status: 'active', 
+        category: 'men' 
+    };
+
+    // Add subcategory filter if provided
+    if (subcategory && subcategory !== 'all') {
+        // Support both 'tops' and 'shirts' for tops category
+        if (subcategory === 'tops') {
+            filter.subcategory = { $in: ['tops', 'shirts'] };
+        } else {
+            filter.subcategory = subcategory;
+        }
+    }
+
+    // Add price range filter if provided
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) {
+            filter.price.$gte = parseFloat(minPrice);
+        }
+        if (maxPrice) {
+            filter.price.$lte = parseFloat(maxPrice);
+        }
+    }
+
+    // Sort options
     let sortOption = {};
     switch (sort) {
         case 'price-low':
@@ -78,19 +106,25 @@ exports.getMen = asyncHandler(async (req, res) => {
         case 'name-desc':
             sortOption = { name: -1 };
             break;
+        case 'newest':
         default:
             sortOption = { createdAt: -1 };
+            break;
     }
 
+    // Get available subcategories for filter buttons
+    const availableSubcategories = await Product.distinct('subcategory', {
+        status: 'active',
+        category: 'men',
+        subcategory: { $ne: null }
+    });
+
     const [products, total] = await Promise.all([
-        Product.find({ 
-            status: 'active', 
-            category: 'men' 
-        })
+        Product.find(filter)
         .sort(sortOption)
         .skip(skip)
         .limit(limitNum),
-        Product.countDocuments({ status: 'active', category: 'men' })
+        Product.countDocuments(filter)
     ]);
 
     res.render('pages/men', {
@@ -105,7 +139,14 @@ exports.getMen = asyncHandler(async (req, res) => {
             totalPages: Math.ceil(total / limitNum),
             totalProducts: total,
             hasMore: skip + products.length < total
-        }
+        },
+        filters: {
+            subcategory: subcategory || 'all',
+            minPrice: minPrice || '',
+            maxPrice: maxPrice || '',
+            sort: sort || 'newest'
+        },
+        availableSubcategories: availableSubcategories
     });
 });
 
@@ -113,12 +154,40 @@ exports.getMen = asyncHandler(async (req, res) => {
 // @route   GET /women
 // @access  Public
 exports.getWomen = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 12, sort = '-createdAt' } = req.query;
+    const { page = 1, limit = 12, sort = 'newest', subcategory, minPrice, maxPrice } = req.query;
     
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
+    // Build filter object
+    const filter = { 
+        status: 'active', 
+        category: 'women' 
+    };
+
+    // Add subcategory filter if provided
+    if (subcategory && subcategory !== 'all') {
+        // Support both 'tops' and 'shirts' for tops category
+        if (subcategory === 'tops') {
+            filter.subcategory = { $in: ['tops', 'shirts'] };
+        } else {
+            filter.subcategory = subcategory;
+        }
+    }
+
+    // Add price range filter if provided
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) {
+            filter.price.$gte = parseFloat(minPrice);
+        }
+        if (maxPrice) {
+            filter.price.$lte = parseFloat(maxPrice);
+        }
+    }
+
+    // Sort options
     let sortOption = {};
     switch (sort) {
         case 'price-low':
@@ -133,19 +202,25 @@ exports.getWomen = asyncHandler(async (req, res) => {
         case 'name-desc':
             sortOption = { name: -1 };
             break;
+        case 'newest':
         default:
             sortOption = { createdAt: -1 };
+            break;
     }
 
+    // Get available subcategories for filter buttons
+    const availableSubcategories = await Product.distinct('subcategory', {
+        status: 'active',
+        category: 'women',
+        subcategory: { $ne: null }
+    });
+
     const [products, total] = await Promise.all([
-        Product.find({ 
-            status: 'active', 
-            category: 'women' 
-        })
+        Product.find(filter)
         .sort(sortOption)
         .skip(skip)
         .limit(limitNum),
-        Product.countDocuments({ status: 'active', category: 'women' })
+        Product.countDocuments(filter)
     ]);
 
     res.render('pages/women', {
@@ -160,7 +235,14 @@ exports.getWomen = asyncHandler(async (req, res) => {
             totalPages: Math.ceil(total / limitNum),
             totalProducts: total,
             hasMore: skip + products.length < total
-        }
+        },
+        filters: {
+            subcategory: subcategory || 'all',
+            minPrice: minPrice || '',
+            maxPrice: maxPrice || '',
+            sort: sort || 'newest'
+        },
+        availableSubcategories: availableSubcategories
     });
 });
 
@@ -347,7 +429,7 @@ exports.getWishlist = asyncHandler(async (req, res) => {
 // @route   GET /search
 // @access  Public
 exports.getSearch = asyncHandler(async (req, res) => {
-    const { q, page = 1, limit = 12 } = req.query;
+    const { q, page = 1, limit = 12, sort = 'newest', subcategory, minPrice, maxPrice, category } = req.query;
     
     if (!q) {
         return res.render('pages/search', {
@@ -355,7 +437,14 @@ exports.getSearch = asyncHandler(async (req, res) => {
             currentPage: 'search',
             query: '',
             products: [],
-            pagination: { currentPage: 1, totalPages: 0, totalProducts: 0 }
+            pagination: { currentPage: 1, totalPages: 0, totalProducts: 0 },
+            filters: {
+                category: category || 'all',
+                subcategory: subcategory || 'all',
+                minPrice: minPrice || '',
+                maxPrice: maxPrice || '',
+                sort: sort || 'newest'
+            }
         });
     }
 
@@ -363,6 +452,7 @@ exports.getSearch = asyncHandler(async (req, res) => {
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
+    // Build search filter
     const searchFilter = {
         status: 'active',
         $or: [
@@ -373,9 +463,55 @@ exports.getSearch = asyncHandler(async (req, res) => {
         ]
     };
 
+    // Add category filter if provided
+    if (category && category !== 'all') {
+        searchFilter.category = category;
+    }
+
+    // Add subcategory filter if provided
+    if (subcategory && subcategory !== 'all') {
+        if (subcategory === 'tops') {
+            searchFilter.subcategory = { $in: ['tops', 'shirts'] };
+        } else {
+            searchFilter.subcategory = subcategory;
+        }
+    }
+
+    // Add price range filter if provided
+    if (minPrice || maxPrice) {
+        searchFilter.price = {};
+        if (minPrice) {
+            searchFilter.price.$gte = parseFloat(minPrice);
+        }
+        if (maxPrice) {
+            searchFilter.price.$lte = parseFloat(maxPrice);
+        }
+    }
+
+    // Sort options
+    let sortOption = {};
+    switch (sort) {
+        case 'price-low':
+            sortOption = { price: 1 };
+            break;
+        case 'price-high':
+            sortOption = { price: -1 };
+            break;
+        case 'name-asc':
+            sortOption = { name: 1 };
+            break;
+        case 'name-desc':
+            sortOption = { name: -1 };
+            break;
+        case 'newest':
+        default:
+            sortOption = { createdAt: -1 };
+            break;
+    }
+
     const [products, total] = await Promise.all([
         Product.find(searchFilter)
-            .sort({ createdAt: -1 })
+            .sort(sortOption)
             .skip(skip)
             .limit(limitNum),
         Product.countDocuments(searchFilter)
@@ -394,6 +530,13 @@ exports.getSearch = asyncHandler(async (req, res) => {
             totalPages: Math.ceil(total / limitNum),
             totalProducts: total,
             hasMore: skip + products.length < total
+        },
+        filters: {
+            category: category || 'all',
+            subcategory: subcategory || 'all',
+            minPrice: minPrice || '',
+            maxPrice: maxPrice || '',
+            sort: sort || 'newest'
         }
     });
 });
