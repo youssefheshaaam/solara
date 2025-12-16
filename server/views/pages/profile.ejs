@@ -168,7 +168,7 @@
                         <div class="profile-info">
                             <div class="profile-avatar" id="profile-avatar-display">
                                 <% if (typeof user !== 'undefined' && user && user.avatar) { %>
-                                    <img src="<%= user.avatar.startsWith('http') ? user.avatar : '/uploads/' + user.avatar %>" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
+                                    <img src="<%= user.avatar.startsWith('http') ? user.avatar : (user.avatar.startsWith('/') ? user.avatar : '/' + user.avatar) %>" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                                 <% } else { %>
                                     <i class="fas fa-user"></i>
                                 <% } %>
