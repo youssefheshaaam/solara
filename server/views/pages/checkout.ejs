@@ -690,6 +690,46 @@
         element.querySelector('input[type="radio"]').checked = true;
     }
     
+    // Lightweight helper for real-time validation hints
+    function addCheckoutLiveValidation(inputId, message, hint) {
+        const input = document.getElementById(inputId);
+        const hintEl = document.createElement('div');
+        hintEl.className = 'field-hint';
+        hintEl.style.fontSize = '0.8rem';
+        hintEl.style.marginTop = '0.25rem';
+        hintEl.style.color = '#777';
+        hintEl.textContent = hint || '';
+        
+        if (input && input.parentElement && input.parentElement.parentElement) {
+            const group = input.parentElement.parentElement.classList.contains('form-group')
+                ? input.parentElement.parentElement
+                : input.parentElement;
+            group.appendChild(hintEl);
+        }
+        
+        function validate() {
+            const value = input.value.trim();
+            if (!value) {
+                hintEl.textContent = hint || '';
+                hintEl.style.color = '#777';
+                return;
+            }
+            const isValid = typeof message.validator === 'function' ? message.validator(value) : true;
+            if (isValid === true) {
+                hintEl.textContent = hint || '';
+                hintEl.style.color = '#777';
+            } else {
+                hintEl.textContent = typeof isValid === 'string' ? isValid : (message.text || 'Invalid value');
+                hintEl.style.color = '#c33';
+            }
+        }
+        
+        if (input) {
+            input.addEventListener('input', validate);
+            input.addEventListener('blur', validate);
+        }
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Prefill checkout form with saved user data/address if available
         try {
@@ -725,6 +765,19 @@
         } catch (err) {
             console.error('Error pre-filling checkout form:', err);
         }
+
+        // Real-time validation on key fields
+        addCheckoutLiveValidation('email', { 
+            validator: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Enter a valid email (e.g. name@example.com)'
+        }, 'Format: name@example.com');
+        
+        addCheckoutLiveValidation('phone', { 
+            validator: (v) => /^\+?\d{10,15}$/.test(v) || 'Phone must be 10–15 digits (e.g. +201234567890)'
+        }, 'Digits only, 10–15 characters (e.g. +201234567890)');
+        
+        addCheckoutLiveValidation('zipCode', { 
+            validator: (v) => /^\d{5,10}$/.test(v) || 'Zip code must be 5–10 digits'
+        }, 'Numbers only, 5–10 digits');
 
         // Checkout form handling - delegate to global handler in main.js
         const placeOrderBtn = document.getElementById('place-order-btn');

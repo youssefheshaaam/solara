@@ -95,6 +95,60 @@
 <%- include('../partials/footer.ejs') %>
 
 <script>
+    // Simple helper for real-time field validation
+    function addLiveValidation(inputId, errorId, options) {
+        const input = document.getElementById(inputId);
+        const errorEl = document.getElementById(errorId);
+        if (!input || !errorEl) return;
+
+        const hintColor = '#777';
+        const errorColor = '#c33';
+        const hintText = options.hint || '';
+
+        // Show base hint initially
+        if (hintText) {
+            errorEl.textContent = hintText;
+            errorEl.style.color = hintColor;
+        }
+
+        function validate() {
+            const value = input.value.trim();
+            // Empty: show hint, no red error yet
+            if (!value) {
+                errorEl.textContent = hintText;
+                errorEl.style.color = hintColor;
+                return true;
+            }
+
+            if (options.validator) {
+                const result = options.validator(value);
+                if (result === true) {
+                    errorEl.textContent = '';
+                    return true;
+                }
+                if (typeof result === 'string') {
+                    errorEl.textContent = result;
+                    errorEl.style.color = errorColor;
+                    return false;
+                }
+            }
+
+            if (options.pattern && !options.pattern.test(value)) {
+                errorEl.textContent = options.message || 'Invalid value';
+                errorEl.style.color = errorColor;
+                return false;
+            }
+
+            errorEl.textContent = '';
+            return true;
+        }
+
+        input.addEventListener('input', validate);
+        input.addEventListener('blur', validate);
+
+        return validate;
+    }
+
     // Handle form submission with AJAX
     document.getElementById('register-form').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -111,7 +165,7 @@
         messageDiv.textContent = '';
         messageDiv.className = 'form-message';
         
-        // Validate passwords match
+        // Validate passwords match (final guard)
         if (data.password !== data.confirmPassword) {
             messageDiv.textContent = 'Passwords do not match';
             messageDiv.className = 'form-message error';
@@ -227,7 +281,7 @@
         }
     });
     
-    // Password toggle functionality
+    // Password toggle + real-time validation
     document.addEventListener('DOMContentLoaded', function() {
         const passwordToggle = document.getElementById('password-toggle');
         const passwordInput = document.getElementById('password');
@@ -261,6 +315,50 @@
                 }
             });
         }
+
+        // Real-time validation rules
+        const emailValidator = addLiveValidation('email', 'email-error', {
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: 'Please enter a valid email (e.g. name@example.com)',
+            hint: 'Use a valid email like name@example.com'
+        });
+
+        const phoneValidator = addLiveValidation('phone', 'phone-error', {
+            pattern: /^\+?\d{10,15}$/,
+            message: 'Phone must be 10–15 digits (e.g. +201234567890)',
+            hint: 'Format: +201234567890 or 01234567890 (10–15 digits)'
+        });
+
+        const firstNameValidator = addLiveValidation('firstName', 'firstName-error', {
+            validator: (v) => v.length >= 2 || 'First name must be at least 2 characters',
+            hint: 'At least 2 letters'
+        });
+
+        const lastNameValidator = addLiveValidation('lastName', 'lastName-error', {
+            validator: (v) => v.length >= 2 || 'Last name must be at least 2 characters',
+            hint: 'At least 2 letters'
+        });
+
+        const passwordValidator = addLiveValidation('password', 'password-error', {
+            validator: (v) => {
+                if (v.length < 8) return 'Password must be at least 8 characters';
+                if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(v)) {
+                    return 'Include uppercase, lowercase, and a number';
+                }
+                return true;
+            },
+            hint: 'Min 8 chars, with uppercase, lowercase, and a number'
+        });
+
+        const confirmValidator = addLiveValidation('confirmPassword', 'confirmPassword-error', {
+            validator: (v) => {
+                const pwd = document.getElementById('password')?.value || '';
+                if (!v) return 'Please confirm your password';
+                if (v !== pwd) return 'Passwords do not match';
+                return true;
+            },
+            hint: 'Must match the password above'
+        });
     });
 </script>
 
