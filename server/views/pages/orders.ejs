@@ -441,15 +441,106 @@
             return;
         }
         
-        // Re-render with filtered orders (this will be handled by AJAX if needed)
-        // For now, just filter the existing DOM elements
-        document.querySelectorAll('.order-card').forEach(card => {
-            if (!currentFilter || card.dataset.status === currentFilter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
+        // Rebuild HTML from filtered orders array
+        container.innerHTML = filtered.map(order => {
+            const orderId = order._id || order.id;
+            const orderNumber = order.orderNumber || orderId;
+            const createdAt = new Date(order.createdAt || order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const status = order.status || 'pending';
+            const statusCapitalized = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            // Build shipping address HTML
+            let shippingHtml = '';
+            if (order.shippingAddress) {
+                const addr = order.shippingAddress;
+                shippingHtml = `
+                    <div class="shipping-info">
+                        <h4><i class="fas fa-truck"></i> Shipping to</h4>
+                        <p>${(addr.firstName || '')} ${(addr.lastName || '')}</p>
+                        <p>${(addr.street || '')}, ${(addr.city || '')}</p>
+                        <p>${(addr.phone || '')}</p>
+                    </div>
+                `;
             }
-        });
+            
+            // Build order items HTML
+            let itemsHtml = '';
+            if (order.items && order.items.length > 0) {
+                itemsHtml = order.items.map(item => {
+                    let itemImageUrl = '/images/placeholder.jpg';
+                    if (item.product && item.product.imageUrl) {
+                        itemImageUrl = item.product.imageUrl;
+                    } else if (item.product && item.product.image) {
+                        itemImageUrl = item.product.image.startsWith('http') ? item.product.image : (item.product.image.startsWith('/') ? item.product.image : '/uploads/' + item.product.image);
+                    } else if (item.image) {
+                        itemImageUrl = item.image.startsWith('http') ? item.image : (item.image.startsWith('/') ? item.image : '/uploads/' + item.image);
+                    }
+                    
+                    const productName = item.product ? (item.product.name || 'Product') : 'Product';
+                    const quantity = item.quantity || 1;
+                    const size = item.size ? ` • Size: ${item.size}` : '';
+                    const color = item.color ? ` • Color: ${item.color}` : '';
+                    const itemPrice = ((item.price || 0) * quantity).toFixed(2);
+                    
+                    return `
+                        <div class="order-item">
+                            <div class="item-image">
+                                <img src="${itemImageUrl}" alt="${productName}" onerror="this.src='/images/placeholder.jpg';">
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">${productName}</div>
+                                <div class="item-meta">
+                                    Qty: ${quantity}${size}${color}
+                                </div>
+                            </div>
+                            <div class="item-price">EGP ${itemPrice}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // Build action buttons HTML
+            let actionsHtml = '';
+            if (status === 'pending' || status === 'confirmed') {
+                actionsHtml = `<button class="btn btn-outline" onclick="cancelOrder('${orderId}')">
+                    <i class="fas fa-times"></i> Cancel
+                </button>`;
+            } else if (status === 'delivered') {
+                actionsHtml = `<button class="btn btn-outline" onclick="reorder('${orderId}')">
+                    <i class="fas fa-redo"></i> Reorder
+                </button>`;
+            }
+            
+            const total = (order.total || 0).toFixed(2);
+            
+            return `
+                <div class="order-card" data-order-id="${orderId}" data-status="${status}">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-number">Order #${orderNumber}</div>
+                            <div class="order-date">Placed on ${createdAt}</div>
+                        </div>
+                        <span class="status-badge status-${status}" title="Order Status: ${statusCapitalized}">
+                            ${statusCapitalized}
+                        </span>
+                    </div>
+                    <div class="order-body">
+                        ${shippingHtml}
+                        <div class="order-items">
+                            ${itemsHtml}
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-total">
+                                Total: <span>EGP ${total}</span>
+                            </div>
+                            <div class="order-actions">
+                                ${actionsHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
     
     function setupFilters() {

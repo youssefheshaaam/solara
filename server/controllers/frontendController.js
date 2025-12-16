@@ -67,14 +67,21 @@ exports.getMen = asyncHandler(async (req, res) => {
     // Build filter object
     const filter = { 
         status: 'active', 
-        category: 'men' 
+        category: 'men',
+        // Exclude products with "KIDS" in brand or name
+        $nor: [
+            { brand: { $regex: /KIDS/i } },
+            { name: { $regex: /KIDS/i } }
+        ]
     };
 
     // Add subcategory filter if provided
     if (subcategory && subcategory !== 'all') {
-        // Support both 'tops' and 'shirts' for tops category
+        // Map frontend filter values to database subcategories
         if (subcategory === 'tops') {
             filter.subcategory = { $in: ['tops', 'shirts'] };
+        } else if (subcategory === 'pants') {
+            filter.subcategory = { $in: ['pants', 'bottoms'] };
         } else {
             filter.subcategory = subcategory;
         }
@@ -163,14 +170,21 @@ exports.getWomen = asyncHandler(async (req, res) => {
     // Build filter object
     const filter = { 
         status: 'active', 
-        category: 'women' 
+        category: 'women',
+        // Exclude products with "KIDS" in brand or name
+        $nor: [
+            { brand: { $regex: /KIDS/i } },
+            { name: { $regex: /KIDS/i } }
+        ]
     };
 
     // Add subcategory filter if provided
     if (subcategory && subcategory !== 'all') {
-        // Support both 'tops' and 'shirts' for tops category
+        // Map frontend filter values to database subcategories
         if (subcategory === 'tops') {
             filter.subcategory = { $in: ['tops', 'shirts'] };
+        } else if (subcategory === 'pants') {
+            filter.subcategory = { $in: ['pants', 'bottoms'] };
         } else {
             filter.subcategory = subcategory;
         }
@@ -455,6 +469,11 @@ exports.getSearch = asyncHandler(async (req, res) => {
     // Build search filter
     const searchFilter = {
         status: 'active',
+        // Exclude products with "KIDS" in brand or name
+        $nor: [
+            { brand: { $regex: /KIDS/i } },
+            { name: { $regex: /KIDS/i } }
+        ],
         $or: [
             { name: { $regex: q, $options: 'i' } },
             { description: { $regex: q, $options: 'i' } },
@@ -470,8 +489,11 @@ exports.getSearch = asyncHandler(async (req, res) => {
 
     // Add subcategory filter if provided
     if (subcategory && subcategory !== 'all') {
+        // Map frontend filter values to database subcategories
         if (subcategory === 'tops') {
             searchFilter.subcategory = { $in: ['tops', 'shirts'] };
+        } else if (subcategory === 'pants') {
+            searchFilter.subcategory = { $in: ['pants', 'bottoms'] };
         } else {
             searchFilter.subcategory = subcategory;
         }
