@@ -2660,13 +2660,38 @@ async function handlePlaceOrder(e) {
             saveCart([]);
             updateCartCount();
             
-            showNotification('Order placed successfully!', 'success');
-            
-            // Redirect to order confirmation
-            setTimeout(() => {
-                // Use EJS route for orders
-                window.location.href = '/orders';
-            }, 1500);
+            // Update and show success modal with order details
+            try {
+                const modal = document.getElementById('success-modal');
+                const orderNumberEl = document.getElementById('order-number-display');
+                const shippingSummaryEl = document.getElementById('shipping-summary');
+                const totalAmountEl = document.getElementById('total-amount');
+                
+                const orderNumber = order.orderNumber || order._id || 'N/A';
+                if (orderNumberEl) {
+                    const shortNumber = String(orderNumber);
+                    orderNumberEl.textContent = 'Order #' + (shortNumber.length > 8 ? shortNumber.slice(-8) : shortNumber).toUpperCase();
+                }
+                
+                if (shippingSummaryEl) {
+                    shippingSummaryEl.textContent = `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.state}`;
+                }
+                
+                if (totalAmountEl) {
+                    const amount = order.total || total;
+                    totalAmountEl.textContent = typeof formatPrice === 'function' ? formatPrice(amount) : `${amount} EGP`;
+                }
+                
+                if (modal) {
+                    modal.classList.add('active');
+                } else {
+                    // Fallback notification if modal not found
+                    showNotification('Order placed successfully!', 'success');
+                }
+            } catch (modalError) {
+                console.error('Error showing success modal:', modalError);
+                showNotification('Order placed successfully!', 'success');
+            }
         }
         
     } catch (error) {
@@ -2847,13 +2872,16 @@ function setupProfileButtons() {
     }
 }
 
-function showAddressPlaceholder() {
+async function showAddressPlaceholder(existingAddress = null, addressId = null) {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay active';
+    
+    const addr = existingAddress || {};
+    
     modal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fas fa-map-marker-alt"></i> Add New Address</h3>
+                <h3><i class="fas fa-map-marker-alt"></i> ${addressId ? 'Edit Address' : 'Add New Address'}</h3>
                 <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -2862,35 +2890,41 @@ function showAddressPlaceholder() {
                 <form id="address-form" style="display: flex; flex-direction: column; gap: 1rem;">
                     <div class="form-group">
                         <label>Address Label</label>
-                        <input type="text" placeholder="e.g., Home, Work" class="form-control" required>
+                        <input type="text" name="label" placeholder="e.g., Home, Work" class="form-control" value="${addr.label || ''}">
                     </div>
                     <div class="form-group">
                         <label>Street Address</label>
-                        <input type="text" placeholder="123 Main St" class="form-control" required>
+                        <input type="text" name="street" placeholder="123 Main St" class="form-control" value="${addr.street || ''}" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>City</label>
-                            <input type="text" placeholder="City" class="form-control" required>
+                            <input type="text" name="city" placeholder="City" class="form-control" value="${addr.city || ''}" required>
                         </div>
                         <div class="form-group">
                             <label>State</label>
-                            <input type="text" placeholder="State" class="form-control" required>
+                            <input type="text" name="state" placeholder="State" class="form-control" value="${addr.state || ''}" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Zip Code</label>
-                            <input type="text" placeholder="12345" class="form-control" required>
+                            <input type="text" name="zipCode" placeholder="12345" class="form-control" value="${addr.zipCode || ''}" required>
                         </div>
                         <div class="form-group">
                             <label>Country</label>
-                            <input type="text" placeholder="Country" class="form-control" required>
+                            <input type="text" name="country" placeholder="Country" class="form-control" value="${addr.country || 'Egypt'}" required>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="isDefault" ${addr.isDefault ? 'checked' : ''}>
+                            Set as default address
+                        </label>
                     </div>
                     <div class="form-actions" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
                         <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Address</button>
+                        <button type="submit" class="btn btn-primary">${addressId ? 'Update Address' : 'Save Address'}</button>
                     </div>
                 </form>
             </div>
@@ -2900,11 +2934,52 @@ function showAddressPlaceholder() {
     document.body.appendChild(modal);
     
     const form = modal.querySelector('#address-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        showNotification('Address saved successfully!', 'success');
-        modal.remove();
-        loadAddressesPlaceholder();
+        
+        const formData = new FormData(form);
+        const addressPayload = {
+            label: formData.get('label') || undefined,
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zipCode: formData.get('zipCode'),
+            country: formData.get('country') || 'Egypt',
+            isDefault: formData.get('isDefault') === 'on'
+        };
+        
+        try {
+            let response;
+            if (typeof UsersAPI === 'undefined') {
+                throw new Error('Address API not available');
+            }
+            
+            if (addressId) {
+                response = await UsersAPI.updateAddress(addressId, addressPayload);
+            } else {
+                response = await UsersAPI.addAddress(addressPayload);
+            }
+            
+            if (response && response.success) {
+                // Update currentUserData and UI
+                if (!currentUserData) {
+                    currentUserData = AuthAPI.getCurrentUser() || {};
+                }
+                currentUserData.addresses = response.data || response.addresses || [];
+                if (typeof AuthAPI !== 'undefined' && AuthAPI.setCurrentUser) {
+                    AuthAPI.setCurrentUser(currentUserData);
+                }
+                localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                loadAddresses(currentUserData);
+                showNotification(addressId ? 'Address updated successfully!' : 'Address added successfully!', 'success');
+                modal.remove();
+            } else {
+                throw new Error(response?.error || 'Failed to save address');
+            }
+        } catch (error) {
+            console.error('Error saving address:', error);
+            showNotification(error.message || 'Error saving address', 'error');
+        }
     });
 }
 

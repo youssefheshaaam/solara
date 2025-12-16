@@ -46,6 +46,66 @@
     .address-actions button:hover { color: var(--accent-color); }
     .empty-state { text-align: center; padding: 3rem; color: var(--text-secondary); }
     .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    
+    /* Modal styles (for Add/Edit Address) */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-content {
+        background-color: var(--bg-primary);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.9);
+        transition: transform 0.2s ease;
+    }
+    
+    .modal-overlay.active .modal-content {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-lg) var(--spacing-xl);
+        border-bottom: 1px solid var(--bg-light);
+    }
+    
+    .modal-header h3 {
+        font-size: var(--font-size-xl);
+        margin-bottom: 0;
+        color: var(--text-primary);
+    }
+    
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: var(--font-size-lg);
+        color: var(--text-secondary);
+        cursor: pointer;
+    }
     .loading { text-align: center; padding: 2rem; }
     .loading i { font-size: 2rem; color: var(--accent-color); }
     .preferences-form .form-group { margin-bottom: 1.5rem; }
@@ -471,7 +531,8 @@
                                 avatarUrl = 'http://localhost:5000/uploads/' + avatarUrl;
                             }
                         }
-                        avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">`;
+                        // Simple avatar rendering without complex inline error handler to avoid script parsing issues
+                        avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                     }
                     
                     if (typeof showNotification !== 'undefined') {
@@ -503,19 +564,48 @@
         }
     }
     
-    function editAddress(index) {
-        if (typeof showNotification !== 'undefined') {
-            showNotification('Address editing coming soon!', 'info');
+    async function editAddress(index) {
+        if (!currentUserData || !currentUserData.addresses) return;
+        const addr = currentUserData.addresses[index];
+        if (!addr) return;
+        
+        // Use modal form from main.js if available
+        if (typeof showAddressPlaceholder === 'function') {
+            showAddressPlaceholder(addr, addr._id || addr.id);
         } else {
-            alert('Address editing coming soon!');
+            alert('Address editor is not available');
         }
     }
     
-    function deleteAddress(index) {
-        if (typeof showNotification !== 'undefined') {
-            showNotification('Address deletion coming soon!', 'info');
-        } else {
-            alert('Address deletion coming soon!');
+    async function deleteAddress(index) {
+        if (!currentUserData || !currentUserData.addresses) return;
+        const addr = currentUserData.addresses[index];
+        if (!addr) return;
+        
+        if (!confirm('Are you sure you want to delete this address?')) return;
+        
+        try {
+            if (typeof UsersAPI === 'undefined') {
+                throw new Error('Address API not available');
+            }
+            
+            const id = addr._id || addr.id;
+            const response = await UsersAPI.deleteAddress(id);
+            
+            if (response && response.success) {
+                currentUserData.addresses = response.data || response.addresses || [];
+                if (typeof AuthAPI !== 'undefined' && AuthAPI.setCurrentUser) {
+                    AuthAPI.setCurrentUser(currentUserData);
+                }
+                localStorage.setItem('currentUser', JSON.stringify(currentUserData));
+                loadAddresses(currentUserData);
+                showNotification('Address deleted successfully!', 'success');
+            } else {
+                throw new Error(response?.error || 'Failed to delete address');
+            }
+        } catch (error) {
+            console.error('Error deleting address:', error);
+            showNotification(error.message || 'Error deleting address', 'error');
         }
     }
     

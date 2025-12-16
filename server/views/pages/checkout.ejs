@@ -368,6 +368,111 @@
         color: #28a745;
     }
     
+    /* Order Success Modal */
+    .success-modal {
+        display: none !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    
+    .success-modal.active {
+        display: flex !important;
+    }
+    
+    .success-content {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        max-width: 450px;
+        margin: 1rem;
+        animation: scaleIn 0.3s ease;
+    }
+    
+    @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .success-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .success-content h2 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .success-content p {
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .order-number {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin: 1rem 0;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .success-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .success-actions .btn {
+        flex: 1;
+    }
+    
+    .confirmation-details {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 1.5rem 0;
+        text-align: left;
+    }
+    
+    .confirmation-row {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .confirmation-row:last-child {
+        border-bottom: none;
+    }
+    
+    .confirmation-row i {
+        color: var(--accent-color);
+        font-size: 1.25rem;
+        width: 30px;
+    }
+    
     /* Back Link */
     .back-to-cart {
         display: inline-flex;
@@ -505,14 +610,10 @@
                                 <span>Shipping</span>
                                 <span id="checkout-shipping">FREE</span>
                             </div>
-                            <div class="summary-row">
-                                <span>COD Fee</span>
-                                <span id="checkout-cod-fee">EGP 10.00</span>
-                            </div>
                             <div class="summary-divider"></div>
                             <div class="summary-row total">
                                 <span>Total</span>
-                                <span id="checkout-total">EGP <%= typeof cart !== 'undefined' && cart.total ? (cart.total + 10).toFixed(2) : '10.00' %></span>
+                                <span id="checkout-total">EGP <%= typeof cart !== 'undefined' && cart.total ? cart.total.toFixed(2) : '0.00' %></span>
                             </div>
                         </div>
                         <button type="button" class="btn btn-primary place-order-btn" id="place-order-btn">
@@ -528,7 +629,58 @@
             </div>
         </div>
     </div>
-
+    
+    <!-- Success Modal -->
+    <div class="success-modal" id="success-modal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for shopping with SOLARA</p>
+            <div class="order-number" id="order-number-display">
+                Order #SOL-XXXXXX
+            </div>
+            
+            <div class="confirmation-details">
+                <div class="confirmation-row">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <div>
+                        <strong>Payment Method</strong>
+                        <p>Cash on Delivery</p>
+                    </div>
+                </div>
+                <div class="confirmation-row">
+                    <i class="fas fa-truck"></i>
+                    <div>
+                        <strong>Estimated Delivery</strong>
+                        <p id="delivery-estimate">3-5 Business Days</p>
+                    </div>
+                </div>
+                <div class="confirmation-row">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>Shipping Address</strong>
+                        <p id="shipping-summary">-</p>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: #666; margin-top: 1rem;">
+                Please have <strong id="total-amount">0 EGP</strong> ready when your order arrives.
+            </p>
+            
+            <div class="success-actions">
+                <a href="/orders" class="btn btn-outline">
+                    <i class="fas fa-box"></i> View My Orders
+                </a>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    
 <%- include('../partials/footer.ejs') %>
 
 <script>
