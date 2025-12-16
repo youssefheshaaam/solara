@@ -2584,15 +2584,24 @@ async function handlePlaceOrder(e) {
     
     try {
         // Get form data
+        const firstNameInput = document.getElementById('shipping-first-name') || document.getElementById('firstName');
+        const lastNameInput = document.getElementById('shipping-last-name') || document.getElementById('lastName');
+        const addressInput = document.getElementById('shipping-address') || document.getElementById('address');
+        const cityInput = document.getElementById('shipping-city') || document.getElementById('city');
+        const stateInput = document.getElementById('shipping-state') || document.getElementById('governorate');
+        const zipInput = document.getElementById('shipping-zip') || document.getElementById('zipCode');
+        const countryInput = document.getElementById('shipping-country');
+        const phoneInput = document.getElementById('shipping-phone') || document.getElementById('phone');
+
         const shippingAddress = {
-            firstName: document.getElementById('shipping-first-name')?.value || '',
-            lastName: document.getElementById('shipping-last-name')?.value || '',
-            address: document.getElementById('shipping-address')?.value || '',
-            city: document.getElementById('shipping-city')?.value || '',
-            state: document.getElementById('shipping-state')?.value || '',
-            zipCode: document.getElementById('shipping-zip')?.value || '',
-            country: document.getElementById('shipping-country')?.value || 'USA',
-            phone: document.getElementById('shipping-phone')?.value || ''
+            firstName: firstNameInput?.value || '',
+            lastName: lastNameInput?.value || '',
+            address: addressInput?.value || '',
+            city: cityInput?.value || '',
+            state: stateInput?.value || '',
+            zipCode: zipInput?.value || '',
+            country: countryInput?.value || 'Egypt',
+            phone: phoneInput?.value || ''
         };
         
         const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'card';

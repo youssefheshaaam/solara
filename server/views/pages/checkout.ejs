@@ -534,12 +534,14 @@
         element.querySelector('input[type="radio"]').checked = true;
     }
     
-    // Checkout form handling - keep AJAX for order submission
-    document.getElementById('place-order-btn').addEventListener('click', async function() {
-        if (typeof placeOrderHandler === 'function') {
-            await placeOrderHandler();
-        } else {
-            console.error('placeOrderHandler function not available');
+    // Checkout form handling - delegate to global handler in main.js
+    document.addEventListener('DOMContentLoaded', function() {
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        
+        if (placeOrderBtn && typeof handlePlaceOrder === 'function') {
+            placeOrderBtn.addEventListener('click', handlePlaceOrder);
+        } else if (!window.handlePlaceOrder) {
+            console.error('handlePlaceOrder function not available');
         }
     });
 </script>
