@@ -878,24 +878,33 @@ window.isInWishlist = isInWishlist;
 // ===== ORDER FUNCTIONS =====
 
 async function createOrder(orderData) {
-    try {
-        // Use API if logged in
-        if (typeof OrdersAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
+    const isLoggedIn = (typeof AuthAPI !== 'undefined') && AuthAPI.isLoggedIn && AuthAPI.isLoggedIn();
+
+    // If logged in and API is available, DO NOT silently fall back to localStorage.
+    // Surface validation/other errors so the user can fix them.
+    if (typeof OrdersAPI !== 'undefined' && isLoggedIn) {
+        try {
             const response = await OrdersAPI.create(orderData);
-            if (response.success) {
-                // Clear cart after successful order
+            // apiRequest already throws on non-2xx, so reaching here means success
+            if (response && response.success) {
                 if (typeof CartAPI !== 'undefined') {
                     await CartAPI.clear();
                 }
                 saveCart([]); // Clear local cart too
                 return response.data;
             }
+            // In case API returned an unexpected shape
+            const err = new Error(response?.error || 'Failed to create order');
+            err.errors = response?.errors || [];
+            throw err;
+        } catch (error) {
+            console.error('Error creating order via API:', error);
+            // Re-throw so handlePlaceOrder can show proper validation message
+            throw error;
         }
-    } catch (error) {
-        console.error('Error creating order via API:', error);
     }
     
-    // Fallback to localStorage
+    // Guest / offline fallback using localStorage
     const orders = getOrders();
     const newOrderId = `FS-${new Date().getFullYear()}-${String(orders.length + 1).padStart(3, '0')}`;
     
@@ -908,7 +917,7 @@ async function createOrder(orderData) {
         subtotal: orderData.subtotal || orderData.total,
         status: 'processing',
         shippingAddress: orderData.shippingAddress,
-        paymentMethod: orderData.paymentMethod,
+        paymentMethod: (orderData.payment && orderData.payment.method) || orderData.paymentMethod || 'cash-on-delivery',
         createdAt: new Date().toISOString()
     };
     

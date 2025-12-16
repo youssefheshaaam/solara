@@ -2596,7 +2596,7 @@ async function handlePlaceOrder(e) {
         const shippingAddress = {
             firstName: firstNameInput?.value || '',
             lastName: lastNameInput?.value || '',
-            address: addressInput?.value || '',
+            street: addressInput?.value || '',
             city: cityInput?.value || '',
             state: stateInput?.value || '',
             zipCode: zipInput?.value || '',
@@ -2604,7 +2604,7 @@ async function handlePlaceOrder(e) {
             phone: phoneInput?.value || ''
         };
         
-        const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'card';
+        const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'cash-on-delivery';
         
         // Get cart items
         let items = [];
@@ -2642,6 +2642,11 @@ async function handlePlaceOrder(e) {
         const orderData = {
             items,
             shippingAddress,
+            // For API: use nested payment object
+            payment: {
+                method: paymentMethod
+            },
+            // For local fallback in data.js
             paymentMethod,
             subtotal: total,
             total
@@ -2666,7 +2671,18 @@ async function handlePlaceOrder(e) {
         
     } catch (error) {
         console.error('Error placing order:', error);
-        showNotification(error.message || 'Failed to place order', 'error');
+        // Prefer detailed validation errors from API if available
+        let message = error.message || 'Failed to place order';
+        if (error.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+            const details = error.errors
+                .map(e => e.msg || e.message || e.error)
+                .filter(Boolean)
+                .join('<br>');
+            if (details) {
+                message = details;
+            }
+        }
+        showNotification(message, 'error');
     } finally {
         if (placeOrderBtn) {
             placeOrderBtn.disabled = false;
