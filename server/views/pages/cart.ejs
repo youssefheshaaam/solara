@@ -490,99 +490,237 @@
 <%- include('../partials/footer.ejs') %>
 
 <script>
+    // Normalize cart data from API or localStorage into a common shape for rendering
+    function normalizeCartData(raw) {
+        const data = raw && raw.data ? raw.data : raw || {};
+        const items = Array.isArray(data.items) ? data.items : [];
+        const products = (typeof getProducts === 'function') ? getProducts() : [];
+
+        const normalizedItems = items.map(item => {
+            const baseProductId = item.product?._id || item.product || item.productId;
+            const product =
+                item.product ||
+                products.find(p =>
+                    String(p._id || p.id) === String(baseProductId)
+                ) || {};
+
+            const price = item.price || product.price || 0;
+            const quantity = item.quantity || 1;
+
+            return {
+                productId: String(baseProductId),
+                product,
+                quantity,
+                price,
+                size: item.size,
+                color: item.color
+            };
+        });
+
+        const itemCount =
+            typeof data.itemCount === 'number'
+                ? data.itemCount
+                : normalizedItems.reduce((sum, i) => sum + i.quantity, 0);
+
+        const subtotal =
+            typeof data.subtotal === 'number'
+                ? data.subtotal
+                : normalizedItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+        const total =
+            typeof data.total === 'number'
+                ? data.total
+                : subtotal;
+
+        return { items: normalizedItems, itemCount, subtotal, total };
+    }
+
+    // Render cart items and totals in-place from normalized cart data
+    function renderCartFromData(cartData) {
+        const { items, itemCount, subtotal, total } = normalizeCartData(cartData);
+
+        const cartItemsContainer = document.getElementById('cart-items');
+        const itemCountBadge = document.getElementById('item-count');
+        const subtotalEl = document.getElementById('subtotal');
+        const totalEl = document.getElementById('total');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+
+        if (!cartItemsContainer) return;
+
+        if (!items || items.length === 0) {
+            cartItemsContainer.innerHTML = `
+                <div class=\"empty-cart\">
+                    <i class=\"fas fa-shopping-cart\"></i>
+                    <h2>Your cart is empty</h2>
+                    <p>Add some items to your cart to continue shopping</p>
+                    <a href=\"/\" class=\"btn btn-primary\">Continue Shopping</a>
+                </div>
+            `;
+        } else {
+            const html = items
+                .map(item => {
+                    const product = item.product || {};
+                    const imagePath = product.imageUrl || product.image || (product.images && product.images[0]?.url) || 'images/placeholder.jpg';
+                    const imageUrl = (typeof getImageUrl === 'function') ? getImageUrl(imagePath) : imagePath;
+                    const size = item.size || 'M';
+                    const color = item.color || 'Default';
+                    const unitPrice = item.price || product.price || 0;
+
+                    return `
+                        <div class=\"cart-item\" data-product-id=\"${item.productId}\">
+                            <div class=\"cart-item-image\">
+                                <img src=\"${imageUrl}\" alt=\"${product.name || ''}\" onerror=\"this.src='/images/placeholder.jpg';\">
+                            </div>
+                            <div class=\"cart-item-details\">
+                                <div class=\"cart-item-name\">
+                                    <a href=\"/product/${item.productId}\">${product.name || 'Product'}</a>
+                                </div>
+                                <div class=\"cart-item-meta\">
+                                    Size: ${size} | Color: ${color}
+                                </div>
+                                <div class=\"cart-item-price\">EGP ${unitPrice.toFixed(2)}</div>
+                            </div>
+                            <div class=\"cart-item-actions\">
+                                <div class=\"quantity-control\">
+                                    <button class=\"qty-btn\" onclick=\"updateCartQuantity('${item.productId}', -1)\">−</button>
+                                    <input type=\"number\" class=\"qty-value\" data-product-id=\"${item.productId}\" value=\"${item.quantity}\" min=\"1\" max=\"${product.stock || 10}\" onchange=\"updateCartQuantity('${item.productId}', 0, this.value)\">
+                                    <button class=\"qty-btn\" onclick=\"updateCartQuantity('${item.productId}', 1)\">+</button>
+                                </div>
+                                <button class=\"remove-btn\" onclick=\"removeFromCart('${item.productId}')\">
+                                    <i class=\"fas fa-trash\"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join('');
+
+            cartItemsContainer.innerHTML = html;
+        }
+
+        if (itemCountBadge) itemCountBadge.textContent = itemCount || 0;
+        if (subtotalEl) subtotalEl.textContent = `EGP ${Number(subtotal || 0).toFixed(2)}`;
+        if (totalEl) totalEl.textContent = `EGP ${Number(total || 0).toFixed(2)}`;
+
+        if (checkoutBtn) {
+            if (!items || items.length === 0) {
+                checkoutBtn.style.pointerEvents = 'none';
+                checkoutBtn.style.opacity = '0.5';
+            } else {
+                checkoutBtn.style.pointerEvents = '';
+                checkoutBtn.style.opacity = '1';
+            }
+        }
+
+        // Update navbar cart count if helper exists
+        if (typeof updateCartCount === 'function') {
+            updateCartCount();
+        }
+    }
+
     async function updateCartQuantity(productId, change, value) {
         try {
             let newQuantity;
             if (value !== undefined && value !== null) {
-                newQuantity = parseInt(value);
+                newQuantity = parseInt(value, 10);
             } else {
-                const input = document.querySelector(`[data-product-id="${productId}"] .qty-value`);
+                const input = document.querySelector(`[data-product-id=\"${productId}\"] .qty-value`);
                 if (input) {
-                    newQuantity = parseInt(input.value) + (change || 0);
+                    newQuantity = parseInt(input.value, 10) + (change || 0);
                 } else {
                     throw new Error('Quantity input not found');
                 }
             }
-            
-            if (newQuantity < 1) {
+
+            if (Number.isNaN(newQuantity) || newQuantity < 1) {
                 newQuantity = 1;
             }
-            
-            // Update via API if logged in
-            if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
-                const response = await CartAPI.update(productId, newQuantity);
-                if (response.success) {
-                    window.location.reload(); // Reload to update cart
-                } else {
-                    throw new Error(response.error || 'Failed to update quantity');
-                }
+
+            let response;
+            if (typeof CartAPI !== 'undefined') {
+                response = await CartAPI.update(productId, newQuantity);
             } else if (typeof updateCartItemQuantity === 'function') {
                 // Fallback to data.js function
-                await updateCartItemQuantity(productId, newQuantity);
-                window.location.reload();
-            } else {
-                // Fallback: update localStorage
-                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                const item = cart.find(i => String(i.productId) === String(productId));
-                if (item) {
-                    item.quantity = newQuantity;
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    window.location.reload();
-                }
+                response = await updateCartItemQuantity(productId, newQuantity);
+            }
+
+            if (!response || response.success !== true) {
+                throw new Error((response && response.error) || 'Failed to update quantity');
+            }
+
+            renderCartFromData(response.data || response);
+            if (typeof showNotification === 'function') {
+                showNotification('Cart updated', 'success');
             }
         } catch (error) {
             console.error('Error updating cart quantity:', error);
-            alert('Failed to update quantity: ' + error.message);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to update quantity', 'error');
+            } else {
+                alert('Failed to update quantity: ' + error.message);
+            }
         }
     }
-    
+
     async function removeFromCart(productId) {
         try {
-            if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
-                const response = await CartAPI.remove(productId);
-                if (response.success) {
-                    window.location.reload(); // Reload to update cart
-                } else {
-                    throw new Error(response.error || 'Failed to remove item');
-                }
+            let response;
+            if (typeof CartAPI !== 'undefined') {
+                response = await CartAPI.remove(productId);
             } else if (typeof window.removeFromCart === 'function' && window.removeFromCart !== removeFromCart) {
-                // Fallback to data.js function (if it exists globally and is different)
-                await window.removeFromCart(productId);
-                window.location.reload();
-            } else {
-                // Fallback: remove from localStorage
-                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                const filtered = cart.filter(item => String(item.productId) !== String(productId));
-                localStorage.setItem('cart', JSON.stringify(filtered));
-                window.location.reload();
+                response = await window.removeFromCart(productId);
+            }
+
+            if (!response || response.success !== true) {
+                throw new Error((response && response.error) || 'Failed to remove item');
+            }
+
+            renderCartFromData(response.data || response);
+            if (typeof showNotification === 'function') {
+                showNotification('Item removed from cart', 'success');
             }
         } catch (error) {
             console.error('Error removing from cart:', error);
-            alert('Failed to remove item from cart: ' + error.message);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to remove item from cart', 'error');
+            } else {
+                alert('Failed to remove item from cart: ' + error.message);
+            }
         }
     }
-    
+
     async function clearCart() {
-        if (confirm('Are you sure you want to clear your cart?')) {
-            try {
-                if (typeof CartAPI !== 'undefined' && typeof AuthAPI !== 'undefined' && AuthAPI.isLoggedIn()) {
-                    const response = await CartAPI.clear();
-                    if (response.success) {
-                        window.location.reload(); // Reload to update cart
-                    } else {
-                        throw new Error(response.error || 'Failed to clear cart');
-                    }
-                } else if (typeof window.clearCart === 'function' && window.clearCart !== clearCart) {
-                    // Fallback to data.js function (if it exists globally and is different)
-                    window.clearCart();
-                    window.location.reload();
+        if (!confirm('Are you sure you want to clear your cart?')) return;
+
+        try {
+            let response;
+            if (typeof CartAPI !== 'undefined') {
+                response = await CartAPI.clear();
+            } else if (typeof window.clearCart === 'function' && window.clearCart !== clearCart) {
+                response = await window.clearCart();
+            } else {
+                // Fallback: clear guest cart
+                if (typeof clearCart === 'function') {
+                    clearCart();
                 } else {
-                    // Fallback: clear localStorage
                     localStorage.removeItem('cart');
-                    window.location.reload();
                 }
-            } catch (error) {
-                console.error('Error clearing cart:', error);
+                response = { success: true, data: { items: [], subtotal: 0, total: 0, itemCount: 0 } };
+            }
+
+            if (!response || response.success !== true) {
+                throw new Error((response && response.error) || 'Failed to clear cart');
+            }
+
+            renderCartFromData({ items: [], subtotal: 0, total: 0, itemCount: 0 });
+            if (typeof showNotification === 'function') {
+                showNotification('Cart cleared', 'success');
+            }
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+            if (typeof showNotification === 'function') {
+                showNotification(error.message || 'Failed to clear cart', 'error');
+            } else {
                 alert('Failed to clear cart: ' + error.message);
             }
         }
