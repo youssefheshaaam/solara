@@ -318,11 +318,21 @@
         
         const avatar = document.getElementById('profile-avatar-display');
         if (user.avatar) {
+            const baseUrl = window.location.origin || 'http://localhost:5000';
+            let avatarPath = user.avatar;
+            if (!avatarPath.startsWith('http')) {
+                if (!avatarPath.startsWith('/')) {
+                    avatarPath = '/' + avatarPath;
+                }
+                avatarPath = baseUrl + avatarPath;
+            }
+            
             const img = avatar.querySelector('img');
             if (img) {
-                img.src = user.avatar.startsWith('http') ? user.avatar : '/uploads/' + user.avatar;
+                img.src = avatarPath;
             } else {
-                avatar.innerHTML = `<img src="${user.avatar.startsWith('http') ? user.avatar : '/uploads/' + user.avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">`;
+                // Simple avatar rendering without inline error handler
+                avatar.innerHTML = `<img src="${avatarPath}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
             }
         } else if (user.firstName) {
             const initials = (user.firstName[0] || '') + (user.lastName?.[0] || '');
@@ -486,6 +496,17 @@
             avatarUpload.addEventListener('change', async function(e) {
                 const file = e.target.files[0];
                 if (file) {
+                    // Require edit mode before changing avatar to match UX expectations
+                    if (!isEditing) {
+                        if (typeof showNotification !== 'undefined') {
+                            showNotification('Click "Edit Profile" before changing your picture.', 'info');
+                        } else {
+                            alert('Click "Edit Profile" before changing your picture.');
+                        }
+                        // Reset file input
+                        avatarUpload.value = '';
+                        return;
+                    }
                     if (fileNameSpan) {
                         fileNameSpan.textContent = file.name;
                     }
@@ -525,13 +546,12 @@
                     if (response.data && response.data.avatar) {
                         let avatarUrl = response.data.avatar;
                         if (!avatarUrl.startsWith('http')) {
-                            if (avatarUrl.startsWith('/uploads/')) {
-                                avatarUrl = 'http://localhost:5000' + avatarUrl;
-                            } else {
-                                avatarUrl = 'http://localhost:5000/uploads/' + avatarUrl;
+                            // Normalize to single leading slash, then prepend server origin
+                            if (!avatarUrl.startsWith('/')) {
+                                avatarUrl = '/' + avatarUrl;
                             }
+                            avatarUrl = 'http://localhost:5000' + avatarUrl;
                         }
-                        // Simple avatar rendering without complex inline error handler to avoid script parsing issues
                         avatar.innerHTML = `<img src="${avatarUrl}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                     }
                     
