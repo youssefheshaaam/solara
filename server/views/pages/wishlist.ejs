@@ -15,7 +15,7 @@
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <button class="wishlist-btn active" onclick="removeFromWishlistPage('<%= product._id %>', this); return false;" title="Remove from wishlist">
                                     <i class="fas fa-heart"></i>
@@ -171,7 +171,7 @@
             const productsHTML = products.map(product => {
                 const imageUrl = product.imageUrl || (product.image ? `/uploads/${product.image}` : '/images/placeholder.svg');
                 const category = product.category || 'fashion';
-                const saleBadge = product.comparePrice ? '<div class="sale-badge">SALE</div>' : '';
+                const saleBadge = product.comparePrice ? '<div class="sale-badge">' + (typeof __ !== 'undefined' ? __("home.sale") : "SALE") + '</div>' : '';
                 
                 return `
                     <div class="product-card" data-product-id="${product._id}">

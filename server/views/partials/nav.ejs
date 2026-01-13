@@ -46,6 +46,20 @@
                     <a href="/admin" class="nav-icon <%= typeof user !== 'undefined' && user && user.role === 'admin' ? '' : 'subtle' %>" id="admin-link" title="<%= typeof __ !== 'undefined' ? __("nav.admin") : 'Admin' %>">
                         <i class="fas fa-cog"></i>
                     </a>
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <button class="nav-icon" id="lang-toggle" title="<%= typeof __ !== 'undefined' ? __("nav.language") : 'Language' %>">
+                            <i class="fas fa-globe"></i>
+                        </button>
+                        <div class="language-dropdown" id="language-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 120px; z-index: 1000;">
+                            <button class="language-option <%= typeof locale !== 'undefined' && locale === 'en' ? 'active' : '' %>" data-lang="en" style="display: block; width: 100%; padding: 0.75rem 1rem; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.9rem;">
+                                🇬🇧 English
+                            </button>
+                            <button class="language-option <%= typeof locale !== 'undefined' && locale === 'ar' ? 'active' : '' %>" data-lang="ar" style="display: block; width: 100%; padding: 0.75rem 1rem; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.9rem;">
+                                🇪🇬 العربية
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -130,6 +144,56 @@
                 
                 // Redirect to login
                 window.location.href = '/login';
+            });
+        }
+        
+        // Language selector
+        const langToggle = document.getElementById('lang-toggle');
+        const langDropdown = document.getElementById('language-dropdown');
+        
+        if (langToggle && langDropdown) {
+            langToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                langDropdown.style.display = langDropdown.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!langToggle.contains(e.target) && !langDropdown.contains(e.target)) {
+                    langDropdown.style.display = 'none';
+                }
+            });
+            
+            // Language option click
+            const langOptions = document.querySelectorAll('.language-option');
+            langOptions.forEach(option => {
+                option.addEventListener('click', async function() {
+                    const lang = this.dataset.lang;
+                    try {
+                        const response = await fetch('/api/set-language', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ lang })
+                        });
+                        
+                        if (response.ok) {
+                            // Set RTL for Arabic
+                            if (lang === 'ar') {
+                                document.documentElement.setAttribute('dir', 'rtl');
+                                document.documentElement.setAttribute('lang', 'ar');
+                            } else {
+                                document.documentElement.setAttribute('dir', 'ltr');
+                                document.documentElement.setAttribute('lang', 'en');
+                            }
+                            // Reload page to apply translations
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error setting language:', error);
+                    }
+                });
             });
         }
     })();

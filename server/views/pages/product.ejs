@@ -538,9 +538,9 @@
                 <!-- Product Info -->
                 <div class="product-info">
                     <nav class="product-breadcrumb">
-                        <a href="/">Home</a>
+                        <a href="/"><%= typeof __ !== 'undefined' ? __("nav.home") : "Home" %></a>
                         <i class="fas fa-chevron-right"></i>
-                        <a href="/<%= product.category %>"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></a>
+                        <a href="/<%= product.category %>"><%= product.category === 'men' ? (typeof __ !== 'undefined' ? __("nav.men") : "Men") : (typeof __ !== 'undefined' ? __("nav.women") : "Women") %></a>
                         <i class="fas fa-chevron-right"></i>
                         <span><%= product.name %></span>
                     </nav>
@@ -555,7 +555,7 @@
                                 <i class="fas fa-star<%= i < Math.floor(rating) ? '' : (i < rating ? '-half-alt' : '') %>"></i>
                             <% } %>
                         </div>
-                        <span class="rating-count"><%= rating.toFixed(1) %> (<%= product.ratings?.count || 0 %> reviews)</span>
+                        <span class="rating-count"><%= rating.toFixed(1) %> (<%= product.ratings?.count || 0 %> <%= typeof __ !== 'undefined' ? __("product.reviews") : "reviews" %>)</span>
                     </div>
                     
                     <div class="product-price-section">
@@ -563,7 +563,7 @@
                         <% if (product.comparePrice) { %>
                             <span class="original-price">EGP <%= product.comparePrice.toFixed(2) %></span>
                             <% const discount = Math.round((1 - product.price / product.comparePrice) * 100); %>
-                            <span class="discount-badge"><%= discount %>% OFF</span>
+                            <span class="discount-badge"><%= discount %>% <%= typeof __ !== 'undefined' ? __("home.off") : "OFF" %></span>
                         <% } %>
                     </div>
                     
@@ -572,7 +572,7 @@
                     <div class="product-options">
                         <!-- Size Selection -->
                         <div class="option-group">
-                            <label class="option-label">Size: <span id="selected-size"><%= (product.sizes && product.sizes[0]) || 'M' %></span></label>
+                            <label class="option-label"><%= typeof __ !== 'undefined' ? __("product.size") : "Size" %>: <span id="selected-size"><%= (product.sizes && product.sizes[0]) || 'M' %></span></label>
                             <div class="size-options">
                                 <% const sizes = product.sizes || ['S', 'M', 'L', 'XL']; %>
                                 <% sizes.forEach(size => { %>
@@ -584,7 +584,7 @@
                         <!-- Color Selection -->
                         <% if (product.colors && product.colors.length > 0) { %>
                         <div class="option-group">
-                            <label class="option-label">Color: <span id="selected-color"><%= product.colors[0] %></span></label>
+                            <label class="option-label"><%= typeof __ !== 'undefined' ? __("product.color") : "Color" %>: <span id="selected-color"><%= product.colors[0] %></span></label>
                             <div class="color-options">
                                 <% product.colors.forEach(color => { %>
                                     <button class="color-btn" onclick="selectColor('<%= color %>', this)" title="<%= color %>"></button>
@@ -602,7 +602,7 @@
                             <button class="qty-btn" onclick="updateQuantity(1)">+</button>
                         </div>
                         <span class="stock-status <%= product.stock > 0 ? 'in-stock' : 'out-of-stock' %>">
-                            <%= product.stock > 0 ? 'In Stock' : 'Out of Stock' %>
+                            <%= product.stock > 0 ? (typeof __ !== 'undefined' ? __("product.inStock") : "In Stock") : (typeof __ !== 'undefined' ? __("product.outOfStock") : "Out of Stock") %>
                         </span>
                     </div>
                     
@@ -610,7 +610,7 @@
                     <div class="product-actions">
                         <button class="btn btn-primary btn-add-to-cart" id="main-add-to-cart-btn" data-product-id="<%= product._id %>" onclick="addProductToCart('<%= product._id %>')" <%= product.stock <= 0 ? 'disabled' : '' %>>
                             <i class="fas fa-shopping-cart"></i>
-                            <span class="btn-text"><%= product.stock > 0 ? 'Add to Cart' : 'Out of Stock' %></span>
+                            <span class="btn-text"><%= product.stock > 0 ? (typeof __ !== 'undefined' ? __("product.addToCart") : "Add to Cart") : (typeof __ !== 'undefined' ? __("product.outOfStock") : "Out of Stock") %></span>
                         </button>
                         <button class="btn-wishlist" id="main-wishlist-btn" data-product-id="<%= product._id %>" onclick="toggleProductWishlist('<%= product._id %>', this)">
                             <i class="fas fa-heart"></i>
@@ -619,8 +619,8 @@
                 </div>
             <% } else { %>
                 <div class="empty-state">
-                    <h2>Product not found</h2>
-                    <a href="/" class="btn btn-primary">Back to Home</a>
+                    <h2><%= typeof __ !== 'undefined' ? __("products.notFound") : "Product not found" %></h2>
+                    <a href="/" class="btn btn-primary"><%= typeof __ !== 'undefined' ? __("checkout.backToHome") : "Back to Home" %></a>
                 </div>
             <% } %>
         </div>
@@ -629,13 +629,13 @@
         <% if (typeof relatedProducts !== 'undefined' && relatedProducts.length > 0) { %>
         <section class="related-products" style="padding: 4rem 0; background: var(--bg-light);">
             <div class="container">
-                <h2 class="section-title">You May Also Like</h2>
+                <h2 class="section-title"><%= typeof __ !== 'undefined' ? __("product.relatedProducts") : "You May Also Like" %></h2>
                 <div class="products-grid">
                     <% relatedProducts.forEach(product => { %>
                         <div class="product-card" data-product-id="<%= product._id %>" onclick="window.location.href='/product/<%= product._id %>'" style="cursor: pointer;">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none';">
                             </div>

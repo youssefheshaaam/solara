@@ -100,15 +100,15 @@
     <!-- New Arrivals Section -->
     <section class="products-section">
         <div class="container">
-            <h2 class="section-title">New Arrivals</h2>
-            <p class="text-center" style="margin-bottom: 2rem; color: #666;">Fresh styles just added to our collection</p>
+            <h2 class="section-title"><%= typeof __ !== 'undefined' ? __("home.newArrivals") : "New Arrivals" %></h2>
+            <p class="text-center" style="margin-bottom: 2rem; color: #666;"><%= typeof __ !== 'undefined' ? __("home.newArrivalsDescription") : "Fresh styles just added to our collection" %></p>
             <div class="products-grid" id="new-arrivals-grid">
                 <% if (typeof newArrivals !== 'undefined' && newArrivals.length > 0) { %>
                     <% newArrivals.slice(0, 8).forEach(product => { %>
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <div class="image-placeholder" style="display:none;">
@@ -122,14 +122,14 @@
                                 <div class="product-actions">
                                     <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
                                         <i class="fas fa-shopping-cart"></i>
-                                        Add to Cart
+                                        <%= typeof __ !== 'undefined' ? __("home.addToCart") : "Add to Cart" %>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <p class="text-center">No new arrivals at the moment. Check back soon!</p>
+                    <p class="text-center"><%= typeof __ !== 'undefined' ? __("home.noNewArrivals") : "No new arrivals at the moment. Check back soon!" %></p>
                 <% } %>
             </div>
         </div>
@@ -141,9 +141,9 @@
             <img src="/images/Sale.gif" alt="Sale Animation" class="sale-gif" onerror="this.style.display='none'">
             <div class="sale-overlay">
                 <div class="sale-text">
-                    <h2 class="display-heading">MASSIVE SAVINGS</h2>
-                    <p>Up to 30% off on selected items</p>
-                    <a href="#featured" class="btn btn-outline-light">SHOP SALE</a>
+                    <h2 class="display-heading"><%= typeof __ !== 'undefined' ? __("home.massiveSavings") : "MASSIVE SAVINGS" %></h2>
+                    <p><%= typeof __ !== 'undefined' ? __("home.savingsDescription") : "Up to 30% off on selected items" %></p>
+                    <a href="#featured" class="btn btn-outline-light"><%= typeof __ !== 'undefined' ? __("home.shopSale") : "SHOP SALE" %></a>
                 </div>
             </div>
         </div>
@@ -152,11 +152,11 @@
     <!-- Featured Products Section -->
     <section id="featured" class="products-section">
         <div class="container">
-            <h2 class="section-title">Curated Essentials</h2>
+            <h2 class="section-title"><%= typeof __ !== 'undefined' ? __("home.curatedEssentials") : "Curated Essentials" %></h2>
             <div class="filter-controls">
-                <button class="filter-btn active" data-category="all">All</button>
-                <button class="filter-btn" data-category="men">Men</button>
-                <button class="filter-btn" data-category="women">Women</button>
+                <button class="filter-btn active" data-category="all"><%= typeof __ !== 'undefined' ? __("home.all") : "All" %></button>
+                <button class="filter-btn" data-category="men"><%= typeof __ !== 'undefined' ? __("nav.men") : "Men" %></button>
+                <button class="filter-btn" data-category="women"><%= typeof __ !== 'undefined' ? __("nav.women") : "Women" %></button>
             </div>
             <div class="products-grid" id="products-grid">
                 <% if (typeof featuredProducts !== 'undefined' && featuredProducts.length > 0) { %>
@@ -164,7 +164,7 @@
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <div class="image-placeholder" style="display:none;">
@@ -178,14 +178,14 @@
                                 <div class="product-actions">
                                     <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
                                         <i class="fas fa-shopping-cart"></i>
-                                        Add to Cart
+                                        <%= typeof __ !== 'undefined' ? __("home.addToCart") : "Add to Cart" %>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <p class="text-center">No featured products at the moment.</p>
+                    <p class="text-center"><%= typeof __ !== 'undefined' ? __("home.noFeaturedProducts") : "No featured products at the moment." %></p>
                 <% } %>
             </div>
         </div>
@@ -194,7 +194,7 @@
     <!-- Categories Section -->
     <section class="categories-section">
         <div class="container">
-            <h2 class="section-title">Collections</h2>
+            <h2 class="section-title"><%= typeof __ !== 'undefined' ? __("home.collections") : "Collections" %></h2>
             <div class="categories-grid">
                 <div class="category-card" onclick="window.location.href='/men'">
                     <img src="/images/Men.png" alt="Men's Fashion" onerror="this.style.background='#f5f5f5'">
@@ -219,14 +219,14 @@
     <!-- Best Sellers Section -->
     <section class="products-section" style="background-color: var(--bg-light);">
         <div class="container">
-            <h2 class="section-title">BEST SELLERS</h2>
+            <h2 class="section-title"><%= typeof __ !== 'undefined' ? __("home.bestSellersUppercase") : "BEST SELLERS" %></h2>
             <div class="products-grid" id="best-sellers-grid">
                 <% if (typeof bestSellers !== 'undefined' && bestSellers.length > 0) { %>
                     <% bestSellers.slice(0, 8).forEach(product => { %>
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <div class="image-placeholder" style="display:none;">
@@ -240,18 +240,18 @@
                                 <div class="product-actions">
                                     <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
                                         <i class="fas fa-shopping-cart"></i>
-                                        Add to Cart
+                                        <%= typeof __ !== 'undefined' ? __("home.addToCart") : "Add to Cart" %>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     <% }); %>
                 <% } else { %>
-                    <p class="text-center">No best sellers at the moment.</p>
+                    <p class="text-center"><%= typeof __ !== 'undefined' ? __("home.noBestSellers") : "No best sellers at the moment." %></p>
                 <% } %>
             </div>
             <div class="text-center" style="margin-top: 2rem;">
-                <a href="#featured" class="btn btn-outline">View All</a>
+                <a href="#featured" class="btn btn-outline"><%= typeof __ !== 'undefined' ? __("home.viewAll") : "View All" %></a>
             </div>
         </div>
     </section>

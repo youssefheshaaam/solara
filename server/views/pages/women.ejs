@@ -6,12 +6,12 @@
     <section class="page-hero">
         <div class="container">
             <div class="page-hero-content">
-                <h1>Women's Collection</h1>
-                <p>Explore our elegant and stylish women's fashion collection</p>
+                <h1><%= typeof __ !== 'undefined' ? __("category.womensCollection") : "Women's Collection" %></h1>
+                <p><%= typeof __ !== 'undefined' ? __("category.discoverWomens") : "Discover our latest women's fashion trends and timeless classics" %></p>
                 <nav class="breadcrumb">
-                    <a href="/">Home</a>
+                    <a href="/"><%= typeof __ !== 'undefined' ? __("nav.home") : "Home" %></a>
                     <span>/</span>
-                    <span>Women's Collection</span>
+                    <span><%= typeof __ !== 'undefined' ? __("category.womensCollection") : "Women's Collection" %></span>
                 </nav>
             </div>
         </div>
@@ -22,28 +22,28 @@
         <div class="container">
             <div class="filters-container" style="display: flex; gap: 2rem; align-items: flex-end; flex-wrap: wrap; justify-content: center;">
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Filter by Category</h3>
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;"><%= typeof __ !== 'undefined' ? __("filters.filterByCategory") : "Filter by Category" %></h3>
                     <div class="filter-options" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'all' ? 'active' : '' %>" data-subcategory="all" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">All Items</button>
-                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'tops' ? 'active' : '' %>" data-subcategory="tops" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Tops</button>
-                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'pants' ? 'active' : '' %>" data-subcategory="pants" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Pants</button>
-                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'shoes' ? 'active' : '' %>" data-subcategory="shoes" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;">Shoes</button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'all' ? 'active' : '' %>" data-subcategory="all" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;"><%= typeof __ !== 'undefined' ? __("filters.allItems") : "All Items" %></button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'tops' ? 'active' : '' %>" data-subcategory="tops" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;"><%= typeof __ !== 'undefined' ? __("filters.tops") : "Tops" %></button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'pants' ? 'active' : '' %>" data-subcategory="pants" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;"><%= typeof __ !== 'undefined' ? __("filters.pants") : "Pants" %></button>
+                        <button class="filter-btn subcategory-filter <%= typeof filters !== 'undefined' && filters.subcategory === 'shoes' ? 'active' : '' %>" data-subcategory="shoes" style="padding: 0.5rem 1.25rem; border: 2px solid #ddd; background: white; color: #666; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; font-weight: 500;"><%= typeof __ !== 'undefined' ? __("filters.shoes") : "Shoes" %></button>
                     </div>
                 </div>
                 
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Sort by</h3>
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;"><%= typeof __ !== 'undefined' ? __("filters.sortBy") : "Sort by" %></h3>
                     <select class="sort-select" id="sort-select" style="padding: 0.5rem 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; font-size: 0.9rem; cursor: pointer; min-width: 180px;">
-                        <option value="newest" <%= typeof filters !== 'undefined' && filters.sort === 'newest' ? 'selected' : '' %>>Newest First</option>
-                        <option value="price-low" <%= typeof filters !== 'undefined' && filters.sort === 'price-low' ? 'selected' : '' %>>Price: Low to High</option>
-                        <option value="price-high" <%= typeof filters !== 'undefined' && filters.sort === 'price-high' ? 'selected' : '' %>>Price: High to Low</option>
-                        <option value="name-asc" <%= typeof filters !== 'undefined' && filters.sort === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
-                        <option value="name-desc" <%= typeof filters !== 'undefined' && filters.sort === 'name-desc' ? 'selected' : '' %>>Name: Z to A</option>
+                        <option value="newest" <%= typeof filters !== 'undefined' && filters.sort === 'newest' ? 'selected' : '' %>><%= typeof __ !== 'undefined' ? __("filters.newestFirst") : "Newest First" %></option>
+                        <option value="price-low" <%= typeof filters !== 'undefined' && filters.sort === 'price-low' ? 'selected' : '' %>><%= typeof __ !== 'undefined' ? __("filters.priceLowHigh") : "Price: Low to High" %></option>
+                        <option value="price-high" <%= typeof filters !== 'undefined' && filters.sort === 'price-high' ? 'selected' : '' %>><%= typeof __ !== 'undefined' ? __("filters.priceHighLow") : "Price: High to Low" %></option>
+                        <option value="name-asc" <%= typeof filters !== 'undefined' && filters.sort === 'name-asc' ? 'selected' : '' %>><%= typeof __ !== 'undefined' ? __("filters.nameAZ") : "Name: A to Z" %></option>
+                        <option value="name-desc" <%= typeof filters !== 'undefined' && filters.sort === 'name-desc' ? 'selected' : '' %>><%= typeof __ !== 'undefined' ? __("filters.nameZA") : "Name: Z to A" %></option>
                     </select>
                 </div>
                 
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem; min-width: 200px;">
-                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Price Range</h3>
+                    <h3 style="font-size: 0.9rem; font-weight: 600; color: #666; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;"><%= typeof __ !== 'undefined' ? __("filters.priceRange") : "Price Range" %></h3>
                     <div class="price-range" style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <input type="range" id="price-range" min="700" max="5000" value="<%= typeof filters !== 'undefined' && filters.maxPrice ? filters.maxPrice : '5000' %>" step="50" style="width: 100%;">
                         <div class="price-labels" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #666;">
@@ -56,7 +56,7 @@
                 <% if (typeof filters !== 'undefined' && (filters.subcategory !== 'all' || filters.minPrice || filters.maxPrice)) { %>
                 <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <button class="btn btn-outline" id="clear-filters-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                        <i class="fas fa-times"></i> Clear Filters
+                        <i class="fas fa-times"></i> <%= typeof __ !== 'undefined' ? __("filters.clearFilters") : "Clear Filters" %>
                     </button>
                 </div>
                 <% } %>
@@ -68,8 +68,8 @@
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2>Women's Fashion</h2>
-                <p>Showing <span id="product-count"><%= typeof pagination !== 'undefined' ? pagination.totalProducts : 0 %></span> products</p>
+                <h2><%= typeof __ !== 'undefined' ? __("category.womensFashion") : "Women's Fashion" %></h2>
+                <p><%= typeof __ !== 'undefined' ? __("category.showingProducts") : "Showing" %> <span id="product-count"><%= typeof pagination !== 'undefined' ? pagination.totalProducts : 0 %></span> <%= typeof __ !== 'undefined' ? __("category.products") : "products" %></p>
             </div>
             
             <div class="products-grid" id="products-grid">
@@ -78,7 +78,7 @@
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <div class="image-placeholder" style="display:none;">
@@ -92,7 +92,7 @@
                                 <div class="product-actions">
                                     <button class="btn btn-primary btn-add-to-cart" data-product-id="<%= product._id %>">
                                         <i class="fas fa-shopping-cart"></i>
-                                        Add to Cart
+                                        <%= typeof __ !== 'undefined' ? __("product.addToCart") : "Add to Cart" %>
                                     </button>
                                 </div>
                             </div>
@@ -101,8 +101,8 @@
                 <% } else { %>
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
-                        <h3>No products found</h3>
-                        <p>We're working on adding more women's products. Check back soon!</p>
+                        <h3><%= typeof __ !== 'undefined' ? __("category.noProducts") : "No products found" %></h3>
+                        <p><%= typeof __ !== 'undefined' ? __("category.adjustFilters") : "Try adjusting your filters or check back later for new arrivals." %></p>
                     </div>
                 <% } %>
             </div>
@@ -121,17 +121,17 @@
     <!-- Size Guide Section -->
     <section class="size-guide" style="padding: 4rem 0;">
         <div class="container">
-            <h2 style="text-align: center; margin-bottom: 3rem;">Women's Size Guide</h2>
+            <h2 style="text-align: center; margin-bottom: 3rem;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensSizeGuide") : "Women's Size Guide" %></h2>
             <div class="size-guide-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1000px; margin: 0 auto;">
                 <div class="size-chart">
-                    <h3 style="margin-bottom: 1.5rem;">Clothing Sizes</h3>
+                    <h3 style="margin-bottom: 1.5rem;"><%= typeof __ !== 'undefined' ? __("sizeGuide.clothingSizes") : "Clothing Sizes" %></h3>
                     <table class="size-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: #f5f5f5;">
-                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Size</th>
-                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Bust (in)</th>
-                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Waist (in)</th>
-                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;">Hip (in)</th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;"><%= typeof __ !== 'undefined' ? __("sizeGuide.size") : "Size" %></th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;"><%= typeof __ !== 'undefined' ? __("sizeGuide.bust") : "Bust (in)" %></th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;"><%= typeof __ !== 'undefined' ? __("sizeGuide.waist") : "Waist (in)" %></th>
+                                <th style="padding: 1rem; text-align: left; border: 1px solid #ddd;"><%= typeof __ !== 'undefined' ? __("sizeGuide.hip") : "Hip (in)" %></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,13 +163,13 @@
                     </table>
                 </div>
                 <div class="size-tips">
-                    <h3 style="margin-bottom: 1.5rem;">Size Tips</h3>
+                    <h3 style="margin-bottom: 1.5rem;"><%= typeof __ !== 'undefined' ? __("sizeGuide.sizeTips") : "Size Tips" %></h3>
                     <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Measure your bust at the fullest part</li>
-                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Measure your waist at the narrowest point</li>
-                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Measure your hips at the widest point</li>
-                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;">Check our detailed size charts for each product</li>
-                        <li style="padding: 0.75rem 0;">Contact us if you need help with sizing</li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensTip1") : "Measure your bust at the fullest part" %></li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensTip2") : "Measure your waist at the narrowest point" %></li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensTip3") : "Measure your hips at the widest point" %></li>
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid #eee;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensTip4") : "Check our detailed size charts for each product" %></li>
+                        <li style="padding: 0.75rem 0;"><%= typeof __ !== 'undefined' ? __("sizeGuide.womensTip5") : "Contact us if you need help with sizing" %></li>
                     </ul>
                 </div>
             </div>
@@ -179,7 +179,7 @@
     <!-- Styling Tips Section -->
     <section class="styling-tips" style="padding: 4rem 0; background: #fafafa;">
         <div class="container">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #1a1a2e;">Women's Styling Guide</h2>
+            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: #1a1a2e;"><%= typeof __ !== 'undefined' ? __("stylingGuide.womensStylingGuide") : "Women's Styling Guide" %></h2>
             <div class="tips-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1200px; margin: 0 auto;">
                 <style>
                     @media (max-width: 768px) {
@@ -197,18 +197,18 @@
                 </style>
                 <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
                     <i class="fas fa-palette" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Color Coordination</h3>
-                    <p style="color: #666; line-height: 1.6;">Learn how to build a versatile wardrobe with neutral colors and strategic accent pieces</p>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;"><%= typeof __ !== 'undefined' ? __("stylingGuide.colorCoordination") : "Color Coordination" %></h3>
+                    <p style="color: #666; line-height: 1.6;"><%= typeof __ !== 'undefined' ? __("stylingGuide.colorCoordinationDesc") : "Learn how to build a versatile wardrobe with neutral colors and strategic accent pieces" %></p>
                 </div>
                 <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
                     <i class="fas fa-ruler" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Perfect Fit</h3>
-                    <p style="color: #666; line-height: 1.6;">Understanding how clothes should fit your body type for maximum style impact</p>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;"><%= typeof __ !== 'undefined' ? __("stylingGuide.perfectFit") : "Perfect Fit" %></h3>
+                    <p style="color: #666; line-height: 1.6;"><%= typeof __ !== 'undefined' ? __("stylingGuide.perfectFitDesc") : "Understanding how clothes should fit your body type for maximum style impact" %></p>
                 </div>
                 <div class="tip-card" style="background: white; padding: 2rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
                     <i class="fas fa-star" style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;">Trending Styles</h3>
-                    <p style="color: #666; line-height: 1.6;">Stay updated with the latest women's fashion trends and how to incorporate them</p>
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem; color: #1a1a2e;"><%= typeof __ !== 'undefined' ? __("stylingGuide.trendingStyles") : "Trending Styles" %></h3>
+                    <p style="color: #666; line-height: 1.6;"><%= typeof __ !== 'undefined' ? __("stylingGuide.trendingStylesDesc") : "Stay updated with the latest women's fashion trends and how to incorporate them" %></p>
                 </div>
             </div>
         </div>

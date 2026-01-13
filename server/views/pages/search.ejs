@@ -29,7 +29,7 @@
                         <div class="product-card" data-product-id="<%= product._id %>">
                             <div class="product-image">
                                 <% if (product.comparePrice) { %>
-                                    <div class="sale-badge">SALE</div>
+                                    <div class="sale-badge"><%= typeof __ !== 'undefined' ? __("home.sale") : "SALE" %></div>
                                 <% } %>
                                 <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.style.display='none';">
                             </div>
