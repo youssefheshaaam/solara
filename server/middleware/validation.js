@@ -159,10 +159,12 @@ const productValidation = [
     
     body('price')
         .notEmpty().withMessage('Price is required')
+        .toFloat()
         .isFloat({ min: 0.01 }).withMessage('Price must be at least 0.01'),
     
     body('comparePrice')
         .optional()
+        .toFloat()
         .isFloat({ min: 0 }).withMessage('Compare price must be a positive number'),
     
     body('category')
@@ -176,6 +178,7 @@ const productValidation = [
     
     body('stock')
         .optional()
+        .toInt()
         .isInt({ min: 0 }).withMessage('Stock must be a non-negative integer'),
     
     body('sizes')
@@ -188,7 +191,12 @@ const productValidation = [
     
     body('featured')
         .optional()
-        .isBoolean().withMessage('Featured must be a boolean'),
+        .custom((value) => {
+            // Handle string 'true'/'false' from FormData
+            if (value === 'true' || value === true) return true;
+            if (value === 'false' || value === false) return true;
+            return false;
+        }).withMessage('Featured must be true or false'),
     
     body('status')
         .optional()

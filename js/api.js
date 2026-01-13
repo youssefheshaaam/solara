@@ -238,12 +238,24 @@ const ProductsAPI = {
             const data = await response.json();
             
             if (!response.ok) {
-                throw new Error(data.error || 'Upload failed');
+                // Build detailed error message from validation errors if available
+                let errorMessage = data.error || 'Upload failed';
+                if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+                    const errorDetails = data.errors.map(err => `${err.field}: ${err.message}`).join(', ');
+                    errorMessage = `Validation failed: ${errorDetails}`;
+                }
+                const error = new Error(errorMessage);
+                error.response = response;
+                error.data = data;
+                throw error;
             }
             
             return data;
         } catch (error) {
             console.error('File upload error:', error);
+            if (error.data) {
+                console.error('Validation errors:', error.data.errors);
+            }
             throw error;
         }
     },
