@@ -53,7 +53,7 @@ function getAssetPath(relativePath) {
 
 // Helper function to get proper image URL (handles both local and server-uploaded images)
 function getImageUrl(imagePath) {
-    if (!imagePath) return getAssetPath('images/placeholder.jpg');
+    if (!imagePath) return getAssetPath('images/placeholder.svg');
     // If it's already a full URL, use it
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return imagePath;
@@ -679,7 +679,7 @@ function createProductCard(product) {
     const saleBadge = isOnSale ? '<div class="sale-badge">SALE</div>' : '';
     
     // Handle image path - API returns relative path or server upload path
-    const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+    const imagePath = product.image || product.primaryImage || 'images/placeholder.svg';
     const imageUrl = getImageUrl(imagePath);
     
     return `
@@ -977,7 +977,7 @@ function updateCartSummary(subtotal, discount, total) {
 function createCartItemHTML(item, product) {
     // Handle both MongoDB _id and localStorage id formats
     const pid = item.productId || product._id || product.id;
-    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.svg');
     const category = product.category || 'fashion';
     const size = item.size || 'M';
     const color = item.color || 'Default';
@@ -985,7 +985,7 @@ function createCartItemHTML(item, product) {
     return `
         <div class="cart-item" data-product-id="${pid}">
             <div class="item-image">
-                <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.jpg')}';">
+                <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.svg')}';">
             </div>
             <div class="item-details">
                 <h3>${product.name}</h3>
@@ -1594,7 +1594,7 @@ function showQuickView(productId) {
     
     // Handle both MongoDB _id and localStorage id
     const pid = product._id || product.id;
-    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg');
+    const imagePath = getImageUrl(product.image || product.primaryImage || 'images/placeholder.svg');
     const sizes = product.sizes || ['S', 'M', 'L', 'XL'];
     const colors = product.colors || ['Black', 'White'];
     const description = product.description || 'No description available';
@@ -1613,7 +1613,7 @@ function showQuickView(productId) {
             <div class="modal-body">
                 <div class="quick-view-grid">
                     <div class="quick-view-image">
-                        <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.jpg')}';">
+                        <img src="${imagePath}" alt="${product.name}" onerror="this.src='${getAssetPath('images/placeholder.svg')}';">
                     </div>
                     <div class="quick-view-details">
                         <p class="category">${category.charAt(0).toUpperCase() + category.slice(1)} Collection</p>
@@ -1851,7 +1851,7 @@ window.showWishlistModal = function() {
                     <div class="wishlist-items">
                         ${wishlistProducts.map(product => `
                             <div class="wishlist-item">
-                                <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg')}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.svg')}" alt="${product.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div class="image-placeholder" style="display:none; width:100%; height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; color:#999;">
                     <i class="fas fa-image"></i>
                 </div>
@@ -2484,7 +2484,7 @@ async function loadCheckoutItems() {
             
             return `
                 <div class="checkout-item">
-                    <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.jpg')}" alt="${product.name}">
+                    <img src="${getImageUrl(product.image || product.primaryImage || 'images/placeholder.svg')}" alt="${product.name}">
                     <div class="item-info">
                         <h4>${product.name}</h4>
                         <p>Qty: ${item.quantity}</p>

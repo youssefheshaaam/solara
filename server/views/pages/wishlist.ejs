@@ -169,7 +169,7 @@
             
             // Render products
             const productsHTML = products.map(product => {
-                const imageUrl = product.imageUrl || (product.image ? `/uploads/${product.image}` : '/images/placeholder.jpg');
+                const imageUrl = product.imageUrl || (product.image ? `/uploads/${product.image}` : '/images/placeholder.svg');
                 const category = product.category || 'fashion';
                 const saleBadge = product.comparePrice ? '<div class="sale-badge">SALE</div>' : '';
                 

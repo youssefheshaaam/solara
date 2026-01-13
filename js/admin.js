@@ -297,13 +297,13 @@ function createProductTableRow(product) {
     const statusClass = product.status === 'active' ? 'status-active' : 'status-inactive';
     const statusText = product.status === 'active' ? 'Active' : 'Inactive';
     const pid = product._id || product.id;
-    const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+    const imagePath = product.image || product.primaryImage || 'images/placeholder.svg';
     const category = product.category || 'fashion';
     
     return `
         <tr data-product-id="${pid}">
             <td>
-                <img src="../${imagePath}" alt="${product.name}" onerror="this.src='../images/placeholder.jpg';">
+                <img src="../${imagePath}" alt="${product.name}" onerror="this.src='../images/placeholder.svg';">
             </td>
             <td>
                 <div class="product-name">${product.name}</div>

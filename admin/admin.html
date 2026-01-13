@@ -699,16 +699,10 @@
                             <h2>Product Images</h2>
                             
                             <div class="form-group">
-                                <label for="product-image">Main Image *</label>
-                                <input type="file" id="product-image" name="images" accept="image/*" required>
+                                <label for="product-images">Product Images *</label>
+                                <input type="file" id="product-images" name="images" accept="image/*" multiple required>
                                 <span class="error-message" id="image-error"></span>
-                                <small class="form-help">Upload the main product image (Max 5MB, JPEG, PNG, GIF, WebP)</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="product-gallery">Additional Images (Optional)</label>
-                                <input type="file" id="product-gallery" name="images" accept="image/*" multiple>
-                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
+                                <small class="form-help">Upload product images (Max 5MB each, JPEG, PNG, GIF, WebP). You can select multiple images at once. The first image will be set as primary.</small>
                             </div>
                             
                             <div class="image-preview" id="image-preview">
@@ -918,25 +912,24 @@
                         <section class="form-section">
                             <h2>Product Images</h2>
                             
+                            <!-- Current Images Gallery -->
                             <div class="form-group">
-                                <label for="edit-product-image">Current Main Image</label>
-                                <div id="edit-current-image" style="margin-bottom: 1rem;">
-                                    <!-- Current image will be shown here -->
+                                <label>Current Images</label>
+                                <div id="edit-current-images-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <!-- All current images will be displayed here -->
                                 </div>
-                                <label for="edit-product-image-upload">Upload New Main Image (Optional)</label>
-                                <input type="file" id="edit-product-image-upload" name="images" accept="image/*">
-                                <span class="error-message" id="edit-image-error"></span>
-                                <small class="form-help">Leave empty to keep current image, or upload a new one (Max 5MB)</small>
                             </div>
                             
+                            <!-- Add New Images -->
                             <div class="form-group">
-                                <label for="edit-product-gallery">Additional Images (Optional)</label>
-                                <input type="file" id="edit-product-gallery" name="images" accept="image/*" multiple>
-                                <small class="form-help">Upload additional images for product gallery (up to 4 more images)</small>
+                                <label for="edit-product-images">Add More Images (Optional)</label>
+                                <input type="file" id="edit-product-images" name="images" accept="image/*" multiple>
+                                <span class="error-message" id="edit-image-error"></span>
+                                <small class="form-help">Select one or more images to add to the product (Max 5MB each). New images will be added to existing ones.</small>
                             </div>
                             
                             <div class="image-preview" id="edit-image-preview">
-                                <!-- Image preview will be shown here -->
+                                <!-- New image preview will be shown here -->
                             </div>
                         </section>
                         
@@ -1315,7 +1308,7 @@
             
             // Helper function to get proper image URL (handles both local and server-uploaded images)
             function getAdminImageUrl(imagePath) {
-                if (!imagePath) return '../images/placeholder.jpg';
+                if (!imagePath) return '../images/placeholder.svg';
                 // If it's already a full URL, use it
                 if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
                     return imagePath;
@@ -1329,7 +1322,7 @@
             }
             
             tbody.innerHTML = filtered.map(product => {
-                const imagePath = product.image || product.primaryImage || 'images/placeholder.jpg';
+                const imagePath = product.image || product.primaryImage || 'images/placeholder.svg';
                 const imageUrl = getAdminImageUrl(imagePath);
                 const pid = product._id || product.id;
                 const price = typeof formatPrice === 'function' ? formatPrice(product.price) : (product.price + ' EGP');
@@ -1337,7 +1330,7 @@
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.src='../images/placeholder.jpg'">
+                                <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-family=%22sans-serif%22%3ENo Image%3C/text%3E%3C/svg%3E'">
                                 <span>${product.name}</span>
                             </div>
                         </td>
@@ -1679,14 +1672,20 @@
                         // Collect form data as FormData for file upload
                         const formData = new FormData(e.target);
                         
-                        // Get file inputs
-                        const mainImageInput = document.getElementById('product-image');
-                        const galleryInput = document.getElementById('product-gallery');
+                        // Get file input
+                        const imagesInput = document.getElementById('product-images');
                         
-                        // Validate that main image is uploaded
-                        if (!mainImageInput.files || mainImageInput.files.length === 0) {
-                            throw new Error('Please upload a main product image');
+                        // Validate that at least one image is uploaded
+                        if (!imagesInput || !imagesInput.files || imagesInput.files.length === 0) {
+                            throw new Error('Please upload at least one product image');
                         }
+                        
+                        // Clear any existing images from FormData and add all selected files
+                        // FormData from form might not include all files properly, so we add them explicitly
+                        formData.delete('images'); // Remove any existing
+                        Array.from(imagesInput.files).forEach(file => {
+                            formData.append('images', file);
+                        });
                         
                         // Add all form fields to FormData
                         formData.append('name', formData.get('name') || '');
@@ -1727,12 +1726,12 @@
                             formData.append('colors', color);
                         });
                         
-                        // Validate required fields (mainImageInput already declared above)
+                        // Validate required fields (imagesInput already declared above)
                         if (!formData.get('name') || !formData.get('category') || !formData.get('price')) {
                             throw new Error('Please fill in all required fields');
                         }
-                        if (!mainImageInput || !mainImageInput.files || mainImageInput.files.length === 0) {
-                            throw new Error('Please upload a main product image');
+                        if (!imagesInput || !imagesInput.files || imagesInput.files.length === 0) {
+                            throw new Error('Please upload at least one product image');
                         }
                         
                         // Call backend API with FormData
@@ -1795,26 +1794,7 @@
                     }
                 });
                 
-                // Image preview functionality
-                const imageInput = document.getElementById('product-image');
-                if (imageInput) {
-                    imageInput.addEventListener('input', () => {
-                        const imageUrl = imageInput.value.trim();
-                        const previewContainer = document.getElementById('image-preview');
-                        if (previewContainer && imageUrl) {
-                            previewContainer.innerHTML = `
-                                <div style="margin-top: 1rem;">
-                                    <img src="../${imageUrl}" alt="Product Preview" 
-                                         style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;" 
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                    <p style="display: none; color: #f44336; margin-top: 0.5rem;">Image not found</p>
-                                </div>
-                            `;
-                        } else if (previewContainer) {
-                            previewContainer.innerHTML = '';
-                        }
-                    });
-                }
+                // Image preview functionality (handled by updateAddImagePreview function via event listener)
             }
             
             // Edit Product Form Handler - BACKEND ONLY
@@ -1914,15 +1894,12 @@
                         formData.append('featured', originalFormData.get('featured') === 'on' ? 'true' : 'false');
                         formData.append('status', originalFormData.get('status') === 'on' ? 'active' : 'inactive');
                         
-                        // Add file inputs
-                        const mainImageInput = document.getElementById('edit-product-image-upload');
-                        if (mainImageInput && mainImageInput.files && mainImageInput.files.length > 0) {
-                            formData.append('images', mainImageInput.files[0]);
-                        }
-                        
-                        const galleryInput = document.getElementById('edit-product-gallery');
-                        if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
-                            Array.from(galleryInput.files).forEach(file => {
+                        // Add file inputs (new images to add to existing ones)
+                        const imagesInput = document.getElementById('edit-product-images');
+                        // Clear any existing images from FormData
+                        formData.delete('images');
+                        if (imagesInput && imagesInput.files && imagesInput.files.length > 0) {
+                            Array.from(imagesInput.files).forEach(file => {
                                 formData.append('images', file);
                             });
                         }
@@ -2064,45 +2041,64 @@
             document.getElementById('edit-product-stock').value = product.stock || 0;
             document.getElementById('edit-track-inventory').checked = product.trackInventory || false;
             
-            // Images - Show current image
-            const currentImageDiv = document.getElementById('edit-current-image');
-            // Try to find primary image first, then first image, then legacy image field
-            let imageUrl = null;
-            if (product.images && product.images.length > 0) {
-                const primaryImage = product.images.find(img => img.isPrimary);
-                imageUrl = primaryImage ? primaryImage.url : product.images[0].url;
-            } else if (product.image) {
-                imageUrl = product.image;
-            }
+            // Images - Show all current images in gallery
+            const imagesGalleryDiv = document.getElementById('edit-current-images-gallery');
+            const productId = product._id || product.id;
             
-            if (imageUrl && currentImageDiv) {
-                // Ensure the URL starts with /uploads
-                let fullImageUrl = imageUrl;
-                if (!imageUrl.startsWith('http')) {
-                    // If it doesn't start with /, add it
-                    if (!imageUrl.startsWith('/')) {
-                        imageUrl = '/' + imageUrl;
+            if (imagesGalleryDiv) {
+                if (product.images && product.images.length > 0) {
+                    let galleryHTML = '';
+                    product.images.forEach((img, index) => {
+                        let imageUrl = img.url;
+                        if (!imageUrl.startsWith('http')) {
+                            if (!imageUrl.startsWith('/')) {
+                                imageUrl = '/' + imageUrl;
+                            }
+                            imageUrl = `http://localhost:5000${imageUrl}`;
+                        }
+                        
+                        const imageId = img._id ? img._id.toString() : `temp-${index}`;
+                        const isPrimary = img.isPrimary || false;
+                        
+                        galleryHTML += `
+                            <div class="image-gallery-item" style="position: relative; border: 2px solid ${isPrimary ? '#4caf50' : '#ddd'}; border-radius: 8px; padding: 0.5rem; background: white;">
+                                <img src="${imageUrl}" alt="${img.alt || product.name}" 
+                                     style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; display: block;"
+                                     onerror="this.src='../images/placeholder.svg';">
+                                ${isPrimary ? '<span style="position: absolute; top: 0.5rem; left: 0.5rem; background: #4caf50; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">PRIMARY</span>' : ''}
+                                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-direction: column;">
+                                    ${!isPrimary ? `<button type="button" onclick="setPrimaryImage('${productId}', '${imageId}')" style="padding: 0.5rem; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Set Primary</button>` : ''}
+                                    <button type="button" onclick="removeProductImage('${productId}', '${imageId}')" style="padding: 0.5rem; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Remove</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    imagesGalleryDiv.innerHTML = galleryHTML;
+                } else if (product.image) {
+                    // Legacy single image support
+                    let imageUrl = product.image;
+                    if (!imageUrl.startsWith('http')) {
+                        if (!imageUrl.startsWith('/')) {
+                            imageUrl = '/' + imageUrl;
+                        }
+                        imageUrl = `http://localhost:5000${imageUrl}`;
                     }
-                    fullImageUrl = `http://localhost:5000${imageUrl}`;
+                    imagesGalleryDiv.innerHTML = `
+                        <div class="image-gallery-item" style="position: relative; border: 2px solid #4caf50; border-radius: 8px; padding: 0.5rem; background: white;">
+                            <img src="${imageUrl}" alt="${product.name}" 
+                                 style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; display: block;"
+                                 onerror="this.src='../images/placeholder.svg';">
+                            <span style="position: absolute; top: 0.5rem; left: 0.5rem; background: #4caf50; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">PRIMARY</span>
+                        </div>
+                    `;
+                } else {
+                    imagesGalleryDiv.innerHTML = '<p style="color: var(--text-secondary); grid-column: 1 / -1; text-align: center; padding: 2rem;">No images uploaded</p>';
                 }
-                
-                console.log('Loading product image:', fullImageUrl);
-                
-                currentImageDiv.innerHTML = `
-                    <img src="${fullImageUrl}" alt="${product.name}" 
-                         style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd;" 
-                         onerror="console.error('Failed to load image:', '${fullImageUrl}'); this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <p style="display: none; color: #f44336; margin-top: 0.5rem;">Failed to load image: ${fullImageUrl}</p>
-                `;
-            } else if (currentImageDiv) {
-                currentImageDiv.innerHTML = '<p style="color: var(--text-secondary);">No image uploaded</p>';
             }
             
             // Clear file inputs (user can upload new ones if needed)
-            const imageUploadInput = document.getElementById('edit-product-image-upload');
-            const galleryInput = document.getElementById('edit-product-gallery');
-            if (imageUploadInput) imageUploadInput.value = '';
-            if (galleryInput) galleryInput.value = '';
+            const imagesInput = document.getElementById('edit-product-images');
+            if (imagesInput) imagesInput.value = '';
             
             // Sizes
             if (product.sizes && Array.isArray(product.sizes)) {
@@ -2140,111 +2136,66 @@
         
         function updateEditImagePreview() {
             // Handle file input preview for edit form
-            const fileInput = document.getElementById('edit-product-image-upload');
-            const galleryInput = document.getElementById('edit-product-gallery');
+            const imagesInput = document.getElementById('edit-product-images');
             const previewContainer = document.getElementById('edit-image-preview');
-            const currentImageDiv = document.getElementById('edit-current-image');
             
             if (!previewContainer) return;
             
-            let previewHTML = '<p style="color: var(--text-secondary); margin-bottom: 0.5rem;">New image preview:</p>';
+            let previewHTML = '<p style="color: var(--text-secondary); margin-bottom: 0.5rem;">New images preview:</p>';
             
-            // Preview main image if selected
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHTML += `<img src="${e.target.result}" alt="New Main Image Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin: 0.5rem; display: block;">`;
-                    previewContainer.innerHTML = previewHTML;
-                    
-                    // Also update the current image div to show preview
-                    if (currentImageDiv) {
-                        currentImageDiv.innerHTML = `
-                            <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Current (will be replaced):</p>
-                            ${currentImageDiv.innerHTML}
-                            <p style="color: var(--accent-color); margin-top: 0.5rem; font-weight: 500;">New image selected:</p>
-                            <img src="${e.target.result}" alt="New Image" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--accent-color); margin-top: 0.5rem;">
-                        `;
-                    }
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                previewContainer.innerHTML = '';
-            }
-            
-            // Preview gallery images if selected
-            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
-                Array.from(galleryInput.files).forEach((file, index) => {
+            // Preview all selected images
+            if (imagesInput && imagesInput.files && imagesInput.files.length > 0) {
+                Array.from(imagesInput.files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem; display: inline-block;">`;
+                        previewHTML += `<img src="${e.target.result}" alt="New Image ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid var(--accent-color); margin: 0.5rem; display: inline-block;">`;
                         previewContainer.innerHTML = previewHTML;
                     };
                     reader.readAsDataURL(file);
                 });
+            } else {
+                previewContainer.innerHTML = '';
             }
         }
         
         // Setup file input previews
         document.addEventListener('DOMContentLoaded', function() {
-            const addImageInput = document.getElementById('product-image');
-            const addGalleryInput = document.getElementById('product-gallery');
-            const editImageInput = document.getElementById('edit-product-image-upload');
-            const editGalleryInput = document.getElementById('edit-product-gallery');
+            const addImagesInput = document.getElementById('product-images');
+            const editImagesInput = document.getElementById('edit-product-images');
             
-            if (addImageInput) {
-                addImageInput.addEventListener('change', function() {
+            if (addImagesInput) {
+                addImagesInput.addEventListener('change', function() {
                     updateAddImagePreview();
                 });
             }
             
-            if (addGalleryInput) {
-                addGalleryInput.addEventListener('change', function() {
-                    updateAddImagePreview();
-                });
-            }
-            
-            if (editImageInput) {
-                editImageInput.addEventListener('change', function() {
-                    updateEditImagePreview();
-                });
-            }
-            
-            if (editGalleryInput) {
-                editGalleryInput.addEventListener('change', function() {
+            if (editImagesInput) {
+                editImagesInput.addEventListener('change', function() {
                     updateEditImagePreview();
                 });
             }
         });
         
         function updateAddImagePreview() {
-            const fileInput = document.getElementById('product-image');
-            const galleryInput = document.getElementById('product-gallery');
+            const imagesInput = document.getElementById('product-images');
             const previewContainer = document.getElementById('image-preview');
             
             if (!previewContainer) return;
             
-            let previewHTML = '';
+            let previewHTML = '<p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Selected images:</p>';
             
-            // Preview main image if selected
-            if (fileInput && fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewHTML += `<img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
-                    previewContainer.innerHTML = previewHTML;
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
-            
-            // Preview gallery images if selected
-            if (galleryInput && galleryInput.files && galleryInput.files.length > 0) {
-                Array.from(galleryInput.files).forEach((file, index) => {
+            // Preview all selected images
+            if (imagesInput && imagesInput.files && imagesInput.files.length > 0) {
+                Array.from(imagesInput.files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        previewHTML += `<img src="${e.target.result}" alt="Gallery ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem;">`;
+                        previewHTML += `<img src="${e.target.result}" alt="Image ${index + 1}" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 2px solid #ddd; margin: 0.5rem; display: inline-block;">`;
                         previewContainer.innerHTML = previewHTML;
                     };
                     reader.readAsDataURL(file);
                 });
+            } else {
+                previewContainer.innerHTML = '';
             }
         }
 
@@ -2275,6 +2226,80 @@
                 console.error('Error deleting product:', error);
                 if (typeof showNotification === 'function') {
                     showNotification(error.message || 'Failed to delete product', 'error');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        async function removeProductImage(productId, imageId) {
+            if (!confirm('Are you sure you want to remove this image?')) return;
+            
+            try {
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                const response = await ProductsAPI.removeImage(productId, imageId);
+                
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to remove image');
+                }
+                
+                // Reload the product and update the edit form
+                const productResponse = await ProductsAPI.getById(productId);
+                if (productResponse.success && productResponse.data) {
+                    populateEditForm(productResponse.data);
+                }
+                
+                // Reload products from backend
+                await loadDashboardData();
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Image removed successfully', 'success');
+                } else {
+                    alert('Image removed');
+                }
+            } catch (error) {
+                console.error('Error removing image:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification(error.message || 'Failed to remove image', 'error');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        async function setPrimaryImage(productId, imageId) {
+            try {
+                if (typeof ProductsAPI === 'undefined') {
+                    throw new Error('Backend API not available');
+                }
+                
+                const response = await ProductsAPI.setPrimaryImage(productId, imageId);
+                
+                if (!response.success) {
+                    throw new Error(response.error || 'Failed to set primary image');
+                }
+                
+                // Reload the product and update the edit form
+                const productResponse = await ProductsAPI.getById(productId);
+                if (productResponse.success && productResponse.data) {
+                    populateEditForm(productResponse.data);
+                }
+                
+                // Reload products from backend
+                await loadDashboardData();
+                
+                if (typeof showNotification === 'function') {
+                    showNotification('Primary image updated successfully', 'success');
+                } else {
+                    alert('Primary image updated');
+                }
+            } catch (error) {
+                console.error('Error setting primary image:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification(error.message || 'Failed to set primary image', 'error');
                 } else {
                     alert('Error: ' + error.message);
                 }

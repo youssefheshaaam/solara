@@ -511,20 +511,25 @@
                 <!-- Product Gallery -->
                 <div class="product-gallery">
                     <div class="main-image" id="main-image">
-                        <img src="<%= product.imageUrl %>" alt="<%= product.name %>" id="main-product-image" onerror="this.src='/images/placeholder.jpg';">
+                        <img src="<%= product.imageUrl %>" alt="<%= product.name %>" id="main-product-image" onerror="this.src='/images/placeholder.svg';">
                     </div>
                     <div class="thumbnail-gallery">
                         <% if (typeof product.images !== 'undefined' && product.images.length > 0) { %>
+                            <% 
+                                // Find primary image index, or use first image
+                                let primaryIndex = product.images.findIndex(img => img.isPrimary);
+                                if (primaryIndex === -1) primaryIndex = 0;
+                            %>
                             <% product.images.forEach((img, index) => { %>
                                 <% const imgUrl = img.url.replace(/'/g, "\\'"); %>
-                                <div class="thumbnail <%= index === 0 ? 'active' : '' %>" onclick="changeImage('<%- imgUrl %>', this)">
-                                    <img src="<%= img.url %>" alt="<%= img.alt || product.name %>" onerror="this.src='/images/placeholder.jpg';">
+                                <div class="thumbnail <%= index === primaryIndex ? 'active' : '' %>" onclick="changeImage('<%- imgUrl %>', this)">
+                                    <img src="<%= img.url %>" alt="<%= img.alt || product.name %>" onerror="this.src='/images/placeholder.svg';">
                                 </div>
                             <% }); %>
                         <% } else { %>
                             <% const mainImgUrl = product.imageUrl.replace(/'/g, "\\'"); %>
                             <div class="thumbnail active" onclick="changeImage('<%- mainImgUrl %>', this)">
-                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg';">
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.svg';">
                             </div>
                         <% } %>
                     </div>

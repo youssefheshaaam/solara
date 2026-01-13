@@ -296,6 +296,18 @@ const ProductsAPI = {
         });
     },
     
+    async removeImage(productId, imageId) {
+        return await apiRequest(`/products/${productId}/images/${imageId}`, {
+            method: 'DELETE',
+        });
+    },
+    
+    async setPrimaryImage(productId, imageId) {
+        return await apiRequest(`/products/${productId}/images/${imageId}/primary`, {
+            method: 'PUT',
+        });
+    },
+    
     async getStats() {
         return await apiRequest('/products/admin/stats');
     }

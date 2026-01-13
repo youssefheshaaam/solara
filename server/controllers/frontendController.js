@@ -6,7 +6,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 
 // Helper function to get image URL
 const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/images/placeholder.jpg';
+    if (!imagePath) return '/images/placeholder.svg';
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return imagePath;
     }
@@ -280,12 +280,19 @@ exports.getProduct = asyncHandler(async (req, res) => {
         status: 'active'
     }).limit(4);
 
+    // Get primary image or first image
+    let primaryImageUrl = product.image;
+    if (product.images && product.images.length > 0) {
+        const primaryImage = product.images.find(img => img.isPrimary);
+        primaryImageUrl = primaryImage ? primaryImage.url : product.images[0].url;
+    }
+
     res.render('pages/product', {
         title: `${product.name} - SOLARA`,
         currentPage: 'product',
         product: {
             ...product.toObject(),
-            imageUrl: getImageUrl(product.image || (product.images && product.images[0]?.url)),
+            imageUrl: getImageUrl(primaryImageUrl || (product.images && product.images[0]?.url)),
             images: product.images && product.images.length > 0 
                 ? product.images.map(img => ({
                     ...img.toObject(),

@@ -407,7 +407,7 @@
                         <% cart.items.forEach(item => { %>
                             <div class="cart-item" data-product-id="<%= item.product._id %>">
                                 <div class="cart-item-image">
-                                    <img src="<%= item.product.imageUrl %>" alt="<%= item.product.name %>" onerror="this.src='/images/placeholder.jpg';">
+                                    <img src="<%= item.product.imageUrl %>" alt="<%= item.product.name %>" onerror="this.src='/images/placeholder.svg';">
                                 </div>
                                 <div class="cart-item-details">
                                     <div class="cart-item-name">
@@ -560,7 +560,7 @@
             const html = items
                 .map(item => {
                     const product = item.product || {};
-                    const imagePath = product.imageUrl || product.image || (product.images && product.images[0]?.url) || 'images/placeholder.jpg';
+                    const imagePath = product.imageUrl || product.image || (product.images && product.images[0]?.url) || 'images/placeholder.svg';
                     const imageUrl = (typeof getImageUrl === 'function') ? getImageUrl(imagePath) : imagePath;
                     const size = item.size || 'M';
                     const color = item.color || 'Default';
@@ -569,7 +569,7 @@
                     return `
                         <div class=\"cart-item\" data-product-id=\"${item.productId}\">
                             <div class=\"cart-item-image\">
-                                <img src=\"${imageUrl}\" alt=\"${product.name || ''}\" onerror=\"this.src='/images/placeholder.jpg';\">
+                                <img src=\"${imageUrl}\" alt=\"${product.name || ''}\" onerror=\"this.src='/images/placeholder.svg';\">
                             </div>
                             <div class=\"cart-item-details\">
                                 <div class=\"cart-item-name\">

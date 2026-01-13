@@ -148,7 +148,7 @@ productSchema.virtual('primaryImage').get(function() {
         const primary = this.images.find(img => img.isPrimary);
         return primary ? primary.url : this.images[0].url;
     }
-    return this.image || '/images/placeholder.jpg';
+    return this.image || '/images/placeholder.svg';
 });
 
 // Generate slug before saving

@@ -231,44 +231,141 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 
     const updateData = { ...req.body };
 
-    // Handle new uploaded images
+    // Handle new uploaded images - merge with existing instead of replacing
     if (req.files && req.files.length > 0) {
-        // Delete old images
-        if (product.images && product.images.length > 0) {
-            for (const img of product.images) {
+        // Get current images array (convert to plain objects to preserve _id)
+        const currentImages = (product.images || []).map(img => {
+            const imgObj = img.toObject ? img.toObject() : img;
+            return {
+                _id: imgObj._id,
+                url: imgObj.url,
+                alt: imgObj.alt || product.name,
+                isPrimary: imgObj.isPrimary || false
+            };
+        });
+
+        // Check if we should remove some images first
+        let imagesToKeep = currentImages;
+        if (req.body.removeImageIds) {
+            const removeIds = Array.isArray(req.body.removeImageIds) 
+                ? req.body.removeImageIds 
+                : [req.body.removeImageIds];
+            
+            // Delete files for removed images
+            for (const img of currentImages) {
+                if (img._id && removeIds.includes(img._id.toString())) {
+                    if (img.url && !img.url.startsWith('http')) {
+                        await deleteFile(img.url).catch(() => {});
+                    }
+                }
+            }
+            
+            // Keep only images not in removeImageIds
+            imagesToKeep = currentImages.filter(img => 
+                !img._id || !removeIds.includes(img._id.toString())
+            );
+        }
+
+        // Add new images
+        const newImages = req.files.map((file, index) => ({
+            url: getFileUrl(file.filename, 'products'),
+            alt: updateData.name || product.name,
+            isPrimary: imagesToKeep.length === 0 && index === 0 // Only set primary if no existing images
+        }));
+
+        // Merge existing and new images
+        const allImages = [...imagesToKeep, ...newImages];
+        
+        // Ensure at least one image is primary
+        if (allImages.length > 0 && !allImages.some(img => img.isPrimary)) {
+            allImages[0].isPrimary = true;
+        }
+        
+        // Set the images array directly
+        product.images = allImages;
+        
+        // Set primary image URL for legacy support
+        const primaryImage = allImages.find(img => img.isPrimary) || allImages[0];
+        product.image = primaryImage.url;
+        
+        // Mark images array as modified
+        product.markModified('images');
+    } else if (req.file) {
+        // Single file upload - add to existing images
+        const currentImages = (product.images || []).map(img => {
+            const imgObj = img.toObject ? img.toObject() : img;
+            return {
+                _id: imgObj._id,
+                url: imgObj.url,
+                alt: imgObj.alt || product.name,
+                isPrimary: imgObj.isPrimary || false
+            };
+        });
+
+        const newImageUrl = getFileUrl(req.file.filename, 'products');
+        const newImage = {
+            url: newImageUrl,
+            alt: updateData.name || product.name,
+            isPrimary: currentImages.length === 0 // Primary only if no existing images
+        };
+
+        // Merge with existing
+        const allImages = [...currentImages, newImage];
+        
+        // Ensure at least one image is primary
+        if (allImages.length > 0 && !allImages.some(img => img.isPrimary)) {
+            allImages[0].isPrimary = true;
+        }
+        
+        product.images = allImages;
+        product.markModified('images');
+        
+        const primaryImage = allImages.find(img => img.isPrimary) || allImages[0];
+        product.image = primaryImage.url;
+    } else if (req.body.removeImageIds) {
+        // Only removing images, no new uploads
+        const removeIds = Array.isArray(req.body.removeImageIds) 
+            ? req.body.removeImageIds 
+            : [req.body.removeImageIds];
+        
+        const currentImages = (product.images || []).map(img => {
+            const imgObj = img.toObject ? img.toObject() : img;
+            return {
+                _id: imgObj._id,
+                url: imgObj.url,
+                alt: imgObj.alt || product.name,
+                isPrimary: imgObj.isPrimary || false
+            };
+        });
+
+        // Delete files for removed images
+        for (const img of currentImages) {
+            if (img._id && removeIds.includes(img._id.toString())) {
                 if (img.url && !img.url.startsWith('http')) {
                     await deleteFile(img.url).catch(() => {});
                 }
             }
         }
 
-        updateData.images = req.files.map((file, index) => ({
-            url: getFileUrl(file.filename, 'products'),
-            alt: updateData.name || product.name,
-            isPrimary: index === 0
-        }));
-        updateData.image = updateData.images[0].url;
-    } else if (req.file) {
-        // Delete old images
-        if (product.images && product.images.length > 0) {
-            for (const img of product.images) {
-                if (img.url && !img.url.startsWith('http')) {
-                    await deleteFile(img.url).catch(() => {});
-                }
+        // Keep only images not in removeImageIds
+        const remainingImages = currentImages.filter(img => 
+            !img._id || !removeIds.includes(img._id.toString())
+        );
+
+        product.images = remainingImages;
+        product.markModified('images');
+
+        // Ensure at least one image is primary if images remain
+        if (remainingImages.length > 0) {
+            if (!remainingImages.some(img => img.isPrimary)) {
+                remainingImages[0].isPrimary = true;
+                product.images[0].isPrimary = true;
             }
+            const primaryImage = remainingImages.find(img => img.isPrimary) || remainingImages[0];
+            product.image = primaryImage.url;
+        } else {
+            product.image = null;
         }
-        if (product.image && !product.image.startsWith('http')) {
-            await deleteFile(product.image).catch(() => {});
-        }
-        
-        // Update both image and images array
-        const newImageUrl = getFileUrl(req.file.filename, 'products');
-        updateData.image = newImageUrl;
-        updateData.images = [{
-            url: newImageUrl,
-            alt: updateData.name || product.name,
-            isPrimary: true
-        }];
     }
 
     // Handle FormData arrays - express.urlencoded with extended:true handles arrays
@@ -293,11 +390,15 @@ exports.updateProduct = asyncHandler(async (req, res) => {
         }
     }
 
-    product = await Product.findByIdAndUpdate(
-        req.params.id,
-        updateData,
-        { new: true, runValidators: true }
-    );
+    // Update other fields (images are already handled above)
+    Object.keys(updateData).forEach(key => {
+        if (key !== 'images' && key !== 'image') {
+            product[key] = updateData[key];
+        }
+    });
+
+    // Save the product (images were already modified directly on the product document)
+    product = await product.save();
 
     res.json({
         success: true,
@@ -473,6 +574,135 @@ exports.getProductStats = asyncHandler(async (req, res) => {
             ...stats[0],
             byCategory
         }
+    });
+});
+
+// @desc    Remove individual product image
+// @route   DELETE /api/products/:id/images/:imageId
+// @access  Private/Admin
+exports.removeProductImage = asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return res.status(404).json({
+            success: false,
+            error: 'Product not found'
+        });
+    }
+
+    const imageId = req.params.imageId;
+
+    // Find the image to remove - try multiple methods
+    let imageToRemove = null;
+    
+    // Try Mongoose id() method first
+    try {
+        imageToRemove = product.images.id(imageId);
+    } catch (e) {
+        // id() might fail, try find() instead
+    }
+    
+    // If id() doesn't work, try finding by string comparison
+    if (!imageToRemove) {
+        imageToRemove = product.images.find(img => {
+            if (!img._id) return false;
+            return img._id.toString() === imageId;
+        });
+    }
+
+    if (!imageToRemove) {
+        return res.status(404).json({
+            success: false,
+            error: 'Image not found',
+            debug: {
+                imageId,
+                availableIds: product.images.map(img => img._id?.toString()).filter(Boolean),
+                totalImages: product.images.length
+            }
+        });
+    }
+
+    // Delete the file from filesystem
+    const imageUrl = imageToRemove.url || (imageToRemove.toObject ? imageToRemove.toObject().url : null);
+    if (imageUrl && !imageUrl.startsWith('http')) {
+        await deleteFile(imageUrl).catch(() => {});
+    }
+
+    // Remove image from array - use filter to create new array
+    const imageToRemoveId = imageToRemove._id ? imageToRemove._id.toString() : null;
+    product.images = product.images.filter(img => {
+        if (!img._id) return false;
+        return img._id.toString() !== imageToRemoveId;
+    });
+    
+    // Mark array as modified
+    product.markModified('images');
+
+    // If removed image was primary, set first remaining image as primary
+    if (imageToRemove.isPrimary && product.images.length > 0) {
+        product.images[0].isPrimary = true;
+        product.image = product.images[0].url;
+    } else if (product.images.length > 0) {
+        // Ensure at least one image is primary
+        if (!product.images.some(img => img.isPrimary)) {
+            product.images[0].isPrimary = true;
+        }
+        const primaryImage = product.images.find(img => img.isPrimary) || product.images[0];
+        product.image = primaryImage.url;
+    } else {
+        // No images left
+        product.image = null;
+    }
+
+    await product.save();
+
+    res.json({
+        success: true,
+        message: 'Image removed successfully',
+        data: product
+    });
+});
+
+// @desc    Set product image as primary
+// @route   PUT /api/products/:id/images/:imageId/primary
+// @access  Private/Admin
+exports.setPrimaryImage = asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+        return res.status(404).json({
+            success: false,
+            error: 'Product not found'
+        });
+    }
+
+    const imageId = req.params.imageId;
+
+    // Find the image to set as primary using Mongoose id() method
+    const imageToSet = product.images.id(imageId);
+
+    if (!imageToSet) {
+        return res.status(404).json({
+            success: false,
+            error: 'Image not found'
+        });
+    }
+
+    // Set all images to non-primary first
+    product.images.forEach(img => {
+        img.isPrimary = false;
+    });
+
+    // Set selected image as primary
+    imageToSet.isPrimary = true;
+    product.image = imageToSet.url;
+
+    await product.save();
+
+    res.json({
+        success: true,
+        message: 'Primary image updated successfully',
+        data: product
     });
 });
 

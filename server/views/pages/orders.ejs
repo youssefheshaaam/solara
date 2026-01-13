@@ -314,7 +314,7 @@
                                             <div class="order-item">
                                                 <div class="item-image">
                                                     <% 
-                                                    let itemImageUrl = '/images/placeholder.jpg';
+                                                    let itemImageUrl = '/images/placeholder.svg';
                                                     if (item.product && item.product.imageUrl) {
                                                         itemImageUrl = item.product.imageUrl;
                                                     } else if (item.product && item.product.image) {
@@ -323,7 +323,7 @@
                                                         itemImageUrl = item.image.startsWith('http') ? item.image : (item.image.startsWith('/') ? item.image : '/uploads/' + item.image);
                                                     }
                                                     %>
-                                                    <img src="<%= itemImageUrl %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.jpg';">
+                                                    <img src="<%= itemImageUrl %>" alt="<%= item.product ? item.product.name : 'Product' %>" onerror="this.src='/images/placeholder.svg';">
                                                 </div>
                                                 <div class="item-details">
                                                     <div class="item-name"><%= item.product ? item.product.name : 'Product' %></div>
@@ -467,7 +467,7 @@
             let itemsHtml = '';
             if (order.items && order.items.length > 0) {
                 itemsHtml = order.items.map(item => {
-                    let itemImageUrl = '/images/placeholder.jpg';
+                    let itemImageUrl = '/images/placeholder.svg';
                     if (item.product && item.product.imageUrl) {
                         itemImageUrl = item.product.imageUrl;
                     } else if (item.product && item.product.image) {
@@ -485,7 +485,7 @@
                     return `
                         <div class="order-item">
                             <div class="item-image">
-                                <img src="${itemImageUrl}" alt="${productName}" onerror="this.src='/images/placeholder.jpg';">
+                                <img src="${itemImageUrl}" alt="${productName}" onerror="this.src='/images/placeholder.svg';">
                             </div>
                             <div class="item-details">
                                 <div class="item-name">${productName}</div>
