@@ -111,10 +111,19 @@
     color: var(--text-secondary);
     font-weight: 500;
     z-index: 1;
+    min-width: 45px;
+    display: inline-block;
+    text-align: left;
+    pointer-events: none;
 }
 
-.input-group .input-prefix + input {
-    padding-left: calc(var(--spacing-md) + 20px);
+.input-group {
+    position: relative;
+}
+
+.input-group .input-prefix + input,
+.input-group input:has(+ .input-prefix) {
+    padding-left: calc(var(--spacing-md) + 50px);
 }
 
 .password-toggle {
@@ -134,13 +143,43 @@
 .radio-label {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     font-weight: 500;
     color: var(--text-primary);
-    padding: 8px 0;
+    padding: 10px 14px;
     user-select: none;
-    line-height: 1.4;
+    line-height: 1.5;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.checkbox-label:hover,
+.radio-label:hover {
+    background-color: rgba(230, 126, 34, 0.05);
+}
+
+/* Ensure checkmark doesn't overlap with text */
+.checkbox-label .checkmark,
+.radio-label .radio-custom {
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+/* Ensure text content has space - wrap text nodes in span if needed */
+.checkbox-label,
+.radio-label {
+    min-height: 24px;
+}
+
+/* Fix for text nodes that come after checkmark */
+.checkbox-label:has(.checkmark) {
+    padding-left: 0;
+}
+
+.checkbox-label .checkmark + * {
+    margin-left: 0;
 }
 
 .checkbox-label:hover,
@@ -154,9 +193,9 @@ input[type="radio"] {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 22px;
-    height: 22px;
-    border: 2px solid #d1d5db;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #d1d5db;
     border-radius: 6px;
     background: white;
     cursor: pointer;
@@ -173,25 +212,28 @@ input[type="radio"] {
 input[type="checkbox"]:hover,
 input[type="radio"]:hover {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background-color: rgba(230, 126, 34, 0.05);
+    box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.15);
+    transform: scale(1.05);
 }
 
 input[type="checkbox"]:focus,
 input[type="radio"]:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.25);
 }
 
 input[type="checkbox"]:checked {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #d35400 100%);
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
 }
 
 input[type="radio"]:checked {
     background: white;
     border-color: var(--accent-color);
-    border-width: 6px;
+    border-width: 7px;
 }
 
 input[type="checkbox"]:checked::after {
@@ -202,8 +244,14 @@ input[type="checkbox"]:checked::after {
     width: 6px;
     height: 11px;
     border: solid white;
-    border-width: 0 2.5px 2.5px 0;
+    border-width: 0 3px 3px 0;
     transform: rotate(45deg);
+}
+
+input[type="checkbox"]:checked:hover {
+    background: linear-gradient(135deg, #e67e22 0%, #c0392b 100%);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.4);
+    transform: scale(1.08);
 }
 
 input[type="checkbox"]:disabled,
@@ -215,9 +263,9 @@ input[type="radio"]:disabled {
 /* Custom checkmark span (legacy support) */
 .checkmark,
 .radio-custom {
-    width: 22px;
-    height: 22px;
-    border: 2px solid #d1d5db;
+    width: 24px;
+    height: 24px;
+    border: 3px solid #d1d5db;
     border-radius: 6px;
     position: relative;
     transition: all 0.2s ease;
@@ -232,16 +280,26 @@ input[type="radio"]:disabled {
 .checkbox-label:hover .checkmark,
 .radio-label:hover .radio-custom {
     border-color: var(--accent-color);
+    background-color: rgba(230, 126, 34, 0.05);
+    box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.15);
+    transform: scale(1.05);
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #d35400 100%);
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+}
+
+.checkbox-label:hover input[type="checkbox"]:checked + .checkmark {
+    background: linear-gradient(135deg, #e67e22 0%, #c0392b 100%);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.4);
+    transform: scale(1.08);
 }
 
 .radio-label input[type="radio"]:checked + .radio-custom {
     border-color: var(--accent-color);
-    border-width: 6px;
+    border-width: 7px;
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
@@ -252,7 +310,7 @@ input[type="radio"]:disabled {
     width: 6px;
     height: 11px;
     border: solid white;
-    border-width: 0 2.5px 2.5px 0;
+    border-width: 0 3px 3px 0;
     transform: rotate(45deg);
 }
 
@@ -268,6 +326,20 @@ input[type="radio"]:disabled {
     opacity: 0;
     width: 0;
     height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure text doesn't overlap with checkmark */
+.checkbox-label:has(.checkmark),
+.radio-label:has(.radio-custom) {
+    position: relative;
+}
+
+.checkbox-label .checkmark,
+.radio-label .radio-custom {
+    margin-right: 0;
+    flex-shrink: 0;
 }
 
 /* Radio Group */
@@ -279,9 +351,29 @@ input[type="radio"]:disabled {
 
 /* Checkbox Group */
 .checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: var(--spacing-sm);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.checkbox-group .checkbox-label {
+    justify-content: flex-start;
+    min-width: auto;
+    padding: 10px 16px;
+    margin: 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.checkbox-group .checkbox-label .checkmark {
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.checkbox-group .checkbox-label > *:not(.checkmark):not(input):not(span) {
+    margin-left: 0;
+    flex-shrink: 0;
+    display: inline-block;
 }
 
 /* Color Inputs */
