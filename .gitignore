@@ -9,8 +9,9 @@ server/node_modules/
 server/.env
 
 # Uploads (user-generated content)
-server/uploads/
-uploads/
+# Note: We sync product images for development, but avatars can be excluded if needed
+# server/uploads/avatars/
+# uploads/avatars/
 
 # Logs
 logs/
